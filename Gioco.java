@@ -1,15 +1,18 @@
 public class Gioco {
-    enum giocatore {
+    Giocatore giocatore;
+    Master master;
+
+    enum playerType {
         giocatore,
         tabellone
     }
 
-    Gioco(giocatore a) {
-        if(a == giocatore.giocatore) {
-            new Giocatore();
+    Gioco(playerType a) {
+        if(a == playerType.giocatore) {
+            giocatore = new Giocatore();
         }
         else {
-            new Master();
+            master = new Master();
         }
     }
 
