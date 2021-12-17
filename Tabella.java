@@ -18,8 +18,6 @@ public class Tabella {
         tabella = new int[RIGHE * COLONNE];
         doppioni = new int[NUMERO_CELLE];
         Arrays.fill(tabella, -1);
-
-        // generaTabella();
     }
 
     // methods
@@ -33,35 +31,32 @@ public class Tabella {
         while (celle > 0) {
             if(index < RIGHE * COLONNE - 1) {
                 int num = random.nextInt(3 + 1);
+                
                 if(celle - num <= 0)
                     num = celle;
-                    // int offset = 0;
-                    // if (num < 3) {
-                    //     offset = random.nextInt(RIGHE - num);
-                    //     index += offset;
-                    // }
-                    int i = num;
-                    while(i > 0) {
-                        if(tabella[index] == -1) {
-                            int numeroGen = GeneraNumero(index);
-                            if(!Duplicato(numeroGen)) {
-                                tabella[index++] = numeroGen;
-                                doppioni[j++] = numeroGen;
-                                celle--;
-                                i--;
-                            }
-                        }
-                        else {
+                
+                int i = num;
+                while(i > 0) {
+                    if(tabella[index] == -1) {
+                        int numeroGen = GeneraNumero(index);
+                        if(!Duplicato(numeroGen)) {
+                            tabella[index++] = numeroGen;
+                            doppioni[j++] = numeroGen;
+                            celle--;
                             i--;
-                            num--;
                         }
                     }
+                    else {
+                        i--;
+                        num--;
+                    }
+                }
 
-                    index += RIGHE - num;        //was index += RIGHE - offset - num;
+                index += RIGHE - num;        //was index += RIGHE - offset - num;
 
-                    Arrays.sort(tabella, index -3 , index);
-                    if(index == RIGHE * COLONNE - 1)
-                        index = 0;
+                Arrays.sort(tabella, index -3 , index);
+                if(index == RIGHE * COLONNE - 1)
+                    index = 0;
             }
             else {
                 index = 0;
@@ -97,7 +92,6 @@ public class Tabella {
             if(i == num)
                 return true;
         }
-
         return false;
     }
 
