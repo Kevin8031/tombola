@@ -100,6 +100,10 @@ public class Tabella {
         return tabella;
     }
 
+    public int getTabella(int index) {
+        return tabella[index];
+    }
+
     public void setTabella(int[] tabella) {
         this.tabella = tabella;
     }
