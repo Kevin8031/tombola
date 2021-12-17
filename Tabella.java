@@ -9,7 +9,7 @@ public class Tabella {
     
     // attributes
     Random random;
-    private int[] tabella;
+    protected int[] tabella;
     private int[] doppioni;
 
     // constructors
