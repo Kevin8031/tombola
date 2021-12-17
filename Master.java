@@ -10,8 +10,6 @@ public class Master extends Tabellone {
     GridLayout griglia;
     Tabellone tabellone;
 
-
-    
     Master() {
         frame = new JFrame("Tombola");
         griglia = new GridLayout(3, 9, 5, 5);
@@ -27,14 +25,18 @@ public class Master extends Tabellone {
         panel2.setBackground(Color.darkGray);
         panel2.setLayout(griglia);
 
-        for(int i = 0; i < tabellone.getTabella().length; i++) {
-            panel2.add(new JButton(String.valueOf(tabellone.getTabella(i))));
-        }
+        GeneraTabella();
 
         frame.add(panel1);
         frame.add(panel2);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         frame.setVisible(true);    
-    }    
+    }
+
+    private void GeneraTabella() {
+        for(int i = 0; i < tabellone.getTabella().length; i++) {
+            panel2.add(new JButton(String.valueOf(tabellone.getTabella(i))));
+        }
+    }
 }
