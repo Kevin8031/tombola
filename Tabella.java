@@ -24,36 +24,43 @@ public class Tabella {
 
     // methods
     public void generaTabella() {
+        Arrays.fill(tabella, -1);
+        Arrays.fill(doppioni, 0);
+
         short celle = NUMERO_CELLE;
         short index = 0;
         short j = 0;
         while (celle > 0) {
-            if(index < RIGHE * COLONNE) {
-                    int num = random.nextInt(3 + 1);
+            if(index < RIGHE * COLONNE - 1) {
+                int num = random.nextInt(3 + 1);
+                if(celle - num <= 0)
+                    num = celle;
                     // int offset = 0;
                     // if (num < 3) {
                     //     offset = random.nextInt(RIGHE - num);
                     //     index += offset;
                     // }
-                    for(int i = 0; i < num;) {
-                        int numeroGen = GeneraNumero(index);
-                        if(!Duplicato(numeroGen)) {
-                            if(tabella[index] == -1) {
+                    int i = num;
+                    while(i > 0) {
+                        if(tabella[index] == -1) {
+                            int numeroGen = GeneraNumero(index);
+                            if(!Duplicato(numeroGen)) {
                                 tabella[index++] = numeroGen;
                                 doppioni[j++] = numeroGen;
                                 celle--;
-                                i++;
-                            }
-                            else {
-                                index++;
-                                i++;
+                                i--;
                             }
                         }
+                        else {
+                            i--;
+                            num--;
+                        }
                     }
+
                     index += RIGHE - num;        //was index += RIGHE - offset - num;
 
                     Arrays.sort(tabella, index -3 , index);
-                    if(index == RIGHE * COLONNE)
+                    if(index == RIGHE * COLONNE - 1)
                         index = 0;
             }
             else {
