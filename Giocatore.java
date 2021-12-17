@@ -30,6 +30,17 @@ public class Giocatore extends Tabella {
         //     panel2.add(new JButton(String.valueOf(i)));
         // }
         
+        GeneraTabella();
+        
+
+        frame.add(panel1);
+        frame.add(panel2);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        frame.setVisible(true);
+    }
+
+    private void GeneraTabella() {
         for(int i = 0; i < tabella.RIGHE; i++) 
                 for(int j = 0; j < tabella.COLONNE; j++) {
                     if (tabella.getTabella(i + tabella.RIGHE * j) == -1)
@@ -37,11 +48,5 @@ public class Giocatore extends Tabella {
                     else
                         panel2.add(new JButton(String.valueOf(tabella.getTabella(i + tabella.RIGHE * j))));
             }
-
-        frame.add(panel1);
-        frame.add(panel2);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
-        frame.setVisible(true);
     }
 }
