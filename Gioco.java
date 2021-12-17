@@ -17,12 +17,12 @@ public class Gioco {
 
     Gioco(giocatore player) {
         if(player == giocatore.giocatore)
-            new FGIocatore();
+            Giocatore();
         else
-            new FinestraMaster();
+            Master();
     }
 
-    private void FGiocatore() {
+    private void Giocatore() {
         frame = new JFrame("Tombola");
         griglia = new GridLayout(3, 9, 5, 5);
         panel1 = new JPanel();
@@ -47,7 +47,7 @@ public class Gioco {
         frame.setVisible(true);
     }
 
-    private void FMaster() {
+    private void Master() {
         
     }
 }
