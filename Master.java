@@ -39,4 +39,8 @@ public class Master extends Tabellone {
             panel2.add(new JButton(String.valueOf(tabellone.getTabella(i))));
         }
     }
+
+    public void GeneraNumero() {
+
+    }
 }

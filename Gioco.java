@@ -15,6 +15,4 @@ public class Gioco {
             master = new Master();
         }
     }
-
-    
 }
