@@ -8,7 +8,7 @@ public class Tabella {
     final short NUMERO_CELLE = 15;
     
     // attributes
-    Random random;
+    private Random random;
     protected int[] tabella;
     private int[] doppioni;
 
