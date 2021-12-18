@@ -24,7 +24,7 @@ public class Giocatore extends Tabella {
     private JLabel numero;
     private Socket socket;
 
-    Giocatore() {
+    Giocatore(JFrame parent) {
         caselle = new JButton[90];
         socket = new Socket();
         frame = new JFrame("Tombola");

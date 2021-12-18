@@ -40,7 +40,7 @@ public class Gioco extends JFrame {
     }
 
     private void Giocatore() {
-        //new Giocatore(this);
+        new Giocatore(this);
         setVisible(false);
     }
 }
