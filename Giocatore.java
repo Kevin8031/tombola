@@ -108,8 +108,12 @@ public class Giocatore extends Tabella {
                 dialogConnectToServer();
             }
         });
-
-        SearchGame();
+        try {
+            WaitResponse(NetworkInterface.getByIndex(1));
+            
+        } catch (Exception e) {
+            //TODO: handle exception
+        }
     }
 
     private void GeneraTabella() {
@@ -215,10 +219,12 @@ public class Giocatore extends Tabella {
 
     private String WaitResponse(NetworkInterface nic) {
         try {
+            System.out.println(NetworkInterface.getNetworkInterfaces());
+            NetworkInterface nicc = NetworkInterface.getByName("wlan1");
             String message = "MiConnetto";
             buf = message.getBytes();
             multicastSocket = new MulticastSocket();
-            multicastSocket.joinGroup(new InetSocketAddress("230.0.0.0", 4321), nic);
+            multicastSocket.joinGroup(new InetSocketAddress("230.0.0.0", 4321), nicc);
             InetAddress group = InetAddress.getByName("230.0.0.0");
 
             DatagramPacket packet = new DatagramPacket(buf, buf.length, group, 4321);
