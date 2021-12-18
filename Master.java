@@ -5,6 +5,8 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
 import java.net.*;
+import java.nio.channels.*;
+import java.nio.*;
 import java.io.*;
 
 public class Master extends Tabellone {
@@ -18,6 +20,7 @@ public class Master extends Tabellone {
     private JButton[] caselle;
     
     private ServerSocket serverSocket;
+    private MulticastSocket multicastSocket;
     private ArrayList<Socket> client;
     private Thread accThread;
 
@@ -148,6 +151,7 @@ public class Master extends Tabellone {
                 accThread = new Thread(() -> Accept());
                 System.out.println("Server started!");
                 accThread.start();
+                OpenToLan();
             } catch (IOException e) {
                 System.err.println(e);
             }
@@ -226,6 +230,30 @@ public class Master extends Tabellone {
         
         for (Socket i : client) {
             dlm.add(0, i.getRemoteSocketAddress().toString());
+        }
+    }
+
+    private void OpenToLan() {
+        try {
+            NetworkInterface nic = NetworkInterface.getByIndex(1);
+            DatagramChannel datagramChannel = DatagramChannel.open(StandardProtocolFamily.INET);
+            datagramChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+            datagramChannel.bind(new InetSocketAddress(4321));
+            datagramChannel.setOption(StandardSocketOptions.IP_MULTICAST_IF, nic);
+
+            InetAddress inetAddress = InetAddress.getByName("230.0.0.0");
+
+            MembershipKey membershipKey = datagramChannel.join(inetAddress, nic);
+            System.out.println("Server opened to lan - port(4321)");
+            ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+            datagramChannel.read(byteBuffer);
+            byteBuffer.flip();
+            byte[] b = new byte[byteBuffer.limit()];
+            byteBuffer.get(b, 0, byteBuffer.limit());
+            membershipKey.drop();
+            System.out.println("Message: " + b);
+        } catch (Exception e) {
+            System.err.println(e);
         }
     }
 }
