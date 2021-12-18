@@ -1,5 +1,6 @@
 import java.util.Arrays;
 import java.util.Random;
+import java.awt.GridLayout;
 
 public class Tabella {
     // constants
