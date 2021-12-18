@@ -22,6 +22,7 @@ public class Giocatore extends Tabella {
     private MulticastSocket multicastSocket;
     private Thread rThread;
     private Thread multicastThread;
+    private byte[] buf;
 
     Giocatore(JFrame parent) {
         caselle = new JButton[90];
@@ -214,21 +215,30 @@ public class Giocatore extends Tabella {
 
     private String WaitResponse(NetworkInterface nic) {
         try {
-            DatagramChannel datagramChannel = DatagramChannel.open(StandardProtocolFamily.INET);
-            datagramChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-            datagramChannel.bind(new InetSocketAddress(4321));
-            datagramChannel.setOption(StandardSocketOptions.IP_MULTICAST_IF, nic);
+            String message = "MiConnetto";
+            buf = message.getBytes();
+            multicastSocket = new MulticastSocket();
+            multicastSocket.joinGroup(new InetSocketAddress("230.0.0.0", 4321), nic);
+            InetAddress group = InetAddress.getByName("230.0.0.0");
 
-            InetAddress inetAddress = InetAddress.getByName("230.0.0.0");
+            DatagramPacket packet = new DatagramPacket(buf, buf.length, group, 4321);
+            multicastSocket.send(packet);
 
-            MembershipKey membershipKey = datagramChannel.join(inetAddress, nic);
-            ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
-            datagramChannel.read(byteBuffer);
-            byteBuffer.flip();
-            byte[] b = new byte[byteBuffer.limit()];
-            byteBuffer.get(b, 0, byteBuffer.limit());
-            membershipKey.drop();
-            return new String(b);
+
+            // DatagramChannel datagramChannel = DatagramChannel.open(StandardProtocolFamily.INET);
+            // datagramChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+            // datagramChannel.bind(new InetSocketAddress(4321));
+            // datagramChannel.setOption(StandardSocketOptions.IP_MULTICAST_IF, nic);
+
+
+            // MembershipKey membershipKey = datagramChannel.join(inetAddress, nic);
+            // ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+            // datagramChannel.read(byteBuffer);
+            // byteBuffer.flip();
+            // byte[] b = new byte[byteBuffer.limit()];
+            // byteBuffer.get(b, 0, byteBuffer.limit());
+            // membershipKey.drop();
+            // return new String(b);
         } catch (Exception e) {
             System.err.println(e);
         }

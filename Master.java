@@ -23,6 +23,7 @@ public class Master extends Tabellone {
     private MulticastSocket multicastSocket;
     private ArrayList<Socket> client;
     private Thread accThread;
+    private byte[] buf;
 
     Master(JFrame parent) {
         client = new ArrayList<Socket>();
@@ -170,7 +171,7 @@ public class Master extends Tabellone {
 
                 accThread.join(100);
                 serverSocket.close();
-                System.out.println("Server Fermato");
+                System.out.println("Server Stopped");
             } catch (Exception e) {
                 System.err.println(e);
             }
@@ -234,24 +235,36 @@ public class Master extends Tabellone {
     }
 
     private void OpenToLan() {
+        buf = new byte[256];
         try {
-            NetworkInterface nic = NetworkInterface.getByIndex(1);
-            DatagramChannel datagramChannel = DatagramChannel.open(StandardProtocolFamily.INET);
-            datagramChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-            datagramChannel.bind(new InetSocketAddress(4321));
-            datagramChannel.setOption(StandardSocketOptions.IP_MULTICAST_IF, nic);
+            multicastSocket = new MulticastSocket(4321);
 
-            InetAddress inetAddress = InetAddress.getByName("230.0.0.0");
+            NetworkInterface nic = NetworkInterface.getByIndex(2);
+            multicastSocket.joinGroup(new InetSocketAddress("230.0.0.0", 4321), nic);
 
-            MembershipKey membershipKey = datagramChannel.join(inetAddress, nic);
-            System.out.println("Server opened to lan - port(4321)");
-            ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
-            datagramChannel.read(byteBuffer);
-            byteBuffer.flip();
-            byte[] b = new byte[byteBuffer.limit()];
-            byteBuffer.get(b, 0, byteBuffer.limit());
-            membershipKey.drop();
-            System.out.println("Message: " + b);
+            // while (true) {
+                DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                multicastSocket.receive(packet);
+                String recived = new String(buf);
+                System.out.println("Recived");
+            // }
+
+            // DatagramChannel datagramChannel = DatagramChannel.open(StandardProtocolFamily.INET);
+            // datagramChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+            // datagramChannel.bind(new InetSocketAddress(4321));
+            // datagramChannel.setOption(StandardSocketOptions.IP_MULTICAST_IF, nic);
+
+            // InetAddress inetAddress = InetAddress.getByName("230.0.0.0");
+
+            // MembershipKey membershipKey = datagramChannel.join(inetAddress, nic);
+            // System.out.println("Server opened to lan - port(4321)");
+            // ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+            // datagramChannel.read(byteBuffer);
+            // byteBuffer.flip();
+            // byte[] b = new byte[byteBuffer.limit()];
+            // byteBuffer.get(b, 0, byteBuffer.limit());
+            // membershipKey.drop();
+            // System.out.println("Message: " + b);
         } catch (Exception e) {
             System.err.println(e);
         }
