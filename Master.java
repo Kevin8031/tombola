@@ -239,15 +239,16 @@ public class Master extends Tabellone {
         try {
             multicastSocket = new MulticastSocket(4321);
 
-            NetworkInterface nic = NetworkInterface.getByIndex(2);
-            multicastSocket.joinGroup(new InetSocketAddress("230.0.0.0", 4321), nic);
+            NetworkInterface nic = NetworkInterface.getByName("enp3s0");
+            InetAddress inet = InetAddress.getByName("230.0.0.0");
+            multicastSocket.joinGroup(inet);
 
-            // while (true) {
+            while (true) {
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
                 multicastSocket.receive(packet);
                 String recived = new String(buf);
-                System.out.println("Recived");
-            // }
+                System.out.println("Recived: " + recived);
+            }
 
             // DatagramChannel datagramChannel = DatagramChannel.open(StandardProtocolFamily.INET);
             // datagramChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);

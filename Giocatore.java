@@ -224,8 +224,8 @@ public class Giocatore extends Tabella {
             String message = "MiConnetto";
             buf = message.getBytes();
             multicastSocket = new MulticastSocket();
-            multicastSocket.joinGroup(new InetSocketAddress("230.0.0.0", 4321), nicc);
             InetAddress group = InetAddress.getByName("230.0.0.0");
+            multicastSocket.joinGroup(group);
 
             DatagramPacket packet = new DatagramPacket(buf, buf.length, group, 4321);
             multicastSocket.send(packet);
