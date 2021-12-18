@@ -23,7 +23,7 @@ public class Tabella {
     }
 
     // methods
-    // problema: per ogni riga della tabella, devono esserci solo e soltanto 5 numeri
+    // TODO: per ogni riga della tabella, devono esserci solo e soltanto 5 numeri
     public void generaTabella() {
         Arrays.fill(tabella, -1);
         Arrays.fill(doppioni, 0);
