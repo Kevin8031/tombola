@@ -1,6 +1,5 @@
 import java.util.Arrays;
 import java.util.Random;
-import java.awt.GridLayout;
 
 public class Tabella {
     // constants
@@ -49,17 +48,11 @@ public class Tabella {
                     //         }
                         int numeroGen = GeneraNumero(index);
                         if(!Duplicato(numeroGen)) {
-                            if(numPresentiRighe[num - i] < 5) {
-                                numPresentiRighe[num - i]++;
-                                tabella[index++] = numeroGen;
-                                doppioni[j++] = numeroGen;
-                                celle--;
-                                i--;
-                            }
-                            else {
-                                i--;
-                                index++;
-                            }
+                            numPresentiRighe[num - i]++;
+                            tabella[index++] = numeroGen;
+                            doppioni[j++] = numeroGen;
+                            celle--;
+                            i--;
                         }
                     // }
                         else {
@@ -71,8 +64,8 @@ public class Tabella {
                 index += RIGHE - num;        //was index += RIGHE - offset - num;
 
                 Arrays.sort(tabella, index -3 , index);
-                if(index == RIGHE * COLONNE - 1)
-                    index = 0;
+                // if(index == RIGHE * COLONNE - 1)
+                //     index = 0;
             }
             else {
                 index = 0;
