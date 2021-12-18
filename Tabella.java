@@ -84,7 +84,7 @@ public class Tabella {
         else if(num < 24)
             return random.nextInt(10) + 70;
         else
-            return random.nextInt(11) + 80;
+            return random.nextInt(10 + 1) + 80;
     }
     
     private boolean Duplicato(int num) {
@@ -107,5 +107,4 @@ public class Tabella {
     public void setTabella(int[] tabella) {
         this.tabella = tabella;
     }
-    
 }
