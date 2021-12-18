@@ -5,13 +5,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.JButton;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Scanner;
 import java.net.*;
 import java.io.*;
 
@@ -26,10 +24,10 @@ public class Master extends Tabellone {
     private JButton[] caselle;
     
     private ServerSocket serverSocket;
-    private Socket socket;
+    private ArrayList<Socket> client;
 
     Master() {
-        socket = new Socket();
+        client = new ArrayList<Socket>();
         caselle = new JButton[90];
         numeriUsciti = new ArrayList<Integer>(90);
         frame = new JFrame("Tombola");
@@ -138,16 +136,20 @@ public class Master extends Tabellone {
 
     private void StopServer() {
         try {
-            socket.close();
+            serverSocket.close();
         } catch (IOException e) {
             System.err.println(e);
         }
     }
 
     private void SendNumber(int number) {
+        PrintStream ps;
         try {
-            PrintStream ps = new PrintStream(socket.getOutputStream());
-            ps.println(number);
+            for (Socket c : client) {
+                ps = new PrintStream(c.getOutputStream());
+                ps.println(number);
+            }
+            
         } catch (IOException e) {
             System.err.println(e);
         }
@@ -155,8 +157,9 @@ public class Master extends Tabellone {
 
     private void Accept() {
         try {
-            socket = serverSocket.accept();
-            System.out.println(socket.toString());
+            client.add(serverSocket.accept());
+            System.out.println(client.get(0).toString());
+            Accept();
         } catch (IOException e) {
             System.err.println(e);
         }
