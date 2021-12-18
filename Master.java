@@ -7,6 +7,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 
+import java.awt.event.*;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
@@ -26,7 +28,7 @@ public class Master extends Tabellone {
     private ServerSocket serverSocket;
     private ArrayList<Socket> client;
 
-    Master() {
+    Master(JFrame parent) {
         client = new ArrayList<Socket>();
         caselle = new JButton[90];
         numeriUsciti = new ArrayList<Integer>(90);
@@ -58,7 +60,7 @@ public class Master extends Tabellone {
 
         frame.add(panel1);
         frame.add(panel2);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setJMenuBar(new JMenuBar() {
             {
                 add(new JMenu("File") {
@@ -85,6 +87,12 @@ public class Master extends Tabellone {
                         });
                     }
                 });
+            }
+        });
+
+        frame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                parent.setVisible(true);
             }
         });
         
