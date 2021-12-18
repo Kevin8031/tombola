@@ -1,11 +1,4 @@
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JButton;
+import javax.swing.*;
 
 import java.awt.event.*;
 
@@ -27,6 +20,7 @@ public class Master extends Tabellone {
     
     private ServerSocket serverSocket;
     private ArrayList<Socket> client;
+    private Thread accThread;
 
     Master(JFrame parent) {
         client = new ArrayList<Socket>();
@@ -87,12 +81,26 @@ public class Master extends Tabellone {
                         });
                     }
                 });
+
+                add(new JMenu("Partita") {
+                    {
+                        add(new JMenuItem("Show Clients") {
+                            {
+                                addActionListener(e -> ListClients());
+                            }
+                        });
+                    }
+                });
             }
         });
 
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 parent.setVisible(true);
+            }
+
+            public void windowOpened(WindowEvent e) {
+                Inizio();
             }
         });
         
@@ -134,19 +142,37 @@ public class Master extends Tabellone {
     }
 
     private void StartServer() {
-        try {
-            serverSocket = new ServerSocket(60001);
-            new Thread(() -> Accept()).start();
-        } catch (IOException e) {
-            System.err.println(e);
+        if(serverSocket == null) {
+            try {
+                serverSocket = new ServerSocket(60001);
+                accThread = new Thread(() -> Accept());
+                System.out.println("Server started!");
+                accThread.start();
+            } catch (IOException e) {
+                System.err.println(e);
+            }
+        }
+        else {
+            System.out.println("Server already started.");
         }
     }
 
     private void StopServer() {
-        try {
-            serverSocket.close();
-        } catch (IOException e) {
-            System.err.println(e);
+        if(serverSocket != null) {
+            try {
+                for (Socket i : client) {
+                    i.close();
+                }
+
+                accThread.join(100);
+                serverSocket.close();
+                System.out.println("Server Fermato");
+            } catch (Exception e) {
+                System.err.println(e);
+            }
+        }
+        else {
+            System.out.println("Cannot stop server. Server already stopped!");
         }
     }
 
@@ -165,11 +191,41 @@ public class Master extends Tabellone {
 
     private void Accept() {
         try {
+            System.out.println("Waiting for client to connect...");
             client.add(serverSocket.accept());
-            System.out.println(client.get(0).toString());
+            System.out.println("Client connected: " + client.get(0).toString());
+            System.out.println("No. of clients: " + client.size());
             Accept();
         } catch (IOException e) {
             System.err.println(e);
+        }
+    }
+
+    private void Inizio() {
+        JDialog dialog = new JDialog(frame, "Benvenuto");
+
+        dialog.setSize(150, 150);
+
+        dialog.add(new JLabel("Benvenuto a tombola!\nUsa il menù Server in alto per gestire la partita"));
+        
+        dialog.setVisible(true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+    };
+
+    private void ListClients() {
+        JDialog dialog = new JDialog(frame, "Clients");
+        DefaultListModel<String> dlm = new DefaultListModel<String>();
+        JList<String> jList = new JList<String>(dlm);
+        
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setSize(150, 150);
+        
+        dialog.add(jList);
+
+        dialog.setVisible(true);
+        
+        for (Socket i : client) {
+            dlm.add(0, i.getRemoteSocketAddress().toString());
         }
     }
 }
