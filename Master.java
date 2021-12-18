@@ -95,6 +95,7 @@ public class Master extends Tabellone {
 
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
+                StopServer();
                 parent.setVisible(true);
             }
 
