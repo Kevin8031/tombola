@@ -1,17 +1,9 @@
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import javax.swing.JButton;
+import javax.swing.*;
+import java.awt.event.*;
+
 import java.awt.*;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
+import java.net.*;
 import java.util.Scanner;
 
 public class Giocatore extends Tabella {
@@ -26,7 +18,6 @@ public class Giocatore extends Tabella {
 
     Giocatore(JFrame parent) {
         caselle = new JButton[90];
-        socket = new Socket();
         frame = new JFrame("Tombola");
         numero = new JLabel("-Numero-");
         panel1 = new JPanel();
@@ -52,7 +43,7 @@ public class Giocatore extends Tabella {
         
         frame.add(panel1);
         frame.add(panel2);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setJMenuBar(new JMenuBar() {
             {
                 add(new JMenu("File") {
@@ -69,7 +60,7 @@ public class Giocatore extends Tabella {
                     {
                         add(new JMenuItem("Connect To Server") {
                             {
-                                addActionListener(e -> ConnectToServer());
+                                addActionListener(e -> dialogConnectToServer());
                             }
                         });
                         add(new JMenuItem("Disconect") {
@@ -85,6 +76,16 @@ public class Giocatore extends Tabella {
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
         frame.setVisible(true);
+
+        frame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                parent.setVisible(true);
+            }
+
+            public void windowOpened(WindowEvent e) {
+                dialogConnectToServer();
+            }
+        });
     }
 
     private void GeneraTabella() {
@@ -99,9 +100,31 @@ public class Giocatore extends Tabella {
                     }
             }
     }
+
+    private void dialogConnectToServer() {
+        JDialog dialog = new JDialog(frame);
+
+        JTextField host = new JTextField();
+        JTextField port = new JTextField();
+
+        dialog.setLayout(new GridLayout());
+
+        dialog.add(host);
+        dialog.add(port);
+        dialog.add(new JButton("Connetti") {
+            {
+                addActionListener(e -> ConnectToServer(host.getText(), Integer.valueOf(port.getText())));
+            }
+        });
+        
+        
+        dialog.setSize(300, 300);
+        dialog.setVisible(true);
+    }
     
-    private void ConnectToServer() {
+    private void ConnectToServer(String host, int port) {
         try {
+            socket = new Socket();
             SocketAddress socketAddress = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 60001);
             socket.connect(socketAddress);
             new Thread(() -> {ReadNumber();}).start();

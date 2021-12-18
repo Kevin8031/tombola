@@ -6,6 +6,7 @@ public class Tabella {
     final short RIGHE = 3;
     final short COLONNE = 9;
     final short NUMERO_CELLE = 15;
+    int numPresentiRighe[];
     
     // attributes
     private Random random;
@@ -15,6 +16,7 @@ public class Tabella {
     // constructors
     Tabella() {
         random = new Random();
+        numPresentiRighe = new int[RIGHE];
         tabella = new int[RIGHE * COLONNE];
         doppioni = new int[NUMERO_CELLE];
         Arrays.fill(tabella, -1);
@@ -38,19 +40,31 @@ public class Tabella {
                 
                 int i = num;
                 while(i > 0) {
-                    if(tabella[index] == -1) {
+                    // if(tabella[index] == -1) {
+                    //     for(int y = 0; y < RIGHE; y++)
+                    //         for(int k = 0; k < COLONNE; k++)
+                    //         {
+                    //             tabella[y + RIGHE * k];
+                    //         }
                         int numeroGen = GeneraNumero(index);
                         if(!Duplicato(numeroGen)) {
-                            tabella[index++] = numeroGen;
-                            doppioni[j++] = numeroGen;
-                            celle--;
-                            i--;
+                            if(numPresentiRighe[num - i] < 5) {
+                                numPresentiRighe[num - i]++;
+                                tabella[index++] = numeroGen;
+                                doppioni[j++] = numeroGen;
+                                celle--;
+                                i--;
+                            }
+                            else {
+                                i--;
+                                index++;
+                            }
                         }
-                    }
-                    else {
-                        i--;
-                        num--;
-                    }
+                    // }
+                        else {
+                            i--;
+                            num--;
+                        }
                 }
 
                 index += RIGHE - num;        //was index += RIGHE - offset - num;
@@ -69,7 +83,7 @@ public class Tabella {
         Random random = new Random();
 
         if(num < 3)
-            return random.nextInt(10 + 1);
+            return random.nextInt(10) + 1;
         else if(num < 6)
             return random.nextInt(10) + 10;
         else if(num < 9)
