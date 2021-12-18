@@ -4,10 +4,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.JButton;
 import java.awt.*;
 import java.io.IOException;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -22,34 +22,34 @@ public class Giocatore extends Tabella {
     private Tabella tabella;
     private JButton[] caselle;
     private JLabel numero;
-
     private Socket socket;
 
     Giocatore() {
-        numero = new JLabel("-Numero-");
         caselle = new JButton[90];
         socket = new Socket();
         frame = new JFrame("Tombola");
-        griglia = new GridLayout(3, 9, 5, 5);
+        numero = new JLabel("-Numero-");
         panel1 = new JPanel();
         panel2 = new JPanel();
+        griglia = new GridLayout(3, 9, 3, 3);
         tabella = new Tabella();
-        frame.setSize(450, 300);
+        frame.setSize(600, 350);
         frame.setLayout(new GridLayout(2,1));
-
-        //panel1.setBounds(0, 0, 450, 150);
-        panel1.setBackground(Color.gray);
+        
+        numero.setBackground(Color.RED);
+        numero.setForeground(Color.BLACK);
+        numero.setHorizontalAlignment(SwingConstants.CENTER);
+        numero.setVerticalAlignment(SwingConstants.BOTTOM);
+        numero.setVisible(true);
         panel1.add(numero);
 
-        //panel2.setBounds(0, 150, 450, 300);
-        panel2.setBackground(Color.darkGray);
+        panel2.setBackground(Color.GRAY);
         panel2.setLayout(griglia);
 
         tabella.generaTabella();
         
         GeneraTabella();
         
-
         frame.add(panel1);
         frame.add(panel2);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -59,7 +59,7 @@ public class Giocatore extends Tabella {
                     {
                         add(new JMenuItem("Exit") {
                             {
-                                
+                                addActionListener(e -> frame.dispose());
                             }
                         });
                     }
@@ -82,6 +82,8 @@ public class Giocatore extends Tabella {
             }
         });
         
+        frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
         frame.setVisible(true);
     }
 
