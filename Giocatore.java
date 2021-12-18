@@ -146,7 +146,7 @@ public class Giocatore extends Tabella {
     private void ConnectToServer(String host, int port) {
         try {
             socket = new Socket();
-            SocketAddress socketAddress = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 60001);
+            SocketAddress socketAddress = new InetSocketAddress(InetAddress.getByName(host), port);
             socket.connect(socketAddress);
             new Thread(() -> {ReadNumber();}).start();
             System.out.println(socket.toString());
