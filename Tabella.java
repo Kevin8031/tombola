@@ -11,73 +11,53 @@ public class Tabella {
     // attributes
     private Random random;
     protected int[] tabella;
-    private int[] doppioni;
+    private int[] numeriEstratti;
 
     // constructors
     Tabella() {
         random = new Random();
         numPresentiRighe = new int[RIGHE];
         tabella = new int[RIGHE * COLONNE];
-        doppioni = new int[NUMERO_CELLE];
+        numeriEstratti = new int[NUMERO_CELLE];
         Arrays.fill(tabella, -1);
     }
 
     // methods
-    // TODO: per ogni riga della tabella, devono esserci solo e soltanto 5 numeri
     public void generaTabella() {
         Arrays.fill(tabella, -1);
-        Arrays.fill(doppioni, 0);
+        Arrays.fill(numeriEstratti, 0);
 
-        short celle = NUMERO_CELLE;
-        short index = 0;
-        short j = 0;
+        int celle = NUMERO_CELLE;
+        int numeroGen = 0;
+
+        int k = 0;
+
         while (celle > 0) {
-            if(index < RIGHE * COLONNE - 1) {
-                int num = random.nextInt(3 + 1);
-                
-                if(celle - num <= 0)
-                    num = celle;
-                
-                int i = num;
-                while(i > 0) {
-                    // if(tabella[index] == -1) {
-                    //     for(int y = 0; y < RIGHE; y++)
-                    //         for(int k = 0; k < COLONNE; k++)
-                    //         {
-                    //             tabella[y + RIGHE * k];
-                    //         }
-                        int numeroGen = GeneraNumero(index);
-                        if(!Duplicato(numeroGen)) {
-                            numPresentiRighe[num - i]++;
-                            tabella[index++] = numeroGen;
-                            doppioni[j++] = numeroGen;
-                            celle--;
-                            i--;
-                        }
-                    // }
-                        else {
-                            i--;
-                            num--;
-                        }
+            for(int i = 0; i < RIGHE; i++) {
+                for(int j = 0; j < COLONNE; j++) {
+                    if(numPresentiRighe[i] < 5)
+                        if(tabella[i + RIGHE * j] == -1)
+                            if(random.nextInt(2) == 1) {
+                                do
+                                    numeroGen = GeneraNumero(i + RIGHE * j);
+                                while(Duplicato(numeroGen));
+
+                                tabella[i + RIGHE * j] = numeroGen;
+                                numPresentiRighe[i]++;
+                                numeriEstratti[k++] = numeroGen;
+                                celle--;
+                            }
                 }
-
-                index += RIGHE - num;        //was index += RIGHE - offset - num;
-
-                Arrays.sort(tabella, index -3 , index);
-                // if(index == RIGHE * COLONNE - 1)
-                //     index = 0;
-            }
-            else {
-                index = 0;
             }
         }
+        Sort();
     }
 
     private int GeneraNumero(int num) {
         Random random = new Random();
 
         if(num < 3)
-            return random.nextInt(10) + 1;
+            return random.nextInt(9) + 1;
         else if(num < 6)
             return random.nextInt(10) + 10;
         else if(num < 9)
@@ -97,11 +77,61 @@ public class Tabella {
     }
     
     private boolean Duplicato(int num) {
-        for (int i : doppioni) {
+        for (int i : numeriEstratti) {
             if(i == num)
                 return true;
         }
         return false;
+    }
+
+    private void Sort() {
+        int numColona = 0;
+        int i = 0;
+        int j;
+
+        int posNum1 = -1;
+        int posNum2 = -1;
+
+        while (i < RIGHE * COLONNE) {
+
+            do {
+                if(tabella[i++] != -1)
+                    numColona++;
+            }
+            while(i % 3 != 0);
+
+            switch (numColona) {
+                case 3:
+                    Arrays.sort(tabella, i - 3, i);
+                    break;
+            
+                case 2:
+                    j = i - 3;
+                    while (j < i) {
+                        if(tabella[j] != -1) {
+                            if(posNum1 == -1)
+                                posNum1 = j;
+                            else
+                                posNum2 = j;
+                        }
+                        j++;
+                    }
+
+                    if(tabella[posNum1] > tabella[posNum2]) {
+                        int num = tabella[posNum1];
+                        tabella[posNum1] = tabella[posNum2];
+                        tabella[posNum2] = num;
+                    }
+                    posNum1 = -1;
+                    posNum2 = -1;
+                    break;
+
+                default:
+                    break;
+            }
+
+            numColona = 0;
+        }
     }
 
     // getters and setters
