@@ -152,7 +152,7 @@ public class Master extends Tabellone {
                 accThread = new Thread(() -> Accept());
                 System.out.println("Server started!");
                 accThread.start();
-                OpenToLan();
+                //OpenToLan();
             } catch (IOException e) {
                 System.err.println(e);
             }

@@ -261,6 +261,8 @@ public class Giocatore extends Tabella {
 
     private void ControllaNumero(ActionEvent e) {
         JButton btn = (JButton)e.getSource();
+
+        System.out.println(btn.getText() + " == " + String.valueOf(numero) + ": " +  btn.getText() == String.valueOf(numero));
         
         if(btn.getText() == String.valueOf(numero)) {
             btn.setBackground(Color.BLACK);
