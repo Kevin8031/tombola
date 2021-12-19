@@ -3,11 +3,14 @@ import java.awt.event.*;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
+import java.util.Scanner;
 import java.net.*;
-import java.nio.channels.*;
 import java.nio.*;
 import java.io.*;
+
 
 public class Master extends Tabellone {
     private JFrame frame;
@@ -18,19 +21,23 @@ public class Master extends Tabellone {
     private Tabellone tabellone;
     private ArrayList<Integer> numeriUsciti;
     private JButton[] caselle;
-    
+    private int uid;
+    private static Map<Integer, ByteBuffer> map;
+
     private ServerSocket serverSocket;
     private MulticastSocket multicastSocket;
-    private ArrayList<Socket> client;
+    private ArrayList<ConnectionHandler> client;
     private Thread accThread;
     private byte[] buf;
 
     Master(JFrame parent) {
-        client = new ArrayList<Socket>();
+        map = new HashMap<Integer, ByteBuffer>();
+        uid = 0;
+        client = new ArrayList<ConnectionHandler>();
         caselle = new JButton[90];
         numeriUsciti = new ArrayList<Integer>(90);
         frame = new JFrame("Tombola");
-        griglia = new GridLayout(3, 9, 5, 5);
+        griglia = new GridLayout(9, 10, 5, 5);
         panel1 = new JPanel();
         numero = new JLabel("-Numero Ucito-");
         panel2 = new JPanel();
@@ -64,7 +71,7 @@ public class Master extends Tabellone {
                     {
                         add(new JMenuItem("Exit") {
                             {
-                                
+                                frame.dispose();
                             }
                         });
                     }
@@ -102,18 +109,16 @@ public class Master extends Tabellone {
                 StopServer();
                 parent.setVisible(true);
             }
-
-            public void windowOpened(WindowEvent e) {
-                Inizio();
-            }
         });
-        
+
         frame.setVisible(true);
+        StartServer();
     }
 
     private void GeneraTabella() {
         for(int i = 0; i < tabellone.getTabella().length; i++) {
             caselle[i] = new JButton(String.valueOf(i + 1));
+            caselle[i].addActionListener(l -> CheatNumero(l));
             panel2.add(caselle[i]);
         }
     }
@@ -152,6 +157,7 @@ public class Master extends Tabellone {
                 accThread = new Thread(() -> Accept());
                 System.out.println("Server started!");
                 accThread.start();
+                // new Thread(() -> ReadFromClient()).start();
                 //OpenToLan();
             } catch (IOException e) {
                 System.err.println(e);
@@ -165,8 +171,9 @@ public class Master extends Tabellone {
     private void StopServer() {
         if(serverSocket != null) {
             try {
-                for (Socket i : client) {
-                    i.close();
+                for (ConnectionHandler i : client) {
+                    if(i != null)
+                        i.close();
                 }
 
                 accThread.join(100);
@@ -182,22 +189,18 @@ public class Master extends Tabellone {
     }
 
     private void SendNumber(int number) {
-        PrintStream ps;
-        try {
-            for (Socket c : client) {
-                ps = new PrintStream(c.getOutputStream());
-                ps.println(number);
-            }
-            
-        } catch (IOException e) {
-            System.err.println(e);
-        }
+        for (ConnectionHandler c : client)
+            c.SendNumber(number);
     }
+
 
     private void Accept() {
         try {
             System.out.println("Waiting for client to connect...");
-            client.add(serverSocket.accept());
+            map.put(uid, ByteBuffer.allocate(1024));
+            ConnectionHandler ch = new ConnectionHandler(serverSocket.accept(), uid, map.get(uid));
+            client.add(ch);
+            // new Thread(() -> client.get(0)).start();
             System.out.println("Client connected: " + client.get(0).toString());
             System.out.println("No. of clients: " + client.size());
             Accept();
@@ -206,31 +209,20 @@ public class Master extends Tabellone {
         }
     }
 
-    private void Inizio() {
-        JDialog dialog = new JDialog(frame, "Benvenuto");
-
-        dialog.setSize(150, 150);
-
-        dialog.add(new JLabel("Benvenuto a tombola!\nUsa il menù Server in alto per gestire la partita"));
-        
-        dialog.setVisible(true);
-        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-    };
-
     private void ListClients() {
         JDialog dialog = new JDialog(frame, "Clients");
         DefaultListModel<String> dlm = new DefaultListModel<String>();
         JList<String> jList = new JList<String>(dlm);
-        
+
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setSize(150, 150);
-        
+
         dialog.add(jList);
 
         dialog.setVisible(true);
-        
-        for (Socket i : client) {
-            dlm.add(0, i.getRemoteSocketAddress().toString());
+
+        for (ConnectionHandler i : client) {
+            dlm.add(0, i.getSocket().getRemoteSocketAddress().toString());
         }
     }
 
@@ -269,5 +261,28 @@ public class Master extends Tabellone {
         } catch (Exception e) {
             System.err.println(e);
         }
+    }
+
+    private void CheatNumero(ActionEvent e) {
+        JButton btn = (JButton)e.getSource();
+
+        int num = Integer.valueOf(btn.getText());
+
+        numeriUsciti.add(num);
+        System.out.println("numeriUsciti.size: " + numeriUsciti.size());
+
+        numero.setText(String.valueOf(num));
+        caselle[num - 1].setBackground(Color.BLACK);
+        caselle[num - 1].setForeground(Color.WHITE);
+
+        SendNumber(num);
+    }
+
+    public static void ReadFromClient(int id, String msg) {
+        // map.forEach((k, v) -> {
+        //     System.out.println("[" + v + "] Says: " + new String(v.array()));
+        // });
+
+        System.out.println("[" + id + "] Says: " + msg);
     }
 }

@@ -3,6 +3,7 @@ import java.awt.event.*;
 
 import java.awt.*;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
@@ -20,15 +21,20 @@ public class Giocatore extends Tabella {
 
     private int numero;
 
+    private boolean[] combo;
+
     private Socket socket;
+    private Scanner inputStream;
+    private PrintStream outputStream;
     private MulticastSocket multicastSocket;
     private Thread rThread;
     private Thread multicastThread;
     private byte[] buf;
 
     Giocatore(JFrame parent) {
+        combo = new boolean[5];
         numero = 0;
-        caselle = new JButton[90];
+        caselle = new JButton[RIGHE * COLONNE];
         frame = new JFrame("Tombola");
         labelNumero = new JLabel("-Numero-");
         panel1 = new JPanel();
@@ -121,22 +127,24 @@ public class Giocatore extends Tabella {
     }
 
     private void GeneraTabella() {
-        for(int i = 0; i < tabella.RIGHE; i++) 
-                for(int j = 0; j < tabella.COLONNE; j++) {
-                    caselle[j + tabella.RIGHE * i] = new JButton();
-                    if (tabella.getTabella(i + tabella.RIGHE * j) == -1) {
-                        panel2.add(caselle[j + tabella.RIGHE * i]); 
-                        caselle[j + tabella.RIGHE * i].setBackground(new Color(16, 7, 232));
-                        caselle[j + tabella.RIGHE * i].setFocusable(false);
+        for(int i = 0; i < RIGHE; i++) 
+                for(int j = 0; j < COLONNE; j++) {
+                    caselle[i + RIGHE * j] = new JButton();
+                    if (tabella.getTabella(i + RIGHE * j) == -1) {
+                        panel2.add(caselle[i + RIGHE * j]); 
+                        caselle[i + RIGHE * j].setBackground(new Color(16, 7, 232));
+                        caselle[i + RIGHE * j].setFocusable(false);
+                        caselle[i + RIGHE * j].setName(String.valueOf(i + RIGHE * j));
                     }
                     else {
-                        caselle[j + tabella.RIGHE * i].setText(String.valueOf(tabella.getTabella(i + tabella.RIGHE * j)));
-                        panel2.add(caselle[j + tabella.RIGHE * i]);
-                        caselle[j + tabella.RIGHE * i].setBackground(new Color(16, 7, 232));
-                        caselle[j + tabella.RIGHE * i].setForeground(Color.WHITE);
-                        caselle[j + tabella.RIGHE * i].setFocusable(false);
-                        caselle[j + tabella.RIGHE * i].setFont(new Font("Roboto", Font.BOLD, 20));
-                        caselle[j + tabella.RIGHE * i].addActionListener(e -> ControllaNumero(e));
+                        caselle[i + RIGHE * j].setText(String.valueOf(tabella.getTabella(i + RIGHE * j)));
+                        panel2.add(caselle[i + RIGHE * j]);
+                        caselle[i + RIGHE * j].setBackground(new Color(16, 7, 232));
+                        caselle[i + RIGHE * j].setForeground(Color.WHITE);
+                        caselle[i + RIGHE * j].setFocusable(false);
+                        caselle[i + RIGHE * j].setFont(new Font("Roboto", Font.BOLD, 20));
+                        caselle[i + RIGHE * j].addActionListener(e -> ControllaNumero(e));
+                        caselle[i + RIGHE * j].setName(String.valueOf(i + RIGHE * j));
                     }
             }
     }
@@ -166,6 +174,8 @@ public class Giocatore extends Tabella {
             socket = new Socket();
             SocketAddress socketAddress = new InetSocketAddress(InetAddress.getByName(host), port);
             socket.connect(socketAddress);
+            inputStream = new Scanner(socket.getInputStream());
+            outputStream = new PrintStream(socket.getOutputStream());
             rThread = new Thread(() -> {ReadNumber();});
             rThread.start();
             System.out.println(socket.toString());
@@ -192,15 +202,10 @@ public class Giocatore extends Tabella {
     }
 
     private void ReadNumber() {
-        try {
-            Scanner scanner = new Scanner(socket.getInputStream());
-            numero = scanner.nextInt();
-            System.out.println(numero);
-            labelNumero.setText(String.valueOf(numero));
-            ReadNumber();
-        } catch (IOException e) {
-            System.err.println(e);
-        }
+        numero = inputStream.nextInt();
+        System.out.println(numero);
+        labelNumero.setText(String.valueOf(numero));
+        ReadNumber();
     }
 
     private void SearchGame() {
@@ -262,11 +267,59 @@ public class Giocatore extends Tabella {
     private void ControllaNumero(ActionEvent e) {
         JButton btn = (JButton)e.getSource();
 
-        System.out.println(btn.getText() + " == " + String.valueOf(numero) + ": " +  btn.getText() == String.valueOf(numero));
+        // System.out.println(btn.getText() + " == " + String.valueOf(numero) + ":");
+        // System.out.println(btn.getText() + " == " + String.valueOf(numero) + ": " +  btn.getText() == String.valueOf(numero));
+        // System.out.println(btn.getText() + " == " + numero + ": " +  Integer.valueOf(btn.getText()) == numero);
         
-        if(btn.getText() == String.valueOf(numero)) {
+        if(btn.getText().equals(String.valueOf(numero))) {
             btn.setBackground(Color.BLACK);
             btn.setForeground(Color.WHITE);
+
+            ControllaCombo(btn);
         }
+    }
+
+    private void ControllaCombo(JButton btn) {
+        int riga = Integer.valueOf(btn.getName()) % 3;
+        int i = 0;
+        int numeriRiga = 0;
+
+        if(riga < 9)
+            i = 0;
+        else if (riga < 18)
+            i = 9;
+        else
+            i = 18;
+        
+        for(; i < RIGHE * COLONNE; i++) {
+            if(caselle[i].getBackground() == Color.BLACK)
+                numeriRiga++;
+        }
+
+        switch (numeriRiga) {
+            case 2:
+                System.out.println("Ambo");
+                outputStream.println("Ambo");
+                break;
+        
+            case 3:
+                System.out.println("Terno");
+                outputStream.println("Terno");
+                break;
+            
+            case 4:
+                System.out.println("Quaterna");
+                outputStream.println("Quaterna");
+                break;
+                
+            case 5:
+                System.out.println("Cinquina");
+                outputStream.println("Cinquina");
+                break;   
+            default:
+                System.out.println("Niente da fare");
+                break;
+        }
+
     }
 }
