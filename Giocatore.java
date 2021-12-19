@@ -16,7 +16,9 @@ public class Giocatore extends Tabella {
     private GridLayout griglia;
     private Tabella tabella;
     private JButton[] caselle;
-    private JLabel numero;
+    private JLabel labelNumero;
+
+    private int numero;
 
     private Socket socket;
     private MulticastSocket multicastSocket;
@@ -25,9 +27,10 @@ public class Giocatore extends Tabella {
     private byte[] buf;
 
     Giocatore(JFrame parent) {
+        numero = 0;
         caselle = new JButton[90];
         frame = new JFrame("Tombola");
-        numero = new JLabel("-Numero-");
+        labelNumero = new JLabel("-Numero-");
         panel1 = new JPanel();
         panel2 = new JPanel();
         griglia = new GridLayout(3, 9, 3, 3);
@@ -35,14 +38,14 @@ public class Giocatore extends Tabella {
         frame.setSize(600, 350);
         frame.setLayout(new GridLayout(2,1));
         
-        numero.setVerticalAlignment(JLabel.BOTTOM);
-        numero.setHorizontalTextPosition(JLabel.CENTER);
-        numero.setVerticalTextPosition(JLabel.CENTER);
-        numero.setForeground(Color.WHITE);
-        numero.setFont(new Font("Roboto", Font.BOLD, 36));
+        labelNumero.setVerticalAlignment(JLabel.BOTTOM);
+        labelNumero.setHorizontalTextPosition(JLabel.CENTER);
+        labelNumero.setVerticalTextPosition(JLabel.CENTER);
+        labelNumero.setForeground(Color.WHITE);
+        labelNumero.setFont(new Font("Roboto", Font.BOLD, 36));
         panel1.setLayout(new GridBagLayout());
         panel1.setBackground(new Color(74, 0, 255));
-        panel1.add(numero);
+        panel1.add(labelNumero);
 
         panel2.setBackground(new Color(74, 0, 255));
         panel2.setLayout(griglia);
@@ -108,12 +111,13 @@ public class Giocatore extends Tabella {
                 dialogConnectToServer();
             }
         });
+        /*
         try {
             WaitResponse(NetworkInterface.getByIndex(1));
             
         } catch (Exception e) {
-            //TODO: handle exception
-        }
+            System.err.println(e);
+        }*/
     }
 
     private void GeneraTabella() {
@@ -123,9 +127,7 @@ public class Giocatore extends Tabella {
                     if (tabella.getTabella(i + tabella.RIGHE * j) == -1) {
                         panel2.add(caselle[j + tabella.RIGHE * i]); 
                         caselle[j + tabella.RIGHE * i].setBackground(new Color(16, 7, 232));
-                        caselle[j + tabella.RIGHE * i].setForeground(Color.WHITE);
                         caselle[j + tabella.RIGHE * i].setFocusable(false);
-                        caselle[j + tabella.RIGHE * i].setFont(new Font("Roboto", Font.BOLD, 36));
                     }
                     else {
                         caselle[j + tabella.RIGHE * i].setText(String.valueOf(tabella.getTabella(i + tabella.RIGHE * j)));
@@ -133,6 +135,8 @@ public class Giocatore extends Tabella {
                         caselle[j + tabella.RIGHE * i].setBackground(new Color(16, 7, 232));
                         caselle[j + tabella.RIGHE * i].setForeground(Color.WHITE);
                         caselle[j + tabella.RIGHE * i].setFocusable(false);
+                        caselle[j + tabella.RIGHE * i].setFont(new Font("Roboto", Font.BOLD, 20));
+                        caselle[j + tabella.RIGHE * i].addActionListener(e -> ControllaNumero(e));
                     }
             }
     }
@@ -174,21 +178,25 @@ public class Giocatore extends Tabella {
     }
 
     private void Disconnect() {
-        try {
-            socket.close();
-            rThread.join(100);
-            System.out.println("Disconnesso");
-        } catch (Exception e) {
-            System.err.println(e);
+        if(socket != null) {
+            try {
+                socket.close();
+                rThread.join(100);
+                System.out.println("Disconnesso");
+            } catch (Exception e) {
+                System.err.println(e);
+            }
         }
+        else
+            System.out.println("Already disconnected!");
     }
 
     private void ReadNumber() {
         try {
             Scanner scanner = new Scanner(socket.getInputStream());
-            int num = scanner.nextInt();
-            System.out.println(num);
-            numero.setText(String.valueOf(num));
+            numero = scanner.nextInt();
+            System.out.println(numero);
+            labelNumero.setText(String.valueOf(numero));
             ReadNumber();
         } catch (IOException e) {
             System.err.println(e);
@@ -249,5 +257,14 @@ public class Giocatore extends Tabella {
             System.err.println(e);
         }
         return "failed";   
+    }
+
+    private void ControllaNumero(ActionEvent e) {
+        JButton btn = (JButton)e.getSource();
+        
+        if(btn.getText() == String.valueOf(numero)) {
+            btn.setBackground(Color.BLACK);
+            btn.setForeground(Color.WHITE);
+        }
     }
 }
