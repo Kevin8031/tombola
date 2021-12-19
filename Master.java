@@ -39,10 +39,10 @@ public class Master extends Tabellone {
         frame = new JFrame("Tombola");
         griglia = new GridLayout(9, 10, 5, 5);
         panel1 = new JPanel();
-        numero = new JLabel("-Numero Ucito-");
+        numero = new JLabel("-Numero Uscito-");
         panel2 = new JPanel();
         tabellone = new Tabellone();
-        frame.setSize(450, 300);
+        frame.setSize(600, 350);
         frame.setLayout(new GridLayout(2,1));
 
         //panel1.setBounds(0, 0, 450, 150);
@@ -199,9 +199,10 @@ public class Master extends Tabellone {
             System.out.println("Waiting for client to connect...");
             map.put(uid, ByteBuffer.allocate(1024));
             ConnectionHandler ch = new ConnectionHandler(serverSocket.accept(), uid, map.get(uid));
+            uid++;
             client.add(ch);
             // new Thread(() -> client.get(0)).start();
-            System.out.println("Client connected: " + client.get(0).toString());
+            System.out.println("Client connected: " + client.get(0).getSocket().toString());
             System.out.println("No. of clients: " + client.size());
             Accept();
         } catch (IOException e) {
