@@ -82,6 +82,7 @@ public class Player extends Network {
 	//TODO: LAN SEARCH
 	private void SearchGame() {
 		String message = "Cerco Partita";
+		byte[] byt;
 		try {
 			while (true) {
 				multicastSocket = new MulticastSocket(4321);
@@ -91,6 +92,13 @@ public class Player extends Network {
 				multicastSocket.joinGroup(inet);
 				DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inet, 4321);
 				multicastSocket.send(send);
+
+				byt = new byte[256];
+				DatagramPacket recv = new DatagramPacket(byt, byt.length);
+				multicastSocket.receive(recv);
+				String msg = new String(byt);
+				System.out.println("Multicast answer: " + msg);
+
 				Thread.sleep(5000);
 			}
 		} catch (Exception e) {
