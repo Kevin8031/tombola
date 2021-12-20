@@ -129,12 +129,15 @@ public class Host extends Network {
 				DatagramPacket recv = new DatagramPacket(byt, byt.length);
 				multicastSocket.receive(recv);
 				String msg = new String(byt);
+				msg = msg.trim();
 
 				if(msg.equals("Cerco Partita")) {
+					System.out.println("Mutlicast recived: " + msg);
 					String message = multicastSocket.getLocalSocketAddress().toString();
 					message = serverSocket.getLocalSocketAddress().toString();
 					DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inet, 4321);
 					multicastSocket.send(send);
+					System.out.println("Sending multicast:" + message);
 				}
 
 				byt = new byte[256];
