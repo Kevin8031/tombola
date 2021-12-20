@@ -1,12 +1,6 @@
-import java.util.Scanner;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.net.*;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.net.*;
-import java.util.Scanner;
 
 public class Giocatore extends Tabella {
 	// attributes (GUI)
@@ -19,12 +13,7 @@ public class Giocatore extends Tabella {
 	private JButton[] caselle;
 	private int numero;
 
-	// attributes (Networking)
-	private Socket socket;
-	private MulticastSocket multicastSocket;
-	private Scanner inputStream;
-	private PrintStream outputStream;
-	private Thread rThread;
+	private Player player;
 
 	// constructor
 	Giocatore(JFrame parent) {
@@ -32,6 +21,9 @@ public class Giocatore extends Tabella {
 		panel1 = new JPanel();
 		panel2 = new JPanel();
 		griglia = new GridLayout(3, 9, 3, 3);
+		labelNumero = new JLabel("- NUMERO -");
+		caselle = new JButton[RIGHE * COLONNE];
+		player = new Player();
 		//statusPanel = new JPanel();
 
 
@@ -91,7 +83,7 @@ public class Giocatore extends Tabella {
 							{
 								this.setBackground(new Color(16, 7, 232));
 								this.setForeground(Color.WHITE);
-								addActionListener(e -> Disconnect());
+								addActionListener(e -> player.DisconnectFromServer());
 							}
 						});
 					}
@@ -104,7 +96,7 @@ public class Giocatore extends Tabella {
 
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				Disconnect();
+				player.DisconnectFromServer();
 				parent.setVisible(true);
 			}
 
@@ -154,7 +146,7 @@ public class Giocatore extends Tabella {
 		dialog.setLocationRelativeTo(frame);
 
 		JTextField host = new JTextField();
-		JTextField port = new JTextField();
+		JTextField port = new JTextField("60001");
 
 		dialog.setLayout(new GridLayout());
 
@@ -162,52 +154,12 @@ public class Giocatore extends Tabella {
 		dialog.add(port);
 		dialog.add(new JButton("Connetti") {
 			{
-				addActionListener(e -> ConnectToServer(host.getText(), Integer.valueOf(port.getText())));
+				addActionListener(e -> player.ConnectToServer(host.getText(), Integer.valueOf(port.getText())));
 			}
 		});
 		
 		dialog.setSize(300, 60);
 		dialog.setVisible(true);
-	}
-	
-	private boolean ConnectToServer(String host, int port) {
-		try {
-			socket = new Socket();
-			SocketAddress socketAddress = new InetSocketAddress(InetAddress.getByName(host), port);
-			socket.connect(socketAddress);
-			inputStream = new Scanner(socket.getInputStream());
-			outputStream = new PrintStream(socket.getOutputStream());
-			rThread = new Thread(() -> {ReadNumber();});
-			rThread.start();
-			System.out.println(socket.toString());
-			
-			return !socket.isClosed();
-		} catch (IOException e) {
-			System.err.println(e);
-			return false;
-		}
-	}
-
-	private void Disconnect() {
-		if(socket != null) {
-			try {
-				socket.close();
-				rThread.join(100);
-				System.out.println("Disconnesso");
-			} catch (Exception e) {
-				System.err.println(e);
-			}
-		}
-		else
-			System.out.println("Already disconnected!");
-	}
-
-	private void ReadNumber() {
-		numero = inputStream.nextInt();
-		System.out.println(numero);
-		labelNumero.setText(String.valueOf(numero));
-		numeriEstratti.add(numero);
-		ReadNumber();
 	}
 
 	private void ControllaNumero(ActionEvent e) {
@@ -219,7 +171,7 @@ public class Giocatore extends Tabella {
 
 			Combo combo = CheckCombo();
 			System.out.println(combo.toString());
-			outputStream.println(Net.CheckCombo.toString() + combo);
+			player.Send(Net.CheckCombo.toString() + combo);
 		}
 	}
 }

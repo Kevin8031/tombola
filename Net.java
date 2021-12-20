@@ -1,4 +1,10 @@
 public enum Net {
-    CheckCombo,
-    SetName,
+	NewNumber,
+
+	CheckCombo,
+	SetName;
+
+	public String toString() {
+		return name();
+	}
 }

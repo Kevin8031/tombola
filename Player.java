@@ -10,6 +10,10 @@ public class Player extends Network {
 
 	private Socket socket;
 	private Thread clientThread;
+
+	Player() {
+		group = Group.player;
+	}
 	
 	Player(Socket socket, int id) {
 		group = Group.player;
@@ -34,7 +38,7 @@ public class Player extends Network {
 		
 	}
 
-	public boolean ConectToServer(String host, int port) {
+	public boolean ConnectToServer(String host, int port) {
 		if(group == Group.player) {
 			try {
 				socket = new Socket();
@@ -58,7 +62,7 @@ public class Player extends Network {
 	}
 
 	public void Init() {
-
+		Read();
 	}
 
 	//TODO: LAN SEARCH

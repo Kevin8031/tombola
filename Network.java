@@ -27,13 +27,16 @@ public class Network {
 		// this.buf = buf;
 		// client = new ArrayList<Socket>();
 		// map = new HashMap<Integer, ByteBuffer>();
+		buf = ByteBuffer.allocate(1024);
 	}
 
 	// client
 
 	public void Read() {
 		buf.put(inStream.nextLine().getBytes());
-		String msg = new String(buf.array());
+
+		String s = new String(buf.array());
+		String msg = getHead(s);
 
 		if(group == Group.host)
 			Master.ReadFromClient(id, msg);
@@ -43,7 +46,7 @@ public class Network {
 	}
 
 	public void SendNumber(int num) {
-		outStream.println(num);
+		outStream.println(Net.NewNumber.toString() + " " + num);
 		System.out.println("[" + id + " - " + group + "] Sent: " + num);
 	}
 
@@ -53,5 +56,16 @@ public class Network {
 	}
 
 	
+	public String getHead(String s) {
+		int i = 0;
+		while(i < s.length() - 1) {
+			if(s.charAt(i++) == ' ')
+				break;
+		}
 
+		String head = s.substring(0, i - 1);
+		String msg = s.substring(i, s.length());
+		System.out.println("Head: " + head + " - body: " + msg);
+		return head;
+	}
 }

@@ -1,4 +1,4 @@
-import java.awt.*;
+/*import java.awt.*;
 import javax.swing.*;
 
 public class LayoutEg1 extends JPanel{
@@ -54,4 +54,4 @@ public class LayoutEg1 extends JPanel{
             }
         });
     }
-}
+}*/
