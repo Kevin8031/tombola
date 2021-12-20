@@ -310,6 +310,7 @@ public class Giocatore extends Tabella {
 		ReadNumber();
 	}
 
+	//TODO: LAN SEARCH
 	private void SearchGame() {
 		String message = "Cerco Partita";
 		ByteBuffer buf = ByteBuffer.wrap(message.getBytes());
@@ -332,10 +333,11 @@ public class Giocatore extends Tabella {
 		}
 	}
 
+	//TODO: LAN SEARCH
 	private String WaitResponse(NetworkInterface nic) {
 		try {
 			System.out.println(NetworkInterface.getNetworkInterfaces());
-			NetworkInterface nicc = NetworkInterface.getByName("wlan1");
+			//NetworkInterface nicc = NetworkInterface.getByName("wlan1");
 			String message = "MiConnetto";
 			buf = message.getBytes();
 			multicastSocket = new MulticastSocket();
@@ -368,10 +370,6 @@ public class Giocatore extends Tabella {
 
 	private void ControllaNumero(ActionEvent e) {
 		JButton btn = (JButton)e.getSource();
-
-		// System.out.println(btn.getText() + " == " + String.valueOf(numero) + ":");
-		// System.out.println(btn.getText() + " == " + String.valueOf(numero) + ": " +  btn.getText() == String.valueOf(numero));
-		// System.out.println(btn.getText() + " == " + numero + ": " +  Integer.valueOf(btn.getText()) == numero);
 		
 		if(btn.getText().equals(String.valueOf(numero))) {
 			btn.setBackground(Color.BLACK);
@@ -379,52 +377,7 @@ public class Giocatore extends Tabella {
 
 			Combo combo = CheckCombo();
 			System.out.println(combo.toString());
-			String s;
 			outputStream.println(Net.CheckCombo.toString() + combo);
 		}
-	}
-
-	private void ControllaCombo(JButton btn) {
-		int riga = Integer.valueOf(btn.getName()) % 3;
-		int i = 0;
-		int numeriRiga = 0;
-
-		if(riga < 9)
-			i = 0;
-		else if (riga < 18)
-			i = 9;
-		else
-			i = 18;
-		
-		for(; i < RIGHE * COLONNE; i++) {
-			if(caselle[i].getBackground() == Color.BLACK)
-				numeriRiga++;
-		}
-
-		switch (numeriRiga) {
-			case 2:
-				System.out.println("Ambo");
-				outputStream.println("Ambo");
-				break;
-		
-			case 3:
-				System.out.println("Terno");
-				outputStream.println("Terno");
-				break;
-			
-			case 4:
-				System.out.println("Quaterna");
-				outputStream.println("Quaterna");
-				break;
-				
-			case 5:
-				System.out.println("Cinquina");
-				outputStream.println("Cinquina");
-				break;   
-			default:
-				System.out.println("Niente da fare");
-				break;
-		}
-
 	}
 }
