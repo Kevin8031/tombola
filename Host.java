@@ -119,10 +119,12 @@ public class Host extends Network {
 		byte[] byt = new byte[256];
 		try {
 			multicastSocket = new MulticastSocket(4321);
+			MulticastSocket multicastSocket2 = new MulticastSocket(4322);
 			
 			//NetworkInterface nic = NetworkInterface.getByName("enp3s0");
 			InetAddress inet = InetAddress.getByName("228.5.6.7");
 			multicastSocket.joinGroup(inet);
+			multicastSocket2.joinGroup(inet);
 			
 			System.out.println("Server opened to lan.");
 			while (openToLan) {
@@ -135,8 +137,8 @@ public class Host extends Network {
 					System.out.println("Mutlicast recived: " + msg);
 					String message = multicastSocket.getLocalSocketAddress().toString();
 					message = serverSocket.getLocalSocketAddress().toString();
-					DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inet, 4321);
-					multicastSocket.send(send);
+					DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inet, 4322);
+					multicastSocket2.send(send);
 					System.out.println("Sending multicast:" + message);
 				}
 
