@@ -1,4 +1,3 @@
-package src;
 public class Message {
 	private String head;
 	private String body;

@@ -1,4 +1,3 @@
-package src;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.util.Scanner;

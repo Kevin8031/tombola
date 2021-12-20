@@ -1,4 +1,3 @@
-package src;
 public class Tabellone extends Tabella {
 	// constants
 	final private short RIGHE = 9;
