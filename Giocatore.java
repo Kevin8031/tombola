@@ -5,8 +5,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
 import java.util.Scanner;
 
 public class Giocatore extends Tabella {
@@ -23,9 +21,7 @@ public class Giocatore extends Tabella {
 	private Socket socket;
 	private Scanner inputStream;
 	private PrintStream outputStream;
-	private MulticastSocket multicastSocket;
 	private Thread rThread;
-	private byte[] buf;
 
 	Giocatore(JFrame parent) {
 		numero = 0;
@@ -35,7 +31,7 @@ public class Giocatore extends Tabella {
 		panel1 = new JPanel();
 		panel2 = new JPanel();
 		griglia = new GridLayout(3, 9, 3, 3);
-		statusPanel = new JPanel();
+		//statusPanel = new JPanel();
 
 
 		frame.setSize(600, 350);
@@ -121,8 +117,8 @@ public class Giocatore extends Tabella {
 		} catch (Exception e) {
 			System.err.println(e);
 		}*/
-		frame.getContentPane().add(statusPanel, BorderLayout.SOUTH);
-		statusPanel.add(new JLabel("Ciao"));
+		//frame.getContentPane().add(statusPanel, BorderLayout.SOUTH);
+		//statusPanel.add(new JLabel("Ciao"));
 
 	}
 
@@ -208,64 +204,6 @@ public class Giocatore extends Tabella {
 		labelNumero.setText(String.valueOf(numero));
 		numeriEstratti.add(numero);
 		ReadNumber();
-	}
-
-	//TODO: LAN SEARCH
-	private void SearchGame() {
-		String message = "Cerco Partita";
-		ByteBuffer buf = ByteBuffer.wrap(message.getBytes());
-		try {
-			System.out.println("Searching lan game - port(4321)");
-			DatagramChannel datagramChannel = DatagramChannel.open();
-			NetworkInterface nic = NetworkInterface.getByIndex(1);
-			InetSocketAddress inet = InetSocketAddress.createUnresolved("230.0.0.0", 4321);
-
-			datagramChannel.bind(null);
-			datagramChannel.setOption(StandardSocketOptions.IP_MULTICAST_IF, nic);
-			datagramChannel.send(buf, inet);
-
-			System.out.println("Multicast sent: " + message);
-			System.out.println("Waiting response...");
-			String response = WaitResponse(nic);
-			System.out.println("Message recived: " + response);
-		} catch (Exception e) {
-			System.err.println(e);
-		}
-	}
-
-	//TODO: LAN SEARCH
-	private String WaitResponse(NetworkInterface nic) {
-		try {
-			System.out.println(NetworkInterface.getNetworkInterfaces());
-			//NetworkInterface nicc = NetworkInterface.getByName("wlan1");
-			String message = "MiConnetto";
-			buf = message.getBytes();
-			multicastSocket = new MulticastSocket();
-			InetAddress group = InetAddress.getByName("230.0.0.0");
-			multicastSocket.joinGroup(group);
-
-			DatagramPacket packet = new DatagramPacket(buf, buf.length, group, 4321);
-			multicastSocket.send(packet);
-
-
-			// DatagramChannel datagramChannel = DatagramChannel.open(StandardProtocolFamily.INET);
-			// datagramChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-			// datagramChannel.bind(new InetSocketAddress(4321));
-			// datagramChannel.setOption(StandardSocketOptions.IP_MULTICAST_IF, nic);
-
-
-			// MembershipKey membershipKey = datagramChannel.join(inetAddress, nic);
-			// ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
-			// datagramChannel.read(byteBuffer);
-			// byteBuffer.flip();
-			// byte[] b = new byte[byteBuffer.limit()];
-			// byteBuffer.get(b, 0, byteBuffer.limit());
-			// membershipKey.drop();
-			// return new String(b);
-		} catch (Exception e) {
-			System.err.println(e);
-		}
-		return "failed";   
 	}
 
 	private void ControllaNumero(ActionEvent e) {
