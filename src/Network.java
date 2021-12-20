@@ -48,18 +48,27 @@ public class Network {
 	}
 
 	public void SendNumber(int num) {
-		outStream.println(MessageType.NewNumber.toString() + " " + num);
-		System.out.println("[" + id + " - " + group + "] Sent: " + num);
+		if(outStream != null) {
+			outStream.println(MessageType.NewNumber.toString() + " " + num);
+			System.out.println("[" + id + " - " + group + "] Sent: " + num);
+		} else
+			System.out.println("[ERROR] Cannot send number \"" + num + "\". Not connected to anyone.");
 	}
 
 	public void Send(String s) {
-		outStream.println(s);
-		System.out.println("[" + id + " - " + group + "] Sent: " + s);
+		if(outStream != null) {
+			outStream.println(s);
+			System.out.println("[" + id + " - " + group + "] Sent: " + s);
+		} else
+			System.out.println("[ERROR] Cannot send message \"" + s + "\". Not connected to anyone.");
 	}
 
 	public void Send(Message msg) {
-		outStream.println(msg.toString());
-		System.out.println("[" + id + " - " + group + "] Sent: " + msg.toString());
+		if(outStream != null) {
+			outStream.println(msg.toString());
+			System.out.println("[" + id + " - " + group + "] Sent: " + msg.toString());
+		} else
+			System.out.println("[ERROR] Cannot send message \"" + msg.toString() + "\". Not connected to anyone.");
 	}
 
 	
