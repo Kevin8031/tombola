@@ -35,11 +35,13 @@ public class Network {
 	public void Read() {
 		buf.put(inStream.nextLine().getBytes());
 
-		String s = new String(buf.array());
-		String msg = getHead(s);
+		Message msg = Message.getHeadAndBody(new String(buf.array()));
+		msg.setBody(msg.getBody().trim());
 
 		if(group == Group.host)
 			Master.ReadFromClient(id, msg);
+		else
+			Giocatore.ReadFromClient(id, msg);
 
 		buf.clear();
 		Read();
@@ -55,17 +57,11 @@ public class Network {
 		System.out.println("[" + id + " - " + group + "] Sent: " + s);
 	}
 
-	
-	public String getHead(String s) {
-		int i = 0;
-		while(i < s.length() - 1) {
-			if(s.charAt(i++) == ' ')
-				break;
-		}
-
-		String head = s.substring(0, i - 1);
-		String msg = s.substring(i, s.length());
-		System.out.println("Head: " + head + " - body: " + msg);
-		return head;
+	public void Send(Message msg) {
+		outStream.println(msg.toString());
+		System.out.println("[" + id + " - " + group + "] Sent: " + msg.toString());
 	}
+
+	
+	
 }

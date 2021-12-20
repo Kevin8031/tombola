@@ -14,7 +14,7 @@ public class Master extends Tabellone {
 	private Tabellone tabellone;
 	private JButton[] caselle;
 	
-	Host host;
+	private static Host host;
 
 	Master(JFrame parent) {
 		host = new Host();
@@ -150,7 +150,7 @@ public class Master extends Tabellone {
 
 		dialog.setVisible(true);
 
-		for (Player i : host.getClient()) {
+		for (Player i : host.getClients()) {
 			dlm.add(0, i.getSocket().getRemoteSocketAddress().toString());
 		}
 	}
@@ -170,12 +170,18 @@ public class Master extends Tabellone {
 		host.SendNumber(num);
 	}
 
-	public static void ReadFromClient(int id, String msg) {
-		// map.forEach((k, v) -> {
-		//     System.out.println("[" + v + "] Says: " + new String(v.array()));
-		// });
+	public static void ReadFromClient(int id, Message msg) {
+		System.out.println("[" + id + " \"" + host.getClient(id).getName() + "\"" + "] Says: " + msg.toString());
 
-		System.out.println("[" + id + "] Says: " + msg);
+		switch (Net.valueOf(msg.getHead())) {
+			case NewNumber:
+				host.getClient(id).setName(msg.getBody());
+				System.out.println("Name set for: " + id + " \"" + host.getClient(id).getName() + "\"");
+				break;
+		
+			default:
+				break;
+		}
 	}
 
 	private void ResetAll() {

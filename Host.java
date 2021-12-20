@@ -1,5 +1,8 @@
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -10,10 +13,11 @@ import java.util.Scanner;
 
 public class Host extends Network {
 
-	Network.Group group;
+	private Network.Group group;
 	private ServerSocket serverSocket;
+	private MulticastSocket multicastSocket;
 	private Thread serverThread;
-	private Thread readThread;
+	private Thread lanThread;
 	private ArrayList<Player> client;
 
 	private static Map<Integer, ByteBuffer> map;
@@ -22,7 +26,8 @@ public class Host extends Network {
 	Host() {
 		group = Network.Group.host;
 
-		readThread = new Thread(() -> Read());
+		//readThread = new Thread(() -> Read());
+		//readThread.start();
 		client = new ArrayList<Player>();
 		map = new HashMap<Integer, ByteBuffer>();
 	}
@@ -33,8 +38,10 @@ public class Host extends Network {
 				try {
 					serverSocket = new ServerSocket(60001);
 					serverThread = new Thread(() -> Accept());
-					System.out.println("Server started!");
 					serverThread.start();
+					lanThread = new Thread(() -> OpenToLan());
+					lanThread.start();
+					System.out.println("Server started!");
 					return true;
 					// new Thread(() -> ReadFromClient()).start();
 					//OpenToLan();
@@ -63,7 +70,8 @@ public class Host extends Network {
 					}
 
 					serverThread.join(100);
-					readThread.join(100);
+					lanThread.join(100);
+					//readThread.join(100);
 					serverSocket.close();
 					System.out.println("Server Stopped");
 				} catch (Exception e) {
@@ -89,7 +97,9 @@ public class Host extends Network {
 				
 				p.inStream = new Scanner(s.getInputStream());
 				p.outStream = new PrintStream(s.getOutputStream());
+				p.setName(("player" + uid));
 
+				new Thread(() -> p.Read()).start();;
 				client.add(p);
 				// new Thread(() -> client.get(0)).start();
 				System.out.println("Client connected: " + client.get(0).getSocket().toString());
@@ -103,20 +113,19 @@ public class Host extends Network {
 		}
 	}
 
-	/*private void OpenToLan() {
-		buf = new byte[256];
+	private void OpenToLan() {
+		byte[] byt = new byte[256];
 		try {
 			multicastSocket = new MulticastSocket(4321);
 
-			NetworkInterface nic = NetworkInterface.getByName("enp3s0");
-			InetAddress inet = InetAddress.getByName("230.0.0.0");
+			//NetworkInterface nic = NetworkInterface.getByName("enp3s0");
+			InetAddress inet = InetAddress.getByName("228.5.6.7");
 			multicastSocket.joinGroup(inet);
 
 			while (true) {
-				DatagramPacket packet = new DatagramPacket(buf, buf.length);
-				multicastSocket.receive(packet);
-				String recived = new String(buf);
-				System.out.println("Recived: " + recived);
+				DatagramPacket recv = new DatagramPacket(byt, byt.length);
+				multicastSocket.receive(recv);
+				System.out.println("Recived: " + byt);
 			}
 
 			// DatagramChannel datagramChannel = DatagramChannel.open(StandardProtocolFamily.INET);
@@ -138,10 +147,19 @@ public class Host extends Network {
 		} catch (Exception e) {
 			System.err.println(e);
 		}
-	}*/
+	}
 
-	public ArrayList<Player> getClient() {
+	public ArrayList<Player> getClients() {
 		return client;
+	}
+
+	public Player getClient(int id) {
+		for (Player player : client) {
+			if(player.getId() == id)
+				return player;
+		}
+
+		return null;
 	}
 
 	public void setClient(ArrayList<Player> client) {
@@ -153,5 +171,10 @@ public class Host extends Network {
 		for (Player player : client) {
 			player.SendNumber(num);
 		}
+	}
+
+	@Override
+	public void Read() {
+		
 	}
 }

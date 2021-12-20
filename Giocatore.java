@@ -7,11 +7,11 @@ public class Giocatore extends Tabella {
 	private JFrame frame;
 	private JPanel panel1;
 	private JPanel panel2;
-	private JPanel statusPanel;
-	private JLabel labelNumero;
+	// private JPanel statusPanel;
+	private static JLabel labelNumero;
 	private GridLayout griglia;
 	private JButton[] caselle;
-	private int numero;
+	private static int numero;
 
 	private Player player;
 
@@ -88,7 +88,24 @@ public class Giocatore extends Tabella {
 						});
 					}
 				});
+
+				add(new JMenu("Giocatore") {
+					{
+						add(new JMenuItem("Nome") {
+							{
+								addActionListener(l -> addName());
+							}
+
+							private void addName() {
+								player.setName("Kevin");
+								Message msg = new Message(Net.SetName, "Kevin");
+								player.Send(msg);
+							}
+						});
+					}
+				});
 			}
+			
 		});
 		
 		frame.setLocationRelativeTo(null);
@@ -103,17 +120,9 @@ public class Giocatore extends Tabella {
 			public void windowOpened(WindowEvent e) {
 				dialogConnectToServer();
 			}
-		});
-		/*
-		try {
-			WaitResponse(NetworkInterface.getByIndex(1));
-			
-		} catch (Exception e) {
-			System.err.println(e);
-		}*/
-		//frame.getContentPane().add(statusPanel, BorderLayout.SOUTH);
-		//statusPanel.add(new JLabel("Ciao"));
 
+			
+		});
 	}
 
 	// methods (GUI)
@@ -172,6 +181,21 @@ public class Giocatore extends Tabella {
 			Combo combo = CheckCombo();
 			System.out.println(combo.toString());
 			player.Send(Net.CheckCombo.toString() + combo);
+		}
+	}
+
+	public static void ReadFromClient(int id, Message msg) {
+		System.out.println("[Server] Says: " + msg.toString());
+
+		switch (Net.valueOf(msg.getHead())) {
+			case NewNumber:
+				numero = Integer.valueOf(msg.getBody());
+				labelNumero.setText(msg.getBody());
+				numeriEstratti.add(numero);
+				break;
+		
+			default:
+				break;
 		}
 	}
 }

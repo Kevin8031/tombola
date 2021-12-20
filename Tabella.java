@@ -10,7 +10,7 @@ public class Tabella {
 	private Random random;
 	protected int[] tabella;
 	private int numPresentiRighe[];
-	protected ArrayList<Integer> numeriEstratti;
+	protected static ArrayList<Integer> numeriEstratti;
 	private int[] numeriDuplicati;
 	private boolean[] combo;
 

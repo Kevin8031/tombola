@@ -1,7 +1,9 @@
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.MulticastSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Scanner;
@@ -10,6 +12,9 @@ public class Player extends Network {
 
 	private Socket socket;
 	private Thread clientThread;
+	private String name;
+	private MulticastSocket multicastSocket;
+	private Thread lanThread;
 
 	Player() {
 		group = Group.player;
@@ -44,8 +49,8 @@ public class Player extends Network {
 				socket = new Socket();
 				SocketAddress socketAddress = new InetSocketAddress(InetAddress.getByName(host), port);
 				socket.connect(socketAddress);
-				inStream = new Scanner(this.socket.getInputStream());
-				outStream = new PrintStream(this.socket.getOutputStream());
+				inStream = new Scanner(socket.getInputStream());
+				outStream = new PrintStream(socket.getOutputStream());
 				clientThread = new Thread(() -> {Init();});
 				clientThread.start();
 				System.out.println(socket.toString());
@@ -62,66 +67,28 @@ public class Player extends Network {
 	}
 
 	public void Init() {
+		//Message msg = new Message(Net.SetName, "player");
+
+		
+
 		Read();
 	}
 
 	//TODO: LAN SEARCH
-	/*private void SearchGame() {
+	private void SearchGame() {
 		String message = "Cerco Partita";
-		ByteBuffer buf = ByteBuffer.wrap(message.getBytes());
 		try {
-			System.out.println("Searching lan game - port(4321)");
-			DatagramChannel datagramChannel = DatagramChannel.open();
-			NetworkInterface nic = NetworkInterface.getByIndex(1);
-			InetSocketAddress inet = InetSocketAddress.createUnresolved("230.0.0.0", 4321);
+			multicastSocket = new MulticastSocket(4321);
 
-			datagramChannel.bind(null);
-			datagramChannel.setOption(StandardSocketOptions.IP_MULTICAST_IF, nic);
-			datagramChannel.send(buf, inet);
-
-			System.out.println("Multicast sent: " + message);
-			System.out.println("Waiting response...");
-			String response = WaitResponse(nic);
-			System.out.println("Message recived: " + response);
+			//NetworkInterface nic = NetworkInterface.getByName("enp3s0");
+			InetAddress inet = InetAddress.getByName("228.5.6.7");
+			multicastSocket.joinGroup(inet);
+			DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inet, 4321);
+			multicastSocket.send(send);
 		} catch (Exception e) {
 			System.err.println(e);
 		}
-	}*/
-
-	//TODO: LAN SEARCH
-	/*private String WaitResponse(NetworkInterface nic) {
-		try {
-			System.out.println(NetworkInterface.getNetworkInterfaces());
-			//NetworkInterface nicc = NetworkInterface.getByName("wlan1");
-			String message = "MiConnetto";
-			buf = message.getBytes();
-			multicastSocket = new MulticastSocket();
-			InetAddress group = InetAddress.getByName("230.0.0.0");
-			multicastSocket.joinGroup(group);
-
-			DatagramPacket packet = new DatagramPacket(buf, buf.length, group, 4321);
-			multicastSocket.send(packet);
-
-
-			// DatagramChannel datagramChannel = DatagramChannel.open(StandardProtocolFamily.INET);
-			// datagramChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-			// datagramChannel.bind(new InetSocketAddress(4321));
-			// datagramChannel.setOption(StandardSocketOptions.IP_MULTICAST_IF, nic);
-
-
-			// MembershipKey membershipKey = datagramChannel.join(inetAddress, nic);
-			// ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
-			// datagramChannel.read(byteBuffer);
-			// byteBuffer.flip();
-			// byte[] b = new byte[byteBuffer.limit()];
-			// byteBuffer.get(b, 0, byteBuffer.limit());
-			// membershipKey.drop();
-			// return new String(b);
-		} catch (Exception e) {
-			System.err.println(e);
-		}
-		return "failed";   
-	}*/
+	}
 
 	public Socket getSocket() {
 		return socket;
@@ -129,5 +96,22 @@ public class Player extends Network {
 
 	public void setSocket(Socket socket) {
 		this.socket = socket;
-	}	
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		super.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
 }

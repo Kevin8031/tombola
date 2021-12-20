@@ -1,8 +1,6 @@
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import java.awt.*;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 
 public class Gioco extends JFrame {
 	Giocatore giocatore;
