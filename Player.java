@@ -93,6 +93,7 @@ public class Player extends Network {
 				multicastSocket.joinGroup(inet);
 				DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inet, 4321);
 				multicastSocket.send(send);
+				System.out.println("Multicast: " + message);
 
 				byt = new byte[256];
 				DatagramPacket recv = new DatagramPacket(byt, byt.length);
