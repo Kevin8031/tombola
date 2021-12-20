@@ -13,17 +13,13 @@ public class Client extends Network {
 	private Socket socket;
 	private Thread clientThread;
 	private String name;
-	private MulticastSocket multicastSocket;
+	private MulticastSocket multicastSend;
+	private MulticastSocket multicastRecive;
 	private Thread sendThread;
 	private Thread reciveThread;
 
 	Client() {
 		group = Group.player;
-		try {
-			multicastSocket = new MulticastSocket(4321);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		
 		sendThread = new Thread(() -> SearchGame());
 		sendThread.start();
@@ -87,17 +83,15 @@ public class Client extends Network {
 		Read();
 	}
 
-	//TODO: LAN SEARCH
 	private void SearchGame() {
-		String message = "Cerco Partita";
-		byte[] byt;
-		
+		String message = "Cerco Partita";		
 		try {
-			InetAddress inet = InetAddress.getByName("228.5.6.7");
-			multicastSocket.joinGroup(inet);
+			multicastSend = new MulticastSocket(4321);
+			InetAddress inetSend = InetAddress.getByName("228.5.6.7");
+			multicastSend.joinGroup(inetSend);
 			while (true) {
-				DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inet, 4321);
-				multicastSocket.send(send);
+				DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inetSend, 4321);
+				multicastSend.send(send);
 				System.out.println("Multicast: " + message);
 
 				Thread.sleep(5000);
@@ -110,16 +104,16 @@ public class Client extends Network {
 	private void ReciveGame() {
 		byte[] byt;
 		try {
-			MulticastSocket multicastSocket2 = new MulticastSocket(4322);
-			InetAddress inet = InetAddress.getByName("228.5.6.7");
-			multicastSocket2.joinGroup(inet);
+			multicastRecive = new MulticastSocket(4321);
+			InetAddress inetRecive = InetAddress.getByName("228.5.6.8");
+			multicastRecive.joinGroup(inetRecive);
 			while (true) {
 				byt = new byte[256];
 				DatagramPacket recv = new DatagramPacket(byt, byt.length);
-				multicastSocket2.receive(recv);
+				multicastRecive.receive(recv);
 				String msg = new String(byt);
 				System.out.println("Multicast answer: " + msg);
-				System.out.println(multicastSocket2.getRemoteSocketAddress().toString());
+				System.out.println(multicastRecive.getRemoteSocketAddress().toString());
 			}
 		} catch (IOException e) {
 			System.err.println(e);

@@ -21,6 +21,7 @@ public class Server extends Network {
 	private Thread lanThread;
 	private ArrayList<Client> client;
 	private boolean openToLan;
+	private String serverName;
 
 	private static Map<Integer, ByteBuffer> map;
 	private int uid;
@@ -123,9 +124,10 @@ public class Server extends Network {
 			multicastRecive = new MulticastSocket(4321);
 			
 			//NetworkInterface nic = NetworkInterface.getByName("enp3s0");
-			InetAddress inet = InetAddress.getByName("228.5.6.7");
-			multicastSend.joinGroup(inet);
-			multicastRecive.joinGroup(inet);
+			InetAddress inetRecive = InetAddress.getByName("228.5.6.7");
+			InetAddress inetSend = InetAddress.getByName("228.5.6.8");
+			multicastSend.joinGroup(inetRecive);
+			multicastRecive.joinGroup(inetSend);
 			
 			System.out.println("Server opened to lan.");
 			while (openToLan) {
@@ -138,7 +140,7 @@ public class Server extends Network {
 					System.out.println("Mutlicast recived: " + msg);
 					String message = multicastSend.getLocalSocketAddress().toString();
 					message = serverSocket.getLocalSocketAddress().toString();
-					DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inet, 4322);
+					DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inetRecive, 4322);
 					multicastRecive.send(send);
 					System.out.println("Sending multicast:" + message);
 				}
