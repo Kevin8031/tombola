@@ -19,6 +19,11 @@ public class Player extends Network {
 
 	Player() {
 		group = Group.player;
+		try {
+			multicastSocket = new MulticastSocket(4321);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		sendThread = new Thread(() -> SearchGame());
 		sendThread.start();
@@ -88,12 +93,9 @@ public class Player extends Network {
 		byte[] byt;
 		
 		try {
-			MulticastSocket multicastSocket2 = new MulticastSocket(4322);
+			InetAddress inet = InetAddress.getByName("228.5.6.7");
+			multicastSocket.joinGroup(inet);
 			while (true) {
-				multicastSocket = new MulticastSocket(4321);
-
-				InetAddress inet = InetAddress.getByName("228.5.6.7");
-				multicastSocket.joinGroup(inet);
 				DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inet, 4321);
 				multicastSocket.send(send);
 				System.out.println("Multicast: " + message);
@@ -108,12 +110,16 @@ public class Player extends Network {
 	private void ReciveGame() {
 		byte[] byt;
 		try {
+			MulticastSocket multicastSocket2 = new MulticastSocket(4322);
+			InetAddress inet = InetAddress.getByName("228.5.6.7");
+			multicastSocket2.joinGroup(inet);
 			while (true) {
 				byt = new byte[256];
 				DatagramPacket recv = new DatagramPacket(byt, byt.length);
-				multicastSocket.receive(recv);
+				multicastSocket2.receive(recv);
 				String msg = new String(byt);
 				System.out.println("Multicast answer: " + msg);
+				System.out.println(multicastSocket2.getRemoteSocketAddress().toString());
 			}
 		} catch (IOException e) {
 			System.err.println(e);
