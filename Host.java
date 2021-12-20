@@ -117,35 +117,20 @@ public class Host extends Network {
 		byte[] byt = new byte[256];
 		try {
 			multicastSocket = new MulticastSocket(4321);
-
+			
 			//NetworkInterface nic = NetworkInterface.getByName("enp3s0");
 			InetAddress inet = InetAddress.getByName("228.5.6.7");
 			multicastSocket.joinGroup(inet);
-
+			
+			System.out.println("Server opened to lan.");
 			while (true) {
 				DatagramPacket recv = new DatagramPacket(byt, byt.length);
 				multicastSocket.receive(recv);
 				System.out.println("Recived: " + byt);
 			}
-
-			// DatagramChannel datagramChannel = DatagramChannel.open(StandardProtocolFamily.INET);
-			// datagramChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-			// datagramChannel.bind(new InetSocketAddress(4321));
-			// datagramChannel.setOption(StandardSocketOptions.IP_MULTICAST_IF, nic);
-
-			// InetAddress inetAddress = InetAddress.getByName("230.0.0.0");
-
-			// MembershipKey membershipKey = datagramChannel.join(inetAddress, nic);
-			// System.out.println("Server opened to lan - port(4321)");
-			// ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
-			// datagramChannel.read(byteBuffer);
-			// byteBuffer.flip();
-			// byte[] b = new byte[byteBuffer.limit()];
-			// byteBuffer.get(b, 0, byteBuffer.limit());
-			// membershipKey.drop();
-			// System.out.println("Message: " + b);
 		} catch (Exception e) {
 			System.err.println(e);
+			System.out.println("Cannot open server to lan.");
 		}
 	}
 
