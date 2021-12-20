@@ -8,11 +8,6 @@ public class Gioco extends JFrame {
 	Giocatore giocatore;
 	Master master;
 
-	enum playerType {
-		giocatore,
-		tabellone
-	}
-
 	Gioco() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("Tombola - Main Menu");
