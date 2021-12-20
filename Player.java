@@ -14,21 +14,24 @@ public class Player extends Network {
 	private Thread clientThread;
 	private String name;
 	private MulticastSocket multicastSocket;
-	private Thread lanThread;
+	private Thread sendThread;
+	private Thread reciveThread;
 
 	Player() {
 		group = Group.player;
 		
-		lanThread = new Thread(() -> SearchGame());
-		lanThread.start();
+		sendThread = new Thread(() -> SearchGame());
+		sendThread.start();
+		reciveThread = new Thread(() -> ReciveGame());
+		reciveThread.start();
 	}
 	
 	Player(Socket socket, int id) {
 		group = Group.player;
 		super.id = id;
 		this.socket = socket;
-		lanThread = new Thread(() -> SearchGame());
-		lanThread.start();
+		sendThread = new Thread(() -> SearchGame());
+		sendThread.start();
 	}
 
 	public void DisconnectFromServer() {
@@ -95,15 +98,24 @@ public class Player extends Network {
 				multicastSocket.send(send);
 				System.out.println("Multicast: " + message);
 
-				byt = new byte[256];
-				DatagramPacket recv = new DatagramPacket(byt, byt.length);
-				multicastSocket2.receive(recv);
-				String msg = new String(byt);
-				System.out.println("Multicast answer: " + msg);
-
 				Thread.sleep(5000);
 			}
 		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+
+	private void ReciveGame() {
+		byte[] byt;
+		try {
+			while (true) {
+				byt = new byte[256];
+				DatagramPacket recv = new DatagramPacket(byt, byt.length);
+				multicastSocket.receive(recv);
+				String msg = new String(byt);
+				System.out.println("Multicast answer: " + msg);
+			}
+		} catch (IOException e) {
 			System.err.println(e);
 		}
 	}
