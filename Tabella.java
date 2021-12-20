@@ -23,7 +23,7 @@ public class Tabella {
 		tabella = new int[RIGHE * COLONNE];
 		numeriDuplicati = new int[NUMERO_CELLE];
 		numeriEstratti = new ArrayList<Integer>(90);
-		combo = new boolean[5];
+		combo = new boolean[4];
 		Arrays.fill(tabella, -1);
 
 	}
@@ -157,7 +157,6 @@ public class Tabella {
 				case 3:
 					combo[1] = true;
 					return Combo.Terno;
-
 				case 4:
 					combo[2] = true;
 					return Combo.Quaterna;

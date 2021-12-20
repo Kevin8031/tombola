@@ -7,7 +7,6 @@ import java.io.PrintStream;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.nio.channels.MembershipKey;
 import java.util.Scanner;
 
 public class Giocatore extends Tabella {
@@ -21,18 +20,14 @@ public class Giocatore extends Tabella {
 
 	private int numero;
 
-	private boolean[] combo;
-
 	private Socket socket;
 	private Scanner inputStream;
 	private PrintStream outputStream;
 	private MulticastSocket multicastSocket;
 	private Thread rThread;
-	private Thread multicastThread;
 	private byte[] buf;
 
 	Giocatore(JFrame parent) {
-		combo = new boolean[5];
 		numero = 0;
 		caselle = new JButton[RIGHE * COLONNE];
 		frame = new JFrame("Tombola");
