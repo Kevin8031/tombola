@@ -83,11 +83,12 @@ public class Player extends Network {
 	private void SearchGame() {
 		String message = "Cerco Partita";
 		byte[] byt;
+		
 		try {
+			MulticastSocket multicastSocket2 = new MulticastSocket(4322);
 			while (true) {
 				multicastSocket = new MulticastSocket(4321);
 
-				//NetworkInterface nic = NetworkInterface.getByName("enp3s0");
 				InetAddress inet = InetAddress.getByName("228.5.6.7");
 				multicastSocket.joinGroup(inet);
 				DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inet, 4321);
@@ -95,7 +96,7 @@ public class Player extends Network {
 
 				byt = new byte[256];
 				DatagramPacket recv = new DatagramPacket(byt, byt.length);
-				multicastSocket.receive(recv);
+				multicastSocket2.receive(recv);
 				String msg = new String(byt);
 				System.out.println("Multicast answer: " + msg);
 
