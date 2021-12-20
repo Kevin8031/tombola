@@ -126,9 +126,10 @@ public class Host extends Network {
 			while (true) {
 				DatagramPacket recv = new DatagramPacket(byt, byt.length);
 				multicastSocket.receive(recv);
-				System.out.println("Recived: " + byt);
+				System.out.println("Recived: " + new String(byt));
 				byt = new byte[256];
 			}
+			
 		} catch (Exception e) {
 			System.err.println(e);
 			System.out.println("Cannot open server to lan.");
