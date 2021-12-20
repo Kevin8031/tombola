@@ -1,33 +1,34 @@
+import java.util.Scanner;
 import javax.swing.*;
-import java.awt.event.*;
-
 import java.awt.*;
+import java.awt.event.*;
+import java.net.*;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.*;
 import java.util.Scanner;
 
 public class Giocatore extends Tabella {
+	// attributes (GUI)
 	private JFrame frame;
 	private JPanel panel1;
 	private JPanel panel2;
+	private JPanel statusPanel;
+	private JLabel labelNumero;
 	private GridLayout griglia;
 	private JButton[] caselle;
-	private JLabel labelNumero;
-	private JPanel statusPanel;
-
 	private int numero;
 
+	// attributes (Networking)
 	private Socket socket;
+	private MulticastSocket multicastSocket;
 	private Scanner inputStream;
 	private PrintStream outputStream;
 	private Thread rThread;
 
+	// constructor
 	Giocatore(JFrame parent) {
-		numero = 0;
-		caselle = new JButton[RIGHE * COLONNE];
 		frame = new JFrame("Tombola");
-		labelNumero = new JLabel("-Numero-");
 		panel1 = new JPanel();
 		panel2 = new JPanel();
 		griglia = new GridLayout(3, 9, 3, 3);
@@ -42,6 +43,7 @@ public class Giocatore extends Tabella {
 		labelNumero.setVerticalTextPosition(JLabel.CENTER);
 		labelNumero.setForeground(Color.WHITE);
 		labelNumero.setFont(new Font("Roboto", Font.BOLD, 36));
+
 		panel1.setLayout(new GridBagLayout());
 		panel1.setBackground(new Color(74, 0, 255));
 		panel1.add(labelNumero);
@@ -56,6 +58,7 @@ public class Giocatore extends Tabella {
 		frame.add(panel1);
 		frame.add(panel2);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
 		frame.setJMenuBar(new JMenuBar() {
 			{
 				
@@ -97,7 +100,6 @@ public class Giocatore extends Tabella {
 		});
 		
 		frame.setLocationRelativeTo(null);
-		// frame.setResizable(false);
 		frame.setVisible(true);
 
 		frame.addWindowListener(new WindowAdapter() {
@@ -122,6 +124,7 @@ public class Giocatore extends Tabella {
 
 	}
 
+	// methods (GUI)
 	private void GeneraTabella() {
 		for(int i = 0; i < RIGHE; i++) 
 				for(int j = 0; j < COLONNE; j++) {
@@ -145,6 +148,7 @@ public class Giocatore extends Tabella {
 			}
 	}
 
+	// methods (Networking)
 	private void dialogConnectToServer() {
 		JDialog dialog = new JDialog(frame);
 		dialog.setLocationRelativeTo(frame);

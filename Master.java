@@ -1,15 +1,15 @@
 import javax.swing.*;
-import java.awt.event.*;
-
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
+import java.awt.event.*;
 
 public class Master extends Tabellone {
+    // attributes (GUI)
 	private JFrame frame;
 	private JPanel panel1;
-	private JLabel numero;
 	private JPanel panel2;
+	private JLabel numero;
 	private GridLayout griglia;
 	private Tabellone tabellone;
 	private JButton[] caselle;
@@ -29,7 +29,6 @@ public class Master extends Tabellone {
 		frame.setSize(600, 350);
 		frame.setLayout(new GridLayout(2,1));
 
-		//panel1.setBounds(0, 0, 450, 150);
 		panel1.setBackground(Color.gray);
 		panel1.add(new JButton("Genera Numero") {
 			{
@@ -39,8 +38,6 @@ public class Master extends Tabellone {
 		panel1.add(numero);
 		panel1.setLayout(new GridLayout());
 
-
-		//panel2.setBounds(0, 150, 450, 300);
 		panel2.setBackground(Color.darkGray);
 		panel2.setLayout(griglia);
 
@@ -49,6 +46,7 @@ public class Master extends Tabellone {
 		frame.add(panel1);
 		frame.add(panel2);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
 		frame.setJMenuBar(new JMenuBar() {
 			{
 				add(new JMenu("File") {
@@ -104,6 +102,7 @@ public class Master extends Tabellone {
 		host.StartServer();
 	}
 
+    // methods (GUI)
 	private void GeneraTabella() {
 		for(int i = 0; i < tabellone.getTabella().length; i++) {
 			caselle[i] = new JButton(String.valueOf(i + 1));
