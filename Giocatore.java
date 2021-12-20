@@ -1,39 +1,31 @@
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import javax.swing.plaf.FontUIResource;
-import javax.swing.JButton;
-import java.awt.*;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
 import java.util.Scanner;
+import javax.swing.*;
+import java.awt.*;
+import java.net.*;
+import java.io.IOException;
 
 public class Giocatore extends Tabella {
+    // attributes
     private JFrame frame;
     private JPanel panel1;
     private JPanel panel2;
-    private GridLayout griglia;
-    private Tabella tabella;
-    private JButton[] caselle;
     private JLabel numero;
+    private Tabella tabella;
+    private GridLayout griglia;
     private Socket socket;
+    private JButton[] caselle;
 
+    // constructor
     Giocatore(JFrame parent) {
-        caselle = new JButton[90];
-        socket = new Socket();
         frame = new JFrame("Tombola");
-        numero = new JLabel("-Numero-");
         panel1 = new JPanel();
         panel2 = new JPanel();
-        griglia = new GridLayout(3, 9, 3, 3);
+        numero = new JLabel("-Numero-");
         tabella = new Tabella();
+        griglia = new GridLayout(3, 9, 3, 3);
+        socket = new Socket();
+        caselle = new JButton[90];
+
         frame.setSize(600, 350);
         frame.setLayout(new GridLayout(2,1));
         
@@ -42,6 +34,7 @@ public class Giocatore extends Tabella {
         numero.setVerticalTextPosition(JLabel.CENTER);
         numero.setForeground(Color.WHITE);
         numero.setFont(new Font("Roboto", Font.BOLD, 36));
+
         panel1.setLayout(new GridBagLayout());
         panel1.setBackground(new Color(74, 0, 255));
         panel1.add(numero);
@@ -56,6 +49,7 @@ public class Giocatore extends Tabella {
         frame.add(panel1);
         frame.add(panel2);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         frame.setJMenuBar(new JMenuBar() {
             {
                 
@@ -99,10 +93,10 @@ public class Giocatore extends Tabella {
         });
         
         frame.setLocationRelativeTo(null);
-        // frame.setResizable(false);
         frame.setVisible(true);
     }
 
+    // methods (GUI)
     private void GeneraTabella() {
         for(int i = 0; i < tabella.RIGHE; i++) 
                 for(int j = 0; j < tabella.COLONNE; j++) {
@@ -110,20 +104,20 @@ public class Giocatore extends Tabella {
                     if (tabella.getTabella(i + tabella.RIGHE * j) == -1) {
                         panel2.add(caselle[j + tabella.RIGHE * i]); 
                         caselle[j + tabella.RIGHE * i].setBackground(new Color(16, 7, 232));
-                        caselle[j + tabella.RIGHE * i].setForeground(Color.WHITE);
                         caselle[j + tabella.RIGHE * i].setFocusable(false);
-                        caselle[j + tabella.RIGHE * i].setFont(new Font("Roboto", Font.BOLD, 36));
                     }
                     else {
                         caselle[j + tabella.RIGHE * i].setText(String.valueOf(tabella.getTabella(i + tabella.RIGHE * j)));
                         panel2.add(caselle[j + tabella.RIGHE * i]);
+                        caselle[j + tabella.RIGHE * i].setFont(new Font("Roboto", Font.BOLD, 36));
                         caselle[j + tabella.RIGHE * i].setBackground(new Color(16, 7, 232));
                         caselle[j + tabella.RIGHE * i].setForeground(Color.WHITE);
                         caselle[j + tabella.RIGHE * i].setFocusable(false);
                     }
             }
     }
-    
+
+    // methods (Networking)
     private void ConnectToServer() {
         try {
             SocketAddress socketAddress = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 60001);
@@ -153,7 +147,5 @@ public class Giocatore extends Tabella {
         } catch (IOException e) {
             System.err.println(e);
         }
-    }
-    
-    
+    }    
 }
