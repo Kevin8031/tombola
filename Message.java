@@ -12,7 +12,7 @@ public class Message {
 		this.body = body;
 	}
 
-	Message(Net head, String body) {
+	Message(MessageType head, String body) {
 		this.head = head.toString();
 		this.body = body;
 	}
