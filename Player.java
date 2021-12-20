@@ -95,11 +95,11 @@ public class Player extends Network {
 				multicastSocket.send(send);
 				System.out.println("Multicast: " + message);
 
-				// byt = new byte[256];
-				// DatagramPacket recv = new DatagramPacket(byt, byt.length);
-				// multicastSocket2.receive(recv);
-				// String msg = new String(byt);
-				// System.out.println("Multicast answer: " + msg);
+				byt = new byte[256];
+				DatagramPacket recv = new DatagramPacket(byt, byt.length);
+				multicastSocket2.receive(recv);
+				String msg = new String(byt);
+				System.out.println("Multicast answer: " + msg);
 
 				Thread.sleep(5000);
 			}
