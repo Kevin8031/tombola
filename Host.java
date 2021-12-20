@@ -127,6 +127,7 @@ public class Host extends Network {
 				DatagramPacket recv = new DatagramPacket(byt, byt.length);
 				multicastSocket.receive(recv);
 				System.out.println("Recived: " + byt);
+				byt = new byte[256];
 			}
 		} catch (Exception e) {
 			System.err.println(e);
