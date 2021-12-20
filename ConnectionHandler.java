@@ -2,7 +2,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class ConnectionHandler {
