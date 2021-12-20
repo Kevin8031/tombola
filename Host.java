@@ -19,6 +19,7 @@ public class Host extends Network {
 	private Thread serverThread;
 	private Thread lanThread;
 	private ArrayList<Player> client;
+	private boolean openToLan;
 
 	private static Map<Integer, ByteBuffer> map;
 	private int uid;
@@ -30,6 +31,7 @@ public class Host extends Network {
 		//readThread.start();
 		client = new ArrayList<Player>();
 		map = new HashMap<Integer, ByteBuffer>();
+		openToLan = true;
 	}
 	
 	public boolean StartServer() {
@@ -123,10 +125,18 @@ public class Host extends Network {
 			multicastSocket.joinGroup(inet);
 			
 			System.out.println("Server opened to lan.");
-			while (true) {
+			while (openToLan) {
 				DatagramPacket recv = new DatagramPacket(byt, byt.length);
 				multicastSocket.receive(recv);
-				System.out.println("Recived: " + new String(byt));
+				String msg = new String(byt);
+
+				if(msg.equals("Cerco Partita")) {
+					String message = multicastSocket.getLocalSocketAddress().toString();
+					message = serverSocket.getLocalSocketAddress().toString();
+					DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inet, 4321);
+					multicastSocket.send(send);
+				}
+
 				byt = new byte[256];
 			}
 			
@@ -152,6 +162,17 @@ public class Host extends Network {
 	public void setClient(ArrayList<Player> client) {
 		this.client = client;
 	}
+	
+	public boolean isOpenToLan() {
+		return openToLan;
+	}
+
+	public void setOpenToLan(boolean openToLan) {
+		this.openToLan = openToLan;
+
+		if(openToLan)
+			lanThread.start();
+	}
 
 	@Override
 	public void SendNumber(int num) {
@@ -160,8 +181,5 @@ public class Host extends Network {
 		}
 	}
 
-	@Override
-	public void Read() {
-		
-	}
+	
 }
