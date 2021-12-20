@@ -1,15 +1,19 @@
-import java.net.NetworkInterface;
-import java.net.SocketException;
+import java.nio.ByteBuffer;
+import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
-        // try {
-        //     for(int i = 0; i < 1000; i++)
-        //         System.out.println(NetworkInterface.getByIndex(i)); 
-        // } catch (SocketException e) {
-        //     // TODO Auto-generated catch block
-        //     e.printStackTrace();
-        // }
-        new Gioco();
-    }
+	public static void main(String[] args) {
+		new Gioco();
+
+		// ByteBuffer buf = ByteBuffer.allocate(1024);
+		// buf.put(1023, (byte) 1);
+		// System.out.println(buf.get());
+
+		// Scanner scanner = new Scanner(System.in);
+
+		// buf.put(scanner.nextLine().getBytes());
+		// String s = new String(buf.array());
+
+		// System.out.println(s);
+	}
 }
