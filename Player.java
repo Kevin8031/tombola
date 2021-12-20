@@ -18,12 +18,17 @@ public class Player extends Network {
 
 	Player() {
 		group = Group.player;
+		
+		lanThread = new Thread(() -> SearchGame());
+		lanThread.start();
 	}
 	
 	Player(Socket socket, int id) {
 		group = Group.player;
 		super.id = id;
 		this.socket = socket;
+		lanThread = new Thread(() -> SearchGame());
+		lanThread.start();
 	}
 
 	public void DisconnectFromServer() {
@@ -78,13 +83,16 @@ public class Player extends Network {
 	private void SearchGame() {
 		String message = "Cerco Partita";
 		try {
-			multicastSocket = new MulticastSocket(4321);
+			while (true) {
+				multicastSocket = new MulticastSocket(4321);
 
-			//NetworkInterface nic = NetworkInterface.getByName("enp3s0");
-			InetAddress inet = InetAddress.getByName("228.5.6.7");
-			multicastSocket.joinGroup(inet);
-			DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inet, 4321);
-			multicastSocket.send(send);
+				//NetworkInterface nic = NetworkInterface.getByName("enp3s0");
+				InetAddress inet = InetAddress.getByName("228.5.6.7");
+				multicastSocket.joinGroup(inet);
+				DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inet, 4321);
+				multicastSocket.send(send);
+				Thread.sleep(5000);
+			}
 		} catch (Exception e) {
 			System.err.println(e);
 		}
