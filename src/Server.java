@@ -42,10 +42,12 @@ public class Server extends Network {
 				try {
 					serverSocket = new ServerSocket(60001);
 					serverThread = new Thread(() -> Accept());
+					serverThread.setName("serverThread");
 					serverThread.start();
 					lanThread = new Thread(() -> OpenToLan());
+					lanThread.setName("lanThread");
 					lanThread.start();
-					System.out.println("Server started!");
+					System.out.println("[SERVER] Server started!");
 					return true;
 					// new Thread(() -> ReadFromClient()).start();
 					//OpenToLan();
@@ -55,11 +57,11 @@ public class Server extends Network {
 				}
 			}
 			else {
-				System.out.println("Server already started.");
+				System.out.println("[SERVER] Server already started.");
 				return true;
 			}
 		} else {
-			System.out.println("Only hosts can connect to servers.");
+			System.out.println("[SERVER] Only hosts can connect to servers.");
 			return false;
 		}
 	}
@@ -68,32 +70,56 @@ public class Server extends Network {
 		if(group == Group.host) {
 			if(serverSocket != null) {
 				try {
+					openToLan = false;
 					for (Client i : client) {
 						if(i != null)
 							i.DisconnectFromServer();
 					}
 
 					serverThread.join(100);
-					lanThread.join(100);
 					//readThread.join(100);
 					serverSocket.close();
-					System.out.println("Server Stopped");
+					System.out.println("[SERVER] Server Stopped");
 				} catch (Exception e) {
 					System.err.println(e);
 				}
 			}
 			else {
-				System.out.println("Cannot stop server. Server already stopped!");
+				System.out.println("[SERVER] Cannot stop server. Server already stopped!");
 			}
+
+			if(multicastSend != null) {
+				try {
+					multicastSend.close();
+					lanThread.join(100);
+
+					System.out.println("[SERVER] Lan discovery (send) stopped. ");
+				} catch (Exception e) {
+					System.err.println(e);
+				}
+			} else
+				System.out.println("[SERVER] Lan discovery already stopped. ");
+
+			if(multicastRecive != null) {
+				try {
+					multicastRecive.close();
+
+					System.out.println("[SERVER] Lan discovery (recive) stopped. ");
+				} catch (Exception e) {
+					System.err.println(e);
+				}
+			} else
+				System.out.println("[SERVER] Lan discovery already stopped. ");
+
 		} else {
-			System.out.println("Only hosts can stop servers.");
+			System.out.println("[SERVER] Only hosts can stop servers.");
 		}
 	}
 
 	private void Accept() {
 		if(group == Group.host) {
 			try {
-				System.out.println("Waiting for client to connect...");
+				System.out.println("[SERVER] Waiting for client to connect...");
 				map.put(uid, ByteBuffer.allocate(1024));
 				//ConnectionHandler ch = new ConnectionHandler(serverSocket.accept(), uid, map.get(uid));
 				Socket s = serverSocket.accept();
@@ -106,14 +132,14 @@ public class Server extends Network {
 				new Thread(() -> p.Read()).start();;
 				client.add(p);
 				// new Thread(() -> client.get(0)).start();
-				System.out.println("Client connected: " + client.get(0).getSocket().toString());
-				System.out.println("No. of clients: " + client.size());
+				System.out.println("[NEW CLIENT] Client connected: " + client.get(0).getSocket().toString());
+				System.out.println("[SERVER] No. of clients: " + client.size());
 				Accept();
 			} catch (IOException e) {
 				System.err.println(e);
 			}
 		} else {
-			System.out.println("Only hosts can accept clients.");
+			System.out.println("[SERVER] Only hosts can accept clients.");
 		}
 	}
 
@@ -129,7 +155,7 @@ public class Server extends Network {
 			multicastSend.joinGroup(inetRecive);
 			multicastRecive.joinGroup(inetSend);
 			
-			System.out.println("Server opened to lan.");
+			System.out.println("[SERVER] Server opened to lan.");
 			while (openToLan) {
 				DatagramPacket recv = new DatagramPacket(byt, byt.length);
 				multicastSend.receive(recv);
@@ -150,7 +176,7 @@ public class Server extends Network {
 			
 		} catch (Exception e) {
 			System.err.println(e);
-			System.out.println("Cannot open server to lan.");
+			System.out.println("[SERVER] Cannot open server to lan.");
 		}
 	}
 
