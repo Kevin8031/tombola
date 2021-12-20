@@ -23,8 +23,8 @@ public class Client extends Network {
 		
 		sendThread = new Thread(() -> SearchGame());
 		sendThread.start();
-		reciveThread = new Thread(() -> ReciveGame());
-		reciveThread.start();
+		// reciveThread = new Thread(() -> ReciveGame());
+		// reciveThread.start();
 	}
 	
 	Client(Socket socket, int id) {
@@ -85,6 +85,7 @@ public class Client extends Network {
 
 	private void SearchGame() {
 		String message = "Cerco Partita";		
+		byte[] byt;
 		try {
 			multicastSend = new MulticastSocket(4321);
 			InetAddress inetSend = InetAddress.getByName("228.5.6.7");
@@ -93,6 +94,13 @@ public class Client extends Network {
 				DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inetSend, 4321);
 				multicastSend.send(send);
 				System.out.println("Multicast: " + message);
+
+				byt = new byte[256];
+				DatagramPacket recv = new DatagramPacket(byt, byt.length);
+				multicastRecive.receive(recv);
+				String msg = new String(byt);
+				System.out.println("Multicast answer: " + msg);
+				System.out.println(multicastRecive.getInetAddress().toString());
 
 				Thread.sleep(5000);
 			}
