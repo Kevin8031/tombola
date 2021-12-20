@@ -113,7 +113,7 @@ public class Client extends Network {
 				multicastRecive.receive(recv);
 				String msg = new String(byt);
 				System.out.println("Multicast answer: " + msg);
-				System.out.println(multicastRecive.getRemoteSocketAddress().toString());
+				// System.out.println(multicastRecive.getRemoteSocketAddress().toString());
 			}
 		} catch (IOException e) {
 			System.err.println(e);
