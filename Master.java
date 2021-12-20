@@ -1,28 +1,24 @@
+import java.util.*;
 import javax.swing.*;
-import java.awt.event.*;
-
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.Scanner;
+import java.awt.event.*;
 import java.net.*;
 import java.nio.*;
 import java.io.*;
 
-
 public class Master extends Tabellone {
+    // attributes (GUI)
 	private JFrame frame;
 	private JPanel panel1;
-	private JLabel numero;
 	private JPanel panel2;
+	private JLabel numero;
+	private int uid;
+	private JButton[] caselle;
 	private GridLayout griglia;
 	private Tabellone tabellone;
-	private JButton[] caselle;
-	private int uid;
 	private static Map<Integer, ByteBuffer> map;
 
+    // attributes (Networking)
 	private ServerSocket serverSocket;
 	private MulticastSocket multicastSocket;
 	private ArrayList<ConnectionHandler> client;
@@ -30,21 +26,22 @@ public class Master extends Tabellone {
 	private byte[] buf;
 
 	Master(JFrame parent) {
+        frame = new JFrame("Tombola");
+		panel1 = new JPanel();
+		panel2 = new JPanel();
+		numero = new JLabel("-Numero Uscito-");
+		caselle = new JButton[90];
+		griglia = new GridLayout(9, 10, 5, 5);
+		numeriEstratti = new ArrayList<Integer>(90);
+		tabellone = new Tabellone();
+
+		client = new ArrayList<ConnectionHandler>();
 		map = new HashMap<Integer, ByteBuffer>();
 		uid = 0;
-		caselle = new JButton[90];
-		client = new ArrayList<ConnectionHandler>();
-		numeriEstratti = new ArrayList<Integer>(90);
-		frame = new JFrame("Tombola");
-		griglia = new GridLayout(9, 10, 5, 5);
-		panel1 = new JPanel();
-		numero = new JLabel("-Numero Uscito-");
-		panel2 = new JPanel();
-		tabellone = new Tabellone();
+        
 		frame.setSize(600, 350);
 		frame.setLayout(new GridLayout(2,1));
 
-		//panel1.setBounds(0, 0, 450, 150);
 		panel1.setBackground(Color.gray);
 		panel1.add(new JButton("Genera Numero") {
 			{
@@ -54,8 +51,6 @@ public class Master extends Tabellone {
 		panel1.add(numero);
 		panel1.setLayout(new GridLayout());
 
-
-		//panel2.setBounds(0, 150, 450, 300);
 		panel2.setBackground(Color.darkGray);
 		panel2.setLayout(griglia);
 
@@ -64,6 +59,7 @@ public class Master extends Tabellone {
 		frame.add(panel1);
 		frame.add(panel2);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
 		frame.setJMenuBar(new JMenuBar() {
 			{
 				add(new JMenu("File") {
@@ -119,6 +115,7 @@ public class Master extends Tabellone {
 		StartServer();
 	}
 
+    // methods (GUI)
 	private void GeneraTabella() {
 		for(int i = 0; i < tabellone.getTabella().length; i++) {
 			caselle[i] = new JButton(String.valueOf(i + 1));

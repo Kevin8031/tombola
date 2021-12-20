@@ -1,17 +1,18 @@
+import java.util.Scanner;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.Scanner;
 
 public class ConnectionHandler {
-	private Socket socket;
+	// attributes
 	private Scanner inStream;
 	private PrintStream outStream;
+	private Socket socket;
 	private int id;
 	private ByteBuffer buf;
 
-
+	// constuctor
 	ConnectionHandler(Socket socket, int id, ByteBuffer buf) {
 		this.socket = socket;
 		this.id = id;
@@ -26,7 +27,12 @@ public class ConnectionHandler {
 
 		new Thread(() -> Read()).start(); 
 	}
-
+	
+	// getter
+	public Socket getSocket() {
+		return socket;
+	}
+	// methods
 	public void Read() {
 		//System.out.println("[" + id + "]" + socket.getRemoteSocketAddress() + inStream.nextLine());
 		// return inStream.nextLine();
@@ -51,9 +57,5 @@ public class ConnectionHandler {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public Socket getSocket() {
-		return socket;
 	}
 }

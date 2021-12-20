@@ -1,17 +1,15 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
+import java.util.*;
 
 public class Tabella {
 	// constants
 	final short RIGHE = 3;
 	final short COLONNE = 9;
 	final short NUMERO_CELLE = 15;
-	int numPresentiRighe[];
-
+	
 	// attributes
 	private Random random;
 	protected int[] tabella;
+	private int numPresentiRighe[];
 	protected ArrayList<Integer> numeriEstratti;
 	private int[] numeriDuplicati;
 	private boolean[] combo;
@@ -19,16 +17,33 @@ public class Tabella {
 	// constructors
 	Tabella() {
 		random = new Random();
-		numPresentiRighe = new int[RIGHE];
 		tabella = new int[RIGHE * COLONNE];
-		numeriDuplicati = new int[NUMERO_CELLE];
+		numPresentiRighe = new int[RIGHE];
 		numeriEstratti = new ArrayList<Integer>(90);
+		numeriDuplicati = new int[NUMERO_CELLE];
 		combo = new boolean[4];
 		Arrays.fill(tabella, -1);
-
 	}
 
-	// methods
+	// getters and setters
+	public int[] getTabella() {
+		return tabella;
+	}
+
+	public int getTabella(int index) {
+		return tabella[index];
+	}
+
+	public void setTabella(int[] tabella) {
+		this.tabella = tabella;
+	}
+
+	public void Reset() {
+		numeriEstratti.clear();
+		generaTabella();
+	}
+
+	// methods (GUI)
 	public void generaTabella() {
 		Arrays.fill(tabella, -1);
 		Arrays.fill(numeriDuplicati, 0);
@@ -37,7 +52,6 @@ public class Tabella {
 		int numeroGen = 0;
 
 		int k = 0;
-
 		while (celle > 0) {
 			for(int i = 0; i < RIGHE; i++) {
 				for(int j = 0; j < COLONNE; j++) {
@@ -168,21 +182,4 @@ public class Tabella {
 		return Combo.invalid;
 	}
 
-	// getters and setters
-	public int[] getTabella() {
-		return tabella;
-	}
-
-	public int getTabella(int index) {
-		return tabella[index];
-	}
-
-	public void setTabella(int[] tabella) {
-		this.tabella = tabella;
-	}
-
-	public void Reset() {
-		numeriEstratti.clear();
-		generaTabella();
-	}
 }
