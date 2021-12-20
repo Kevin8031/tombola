@@ -48,7 +48,7 @@ public class Network {
 	}
 
 	public void SendNumber(int num) {
-		outStream.println(Net.NewNumber.toString() + " " + num);
+		outStream.println(MessageType.NewNumber.toString() + " " + num);
 		System.out.println("[" + id + " - " + group + "] Sent: " + num);
 	}
 
