@@ -15,8 +15,8 @@ public class Server extends Network {
 
 	private Network.Group group;
 	private ServerSocket serverSocket;
-	private MulticastSocket multicastSend;
 	private MulticastSocket multicastRecive;
+	private MulticastSocket multicastSend;
 	private Thread serverThread;
 	private Thread lanThread;
 	private ArrayList<Client> client;
@@ -49,8 +49,6 @@ public class Server extends Network {
 					lanThread.start();
 					System.out.println("[SERVER] Server started!");
 					return true;
-					// new Thread(() -> ReadFromClient()).start();
-					//OpenToLan();
 				} catch (IOException e) {
 					System.err.println(e);
 					return false;
@@ -72,13 +70,16 @@ public class Server extends Network {
 				try {
 					openToLan = false;
 					for (Client i : client) {
-						if(i != null)
+						if(i != null) {
 							i.DisconnectFromServer();
+							i.inStream.close();
+							i.outStream.close();
+						}
 					}
 
-					serverThread.join(100);
-					//readThread.join(100);
+					serverThread.join(1);
 					serverSocket.close();
+					
 					System.out.println("[SERVER] Server Stopped");
 				} catch (Exception e) {
 					System.err.println(e);
@@ -88,10 +89,10 @@ public class Server extends Network {
 				System.out.println("[SERVER] Cannot stop server. Server already stopped!");
 			}
 
-			if(multicastSend != null) {
+			if(multicastRecive != null) {
 				try {
-					multicastSend.close();
-					lanThread.join(100);
+					lanThread.join(1);
+					multicastRecive.close();
 
 					System.out.println("[SERVER] Lan discovery (send) stopped. ");
 				} catch (Exception e) {
@@ -100,9 +101,9 @@ public class Server extends Network {
 			} else
 				System.out.println("[SERVER] Lan discovery already stopped. ");
 
-			if(multicastRecive != null) {
+			if(multicastSend != null) {
 				try {
-					multicastRecive.close();
+					multicastSend.close();
 
 					System.out.println("[SERVER] Lan discovery (recive) stopped. ");
 				} catch (Exception e) {
@@ -121,7 +122,6 @@ public class Server extends Network {
 			try {
 				System.out.println("[SERVER] Waiting for client to connect...");
 				map.put(uid, ByteBuffer.allocate(1024));
-				//ConnectionHandler ch = new ConnectionHandler(serverSocket.accept(), uid, map.get(uid));
 				Socket s = serverSocket.accept();
 				Client p = new Client(s, uid++);
 				
@@ -131,7 +131,6 @@ public class Server extends Network {
 
 				new Thread(() -> p.Read()).start();;
 				client.add(p);
-				// new Thread(() -> client.get(0)).start();
 				System.out.println("[NEW CLIENT] Client connected: " + client.get(0).getSocket().toString());
 				System.out.println("[SERVER] No. of clients: " + client.size());
 				Accept();
@@ -146,28 +145,28 @@ public class Server extends Network {
 	private void OpenToLan() {
 		byte[] byt = new byte[256];
 		try {
-			multicastSend = new MulticastSocket(4321);
 			multicastRecive = new MulticastSocket(4321);
+			multicastSend = new MulticastSocket(4321);
 			
 			//NetworkInterface nic = NetworkInterface.getByName("enp3s0");
 			InetAddress inetRecive = InetAddress.getByName("228.5.6.7");
 			InetAddress inetSend = InetAddress.getByName("228.5.6.8");
-			multicastSend.joinGroup(inetRecive);
-			multicastRecive.joinGroup(inetSend);
+			multicastRecive.joinGroup(inetRecive);
+			multicastSend.joinGroup(inetSend);
 			
 			System.out.println("[SERVER] Server opened to lan.");
 			while (openToLan) {
 				DatagramPacket recv = new DatagramPacket(byt, byt.length);
-				multicastSend.receive(recv);
+				multicastRecive.receive(recv);
 				String msg = new String(byt);
 				msg = msg.trim();
 
 				if(msg.equals("Cerco Partita")) {
 					System.out.println("Mutlicast recived: " + msg);
-					String message = multicastSend.getLocalSocketAddress().toString();
+					String message = multicastRecive.getLocalSocketAddress().toString();
 					message = serverSocket.getLocalSocketAddress().toString();
 					DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inetRecive, 4322);
-					multicastRecive.send(send);
+					multicastSend.send(send);
 					System.out.println("Sending multicast:" + message);
 				}
 
