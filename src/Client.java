@@ -31,8 +31,6 @@ public class Client extends Network {
 		group = Group.player;
 		super.id = id;
 		this.socket = socket;
-		reciveThread = new Thread(() -> SearchGame());
-		reciveThread.start();
 	}
 
 	public void DisconnectFromServer() {
