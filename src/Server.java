@@ -145,7 +145,6 @@ public class Server extends Network {
 	}
 
 	private void OpenToLan() {
-		byte[] byt = new byte[256];
 		try {
 			multicastSend = new MulticastSocket(4321);
 			
@@ -159,7 +158,7 @@ public class Server extends Network {
 				DatagramPacket send = new DatagramPacket(msg.getBytes(), msg.length(), inetSend, 4322);
 				multicastSend.send(send);
 				msg = msg.trim();
-				byt = new byte[256];
+				System.out.println("[LAN SEARCH] Sent: " + msg);
 				Thread.sleep(5000);
 			}
 			

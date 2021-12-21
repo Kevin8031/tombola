@@ -23,8 +23,8 @@ public class Client extends Network {
 		
 		// sendThread = new Thread(() -> SearchGame());
 		// sendThread.start();
-		// reciveThread = new Thread(() -> ReciveGame());
-		// reciveThread.start();
+		reciveThread = new Thread(() -> SearchGame());
+		reciveThread.start();
 	}
 	
 	Client(Socket socket, int id) {
