@@ -81,6 +81,11 @@ public class Giocatore extends Tabella {
 								addActionListener(e -> dialogConnectToServer());
 							}
 						});
+						add(new JMenuItem("List Server") {
+							{
+								addActionListener(e -> dialogLanServers());
+							}
+						});
 						add(new JMenuItem("Disconect") {
 							{
 								this.setBackground(new Color(16, 7, 232));
@@ -185,7 +190,7 @@ public class Giocatore extends Tabella {
 
 		dialog.setLayout(new GridLayout());
 
-		dialog.add(scroll);
+		dialog.add(list);
 		
 		dialog.setSize(300, 60);
 		dialog.setVisible(true);
@@ -216,10 +221,8 @@ public class Giocatore extends Tabella {
 				break;
 
 			case LAN_SERVER_DISCOVEY:
-				String host = new String();
-				String port = new String();
-				serverList.add(0, msg.getBody());
-				// player.ConnectToServer(host, port);
+				if(!serverList.contains(msg.getBody()))
+					serverList.add(0, msg.getBody());
 				break;
 		
 			default:
