@@ -1,14 +1,11 @@
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -20,7 +17,7 @@ public class Server extends Network {
 	private MulticastSocket multicastSocket;
 	private Thread serverThread;
 	private Thread lanThread;
-	private ArrayList<Client> client;
+	private Map<Integer, Client> client;
 	private boolean openToLan;
 	private String serverName;
 	private boolean gameStarted;
@@ -34,7 +31,7 @@ public class Server extends Network {
 
 		//readThread = new Thread(() -> Read());
 		//readThread.start();
-		client = new ArrayList<Client>();
+		client = new HashMap<Integer, Client>();
 		map = new HashMap<Integer, ByteBuffer>();
 		openToLan = true;
 	}
@@ -73,14 +70,13 @@ public class Server extends Network {
 		if(group == Group.host) {
 			if(serverSocket != null) {
 				try {
-					for (Client i : client) {
-						if(i != null) {
-							i.DisconnectFromServer();
-							i.inStream.close();
-							i.outStream.close();
+					client.forEach((k, v) -> {
+						if(v != null) {
+							v.DisconnectFromServer();
+							v.inStream.close();
+							v.outStream.close();
 						}
-					}
-
+					});
 					serverThread.join(1);
 					serverSocket.close();
 					
@@ -105,15 +101,15 @@ public class Server extends Network {
 				System.out.println("[SERVER] Waiting for client to connect...");
 				map.put(uid, ByteBuffer.allocate(1024));
 				Socket s = serverSocket.accept();
-				Client p = new Client(s, uid++);
+				Client p = new Client(s, uid);
 				
 				p.inStream = new Scanner(s.getInputStream());
 				p.outStream = new PrintStream(s.getOutputStream());
 				p.setName(("player" + uid));
 
 				new Thread(() -> p.Read()).start();;
-				client.add(p);
-				System.out.println("[NEW CLIENT] Client connected: " + client.get(0).getSocket().toString());
+				client.put(uid, p);
+				System.out.println("[NEW CLIENT] Client connected: " + client.get(uid++).getSocket().toString());
 				System.out.println("[SERVER] No. of clients: " + client.size());
 				Accept();
 			} catch (IOException e) {
@@ -166,20 +162,22 @@ public class Server extends Network {
 			System.out.println("[SERVER] Lan visibility already stopped");
 	}
 
-	public ArrayList<Client> getClients() {
+	public Map<Integer, Client> getClients() {
 		return client;
 	}
 
 	public Client getClient(int id) {
-		for (Client player : client) {
-			if(player.getId() == id)
-				return player;
-		}
+		Client c[] = new Client[1];
 
-		return null;
+		client.forEach((k, v) -> {
+			if(k.equals(id))
+				c[0] = v;
+		});
+
+		return c[0];
 	}
 
-	public void setClient(ArrayList<Client> client) {
+	public void setClient(Map<Integer, Client> client) {
 		this.client = client;
 	}
 	
@@ -196,8 +194,8 @@ public class Server extends Network {
 
 	@Override
 	public void Send(Message msg) {
-		for (Client player : client) {
-			player.Send(msg);
-		}
+		client.forEach((k, v) -> {
+			v.Send(msg);
+		});
 	}
 }

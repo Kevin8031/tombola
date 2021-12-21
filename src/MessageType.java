@@ -4,6 +4,8 @@ public enum MessageType {
 	CheckCombo,
 	SetName,
 
+	Disconnect,
+
 	// multicast
 	LAN_SERVER_DISCOVEY;
 

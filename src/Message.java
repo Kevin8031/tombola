@@ -11,11 +11,16 @@ public class Message {
 		this.head = head;
 		this.body = body;
 	}
-
+	
 	Message(MessageType head, String body) {
 		this.head = head.toString();
 		this.body = body;
 	}
+
+	Message(MessageType head) {
+		this.head = head.toString();
+	}
+
 
 	public static Message getHeadAndBody(String s) {
 		int i = 0;

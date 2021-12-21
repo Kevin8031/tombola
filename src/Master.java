@@ -152,9 +152,9 @@ public class Master extends Tabellone {
 
 		dialog.setVisible(true);
 
-		for (Client i : host.getClients()) {
-			dlm.add(0, i.getSocket().getRemoteSocketAddress().toString());
-		}
+		host.getClients().forEach((k, v) -> {
+			dlm.add(0, v.getSocket().getRemoteSocketAddress().toString());
+		});
 	}
 
 	private void CheatNumero(ActionEvent e) {
@@ -180,6 +180,10 @@ public class Master extends Tabellone {
 			case NewNumber:
 				host.getClient(id).setName(msg.getBody());
 				System.out.println("Name set for: " + id + " \"" + host.getClient(id).getName() + "\"");
+				break;
+
+			case Disconnect:
+				host.getClients().get(id).DisconnectFromServer();
 				break;
 		
 			default:

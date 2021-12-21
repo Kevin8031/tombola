@@ -1,5 +1,6 @@
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class Network {
@@ -37,18 +38,22 @@ public class Network {
 	// client
 
 	public void Read() {
-		buf.put(inStream.nextLine().getBytes());
+		try {
+			buf.put(inStream.nextLine().getBytes());
+			Message msg = Message.getHeadAndBody(new String(buf.array()));
+			msg.setBody(msg.getBody().trim());
 
-		Message msg = Message.getHeadAndBody(new String(buf.array()));
-		msg.setBody(msg.getBody().trim());
+			if(group == Group.player)
+				Master.ReadFromClient(id, msg);
+			else
+				Giocatore.ReadFromServer(msg);
 
-		if(group == Group.host)
-			Master.ReadFromClient(id, msg);
-		else
-			Giocatore.ReadFromServer(msg);
-
-		buf.clear();
-		Read();
+			buf.clear();
+			Read();
+		} catch (NoSuchElementException e) {
+			System.err.println(e);
+			System.out.println("[ERROR] Server closed.");
+		}
 	}
 
 	public void Send(String s) {

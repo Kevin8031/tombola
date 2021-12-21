@@ -122,6 +122,7 @@ public class Giocatore extends Tabella {
 
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
+				player.Send(new Message(MessageType.Disconnect));
 				player.DisconnectFromServer();
 				parent.setVisible(true);
 			}
@@ -129,8 +130,6 @@ public class Giocatore extends Tabella {
 			public void windowOpened(WindowEvent e) {
 				dialogLanServers();
 			}
-
-			
 		});
 	}
 
@@ -238,7 +237,7 @@ public class Giocatore extends Tabella {
 
 			Combo combo = CheckCombo();
 			System.out.println(combo.toString());
-			player.Send(MessageType.CheckCombo.toString() + combo);
+			player.Send(MessageType.CheckCombo.toString() + " " + combo);
 		}
 	}
 
