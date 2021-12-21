@@ -3,6 +3,8 @@ import java.io.PrintStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -15,7 +17,7 @@ public class Server extends Network {
 
 	private Network.Group group;
 	private ServerSocket serverSocket;
-	private DatagramSocket datagramSocket;
+	private MulticastSocket multicastSocket;
 	private Thread serverThread;
 	private Thread lanThread;
 	private ArrayList<Client> client;
@@ -123,18 +125,18 @@ public class Server extends Network {
 
 	private void OpenToLan() {
 		try {
-			datagramSocket = new DatagramSocket(MULTICAST_PORT, InetAddress.getByName("0.0.0.0"));
-			datagramSocket.setBroadcast(true);
+			multicastSocket = new MulticastSocket();
+			InetAddress inet = InetAddress.getByName(MULTICAST_INET);
+			multicastSocket.joinGroup(inet);
 			System.out.println("[SERVER] Server opened to lan.");
 			String msg = new String("LAN_SERVER_DISCOVEY_" + serverName);
 
 			while (openToLan) {
-				DatagramPacket send = new DatagramPacket(msg.getBytes(), msg.length(), InetAddress.getByName("0.0.0.0"), MULTICAST_PORT);
-				datagramSocket.send(send);
+				DatagramPacket send = new DatagramPacket(msg.getBytes(), msg.length(), inet, MULTICAST_PORT);
+				multicastSocket.send(send);
 				System.out.println("[LAN SEARCH] Sent: " + msg);
 				Thread.sleep(5000);
 			}
-			datagramSocket.setBroadcast(false);
 			
 		} catch (Exception e) {
 			System.err.println(e);
