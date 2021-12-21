@@ -23,11 +23,13 @@ public class Server extends Network {
 	private ArrayList<Client> client;
 	private boolean openToLan;
 	private String serverName;
+	private boolean gameStarted;
 
 	private static Map<Integer, ByteBuffer> map;
 	private int uid;
 
 	Server() {
+		gameStarted = false;
 		group = Network.Group.host;
 
 		//readThread = new Thread(() -> Read());
@@ -46,9 +48,7 @@ public class Server extends Network {
 					serverThread.setName("serverThread");
 					serverThread.start();
 
-					lanThread = new Thread(() -> OpenToLan());
-					lanThread.setName("lanThread");
-					lanThread.start();
+					StartOpenToLan();
 
 					System.out.println("[SERVER] Server started!");
 					serverName = new String("Tombola");
@@ -93,15 +93,7 @@ public class Server extends Network {
 				System.out.println("[SERVER] Cannot stop server. Server already stopped!");
 			}
 
-			if(multicastSocket != null) {
-				try {
-					openToLan = false;
-					lanThread.join(100);
-				} catch (Exception e) {
-					openToLan = false;
-					System.err.println(e);
-				}
-			}
+			StopOpenToLan();
 		} else {
 			System.out.println("[SERVER] Only hosts can stop servers.");
 		}
@@ -132,13 +124,19 @@ public class Server extends Network {
 		}
 	}
 
+	public void StartOpenToLan() {
+		lanThread = new Thread(() -> OpenToLan());
+		lanThread.setName("lanThread");
+		lanThread.start();
+	}
+
 	private void OpenToLan() {
 		try {
 			multicastSocket = new MulticastSocket();
 			InetAddress inet = InetAddress.getByName(MULTICAST_INET);
 			multicastSocket.joinGroup(inet);
 			System.out.println("[SERVER] Server opened to lan.");
-			Message msg = Message.getHeadAndBody(new String(MessageType.LAN_SERVER_DISCOVEY + " " + serverSocket.getLocalPort() + " " + serverName));
+			Message msg = Message.getHeadAndBody(new String(MessageType.LAN_SERVER_DISCOVEY + " " + serverName + " " + serverSocket.getLocalPort()));
 
 			while (openToLan) {
 				DatagramPacket send = new DatagramPacket(msg.toString().getBytes(), msg.toString().length(), inet, MULTICAST_PORT);
@@ -151,6 +149,21 @@ public class Server extends Network {
 			System.err.println(e);
 			System.out.println("[SERVER] Cannot open server to lan.");
 		}
+	}
+
+	public void StopOpenToLan() {
+		if(multicastSocket != null) {
+			openToLan = false;
+			try {
+				lanThread.join(100);
+				multicastSocket.close();
+				multicastSocket = null;
+				System.out.println("[SERVER] Not visible on lan");
+			} catch (Exception e) {
+				System.err.println(e);
+			}
+		} else
+			System.out.println("[SERVER] Lan visibility already stopped");
 	}
 
 	public ArrayList<Client> getClients() {
@@ -182,9 +195,9 @@ public class Server extends Network {
 	}
 
 	@Override
-	public void SendNumber(int num) {
+	public void Send(Message msg) {
 		for (Client player : client) {
-			player.SendNumber(num);
+			player.Send(msg);
 		}
 	}
 }

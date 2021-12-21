@@ -19,9 +19,6 @@ public class Client extends Network {
 
 	Client() {
 		group = Group.player;
-		
-		multicastThread = new Thread(() -> SearchGame());
-		multicastThread.start();
 	}
 	
 	Client(Socket socket, int id) {
@@ -44,17 +41,7 @@ public class Client extends Network {
 			else
 				System.out.println("Already disconnected!");
 			
-			if(multicastSocket != null) {
-				try {
-					searchGame = false;
-					multicastThread.join(100);
-					multicastSocket.close();
-					System.out.println("Stopped searching for a game.");
-
-				} catch (Exception e) {
-					System.err.println(e);
-				}
-			}
+			StopLanSearch();
 		}
 	}
 
@@ -84,12 +71,16 @@ public class Client extends Network {
 	public void Init() {
 		//Message msg = new Message(Net.SetName, "player");
 
-		
-
 		Read();
 	}
 
-	private void SearchGame() {
+	public void StartLanSearch() {
+		multicastThread = new Thread(() -> LanSearch());
+		multicastThread.setName("LanSearch");
+		multicastThread.start();
+	}
+
+	private void LanSearch() {
 		byte[] byt;
 		searchGame = true;
 		try {
@@ -107,6 +98,7 @@ public class Client extends Network {
 				Message msg = Message.getHeadAndBody(new String(byt));
 				System.out.println("Multicast message: " + msg);
 				if(MessageType.valueOf(msg.getHead()).equals(MessageType.LAN_SERVER_DISCOVEY)) {
+					msg.setBody(msg.getBody().trim());
 					msg.Add(recv.getAddress().getHostAddress());
 					Giocatore.ReadFromServer(msg);
 				}
@@ -114,6 +106,21 @@ public class Client extends Network {
 		} catch (IOException e) {
 			System.err.println(e);
 		}
+	}
+
+	public void StopLanSearch() {
+		if(multicastSocket != null) {
+			searchGame = false;
+			try {
+				multicastThread.join(100);
+				multicastSocket.close();
+				System.out.println("Stopped searching for a game.");
+				multicastSocket = null;
+			} catch (Exception e) {
+				System.err.println(e);
+			}
+		} else
+			System.out.println("Lan search already stopped.");
 	}
 
 	public Socket getSocket() {
@@ -138,6 +145,5 @@ public class Client extends Network {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-	
+	}	
 }

@@ -128,7 +128,8 @@ public class Master extends Tabellone {
 			caselle[num - 1].setBackground(Color.BLACK);
 			caselle[num - 1].setForeground(Color.WHITE);
 
-			host.SendNumber(num);
+			Message msg = new Message(MessageType.NewNumber, String.valueOf(num));
+			host.Send(msg);
 		}
 		else {
 			new JOptionPane("Gioco Finito") {
@@ -167,8 +168,9 @@ public class Master extends Tabellone {
 		numero.setText(String.valueOf(num));
 		caselle[num - 1].setBackground(Color.BLACK);
 		caselle[num - 1].setForeground(Color.WHITE);
-		
-		host.SendNumber(num);
+
+		Message msg = new Message(MessageType.NewNumber, String.valueOf(num));
+		host.Send(msg);
 	}
 
 	public static void ReadFromClient(int id, Message msg) {

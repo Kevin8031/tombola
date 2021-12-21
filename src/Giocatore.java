@@ -1,4 +1,5 @@
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -13,6 +14,7 @@ public class Giocatore extends Tabella {
 	private JButton[] caselle;
 	private static int numero;
 	private static DefaultListModel<String> serverList;
+	private JList<String> list;
 
 	private static Client player;
 
@@ -181,19 +183,50 @@ public class Giocatore extends Tabella {
 	}
 
 	private void dialogLanServers() {
+		player.StartLanSearch();
 		serverList = new DefaultListModel<String>();
 		JDialog dialog = new JDialog(frame);
-		JList<String> list = new JList<String>(serverList);
+		list = new JList<String>(serverList);
 		JScrollPane scroll = new JScrollPane(list);
 
 		dialog.setLocationRelativeTo(frame);
-
 		dialog.setLayout(new GridLayout());
 
-		dialog.add(list);
-		
+		dialog.add(scroll);
 		dialog.setSize(300, 60);
 		dialog.setVisible(true);
+
+		dialog.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				player.StopLanSearch();
+			}
+		});
+
+		dialog.add(new JButton("Connetti") {
+			{
+				addActionListener(l -> Connect());
+			}
+
+			private void Connect() {
+				String s = list.getSelectedValue();
+				int i = 0;
+				int j;
+				while (i < s.length() - 1) {
+					if(s.charAt(i) == ' ')
+						break;
+				}
+
+				j = i;
+				while (i < s.length() - 1) {
+					if(s.charAt(i) != ' ')
+						break;
+				}
+				String port = s.substring(j, i);
+
+				String host = s.substring(i, s.length());
+				player.ConnectToServer(host, Integer.valueOf(port));
+			}
+		});
 	}
 
 	private void ControllaNumero(ActionEvent e) {
@@ -211,7 +244,6 @@ public class Giocatore extends Tabella {
 
 	public static void ReadFromServer(Message msg) {
 		System.out.println("[Server] Says: " + msg.toString());
-		msg.setBody(msg.getBody().trim());
 
 		switch (MessageType.valueOf(msg.getHead())) {
 			case NewNumber:
@@ -226,6 +258,7 @@ public class Giocatore extends Tabella {
 				break;
 		
 			default:
+				System.out.println("[NET] Error: \"" + msg.getHead() + "\" is not a valid command.");
 				break;
 		}
 	}

@@ -51,14 +51,6 @@ public class Network {
 		Read();
 	}
 
-	public void SendNumber(int num) {
-		if(outStream != null) {
-			outStream.println(MessageType.NewNumber.toString() + " " + num);
-			System.out.println("[" + id + " - " + group + "] Sent: " + num);
-		} else
-			System.out.println("[ERROR] Cannot send number \"" + num + "\". Not connected to anyone.");
-	}
-
 	public void Send(String s) {
 		if(outStream != null) {
 			outStream.println(s);
