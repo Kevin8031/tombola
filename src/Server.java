@@ -123,7 +123,7 @@ public class Server extends Network {
 
 	private void OpenToLan() {
 		try {
-			datagramSocket = new DatagramSocket(4321, InetAddress.getByName("0.0.0.0"));
+			datagramSocket = new DatagramSocket(8888, InetAddress.getByName("0.0.0.0"));
 			datagramSocket.setBroadcast(true);
 			System.out.println("[SERVER] Server opened to lan.");
 			String msg = new String("LAN_SERVER_DISCOVEY_" + serverName);
