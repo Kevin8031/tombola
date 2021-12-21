@@ -179,12 +179,13 @@ public class Giocatore extends Tabella {
 		serverList = new DefaultListModel<String>();
 		JDialog dialog = new JDialog(frame);
 		JList<String> list = new JList<String>(serverList);
-	
+		JScrollPane scroll = new JScrollPane(list);
+
 		dialog.setLocationRelativeTo(frame);
 
 		dialog.setLayout(new GridLayout());
 
-		dialog.add(list);
+		dialog.add(scroll);
 		
 		dialog.setSize(300, 60);
 		dialog.setVisible(true);
