@@ -1,9 +1,7 @@
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -138,7 +136,7 @@ public class Server extends Network {
 			InetAddress inet = InetAddress.getByName(MULTICAST_INET);
 			multicastSocket.joinGroup(inet);
 			System.out.println("[SERVER] Server opened to lan.");
-			Message msg = Message.getHeadAndBody(new String(MessageType.LAN_SERVER_DISCOVEY + " " + serverSocket.getLocalPort() + " " + serverName));
+			Message msg = Message.getHeadAndBody(new String(MessageType.LAN_SERVER_DISCOVEY + " " + serverName + " " + serverSocket.getLocalPort()));
 
 			while (openToLan) {
 				DatagramPacket send = new DatagramPacket(msg.toString().getBytes(), msg.toString().length(), inet, MULTICAST_PORT);
