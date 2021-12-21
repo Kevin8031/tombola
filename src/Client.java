@@ -111,7 +111,7 @@ public class Client extends Network {
 		byte[] byt;
 		searchGame = true;
 		try {
-			datagramSocket = new DatagramSocket(8888, InetAddress.getByName("0.0.0.0"));
+			datagramSocket = new DatagramSocket(MULTICAST_PORT, InetAddress.getByName("0.0.0.0"));
 			datagramSocket.setBroadcast(true);
 			System.out.println("Searching for a game.");
 			while (searchGame) {
