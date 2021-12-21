@@ -113,6 +113,7 @@ public class Client extends Network {
 		try {
 			datagramSocket = new DatagramSocket(4321, InetAddress.getByName("0.0.0.0"));
 			datagramSocket.setBroadcast(true);
+			System.out.println("Searching for a game.");
 			while (searchGame) {
 				// recive packet
 				byt = new byte[256];
