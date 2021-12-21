@@ -179,6 +179,7 @@ public class Giocatore extends Tabella {
 		serverList = new DefaultListModel<String>();
 		JDialog dialog = new JDialog(frame);
 		JList<String> list = new JList<String>(serverList);
+	
 		dialog.setLocationRelativeTo(frame);
 
 		dialog.setLayout(new GridLayout());
