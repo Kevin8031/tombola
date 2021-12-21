@@ -21,8 +21,8 @@ public class Client extends Network {
 	Client() {
 		group = Group.player;
 		
-		sendThread = new Thread(() -> SearchGame());
-		sendThread.start();
+		// sendThread = new Thread(() -> SearchGame());
+		// sendThread.start();
 		// reciveThread = new Thread(() -> ReciveGame());
 		// reciveThread.start();
 	}
@@ -97,10 +97,10 @@ public class Client extends Network {
 
 				byt = new byte[256];
 				DatagramPacket recv = new DatagramPacket(byt, byt.length);
-				multicastRecive.receive(recv);
+				multicastSend.receive(recv);
 				String msg = new String(byt);
 				System.out.println("Multicast answer: " + msg);
-				System.out.println(multicastRecive.getInetAddress().toString());
+				// System.out.println(multicastSend.getInetAddress().toString());
 
 				Thread.sleep(5000);
 			}
