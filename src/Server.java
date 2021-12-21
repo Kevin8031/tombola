@@ -73,7 +73,6 @@ public class Server extends Network {
 		if(group == Group.host) {
 			if(serverSocket != null) {
 				try {
-					openToLan = false;
 					for (Client i : client) {
 						if(i != null) {
 							i.DisconnectFromServer();
@@ -92,6 +91,16 @@ public class Server extends Network {
 			}
 			else {
 				System.out.println("[SERVER] Cannot stop server. Server already stopped!");
+			}
+
+			if(multicastSocket != null) {
+				try {
+					openToLan = false;
+					lanThread.join(100);
+				} catch (Exception e) {
+					openToLan = false;
+					System.err.println(e);
+				}
 			}
 		} else {
 			System.out.println("[SERVER] Only hosts can stop servers.");
@@ -129,10 +138,10 @@ public class Server extends Network {
 			InetAddress inet = InetAddress.getByName(MULTICAST_INET);
 			multicastSocket.joinGroup(inet);
 			System.out.println("[SERVER] Server opened to lan.");
-			String msg = new String("LAN_SERVER_DISCOVEY_" + serverName);
+			Message msg = Message.getHeadAndBody(new String(MessageType.LAN_SERVER_DISCOVEY + " " + serverSocket.getLocalPort() + " " + serverName));
 
 			while (openToLan) {
-				DatagramPacket send = new DatagramPacket(msg.getBytes(), msg.length(), inet, MULTICAST_PORT);
+				DatagramPacket send = new DatagramPacket(msg.toString().getBytes(), msg.toString().length(), inet, MULTICAST_PORT);
 				multicastSocket.send(send);
 				System.out.println("[LAN SEARCH] Sent: " + msg);
 				Thread.sleep(5000);

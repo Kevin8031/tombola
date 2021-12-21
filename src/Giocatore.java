@@ -12,8 +12,10 @@ public class Giocatore extends Tabella {
 	private GridLayout griglia;
 	private JButton[] caselle;
 	private static int numero;
+	private static DefaultListModel<String> serverList;
 
-	private Client player;
+	private static Client player;
+
 
 	// constructor
 	Giocatore(JFrame parent) {
@@ -118,7 +120,7 @@ public class Giocatore extends Tabella {
 			}
 
 			public void windowOpened(WindowEvent e) {
-				dialogConnectToServer();
+				dialogLanServers();
 			}
 
 			
@@ -151,13 +153,14 @@ public class Giocatore extends Tabella {
 
 	// methods (Networking)
 	private void dialogConnectToServer() {
-		JDialog dialog = new JDialog(frame);
+		JDialog dialog;
+		dialog = new JDialog(frame);
 		dialog.setLocationRelativeTo(frame);
 
-		JTextField host = new JTextField();
-		JTextField port = new JTextField("60001");
-
 		dialog.setLayout(new GridLayout());
+
+		JTextField host = new JTextField();
+		JTextField port = new JTextField("4321");
 
 		dialog.add(host);
 		dialog.add(port);
@@ -166,6 +169,21 @@ public class Giocatore extends Tabella {
 				addActionListener(e -> player.ConnectToServer(host.getText(), Integer.valueOf(port.getText())));
 			}
 		});
+
+		
+		dialog.setSize(300, 60);
+		dialog.setVisible(true);
+	}
+
+	private void dialogLanServers() {
+		serverList = new DefaultListModel<String>();
+		JDialog dialog = new JDialog(frame);
+		JList<String> list = new JList<String>(serverList);
+		dialog.setLocationRelativeTo(frame);
+
+		dialog.setLayout(new GridLayout());
+
+		dialog.add(list);
 		
 		dialog.setSize(300, 60);
 		dialog.setVisible(true);
@@ -184,14 +202,22 @@ public class Giocatore extends Tabella {
 		}
 	}
 
-	public static void ReadFromClient(int id, Message msg) {
+	public static void ReadFromServer(Message msg) {
 		System.out.println("[Server] Says: " + msg.toString());
+		msg.setBody(msg.getBody().trim());
 
 		switch (MessageType.valueOf(msg.getHead())) {
 			case NewNumber:
 				numero = Integer.valueOf(msg.getBody());
 				labelNumero.setText(msg.getBody());
 				numeriEstratti.add(numero);
+				break;
+
+			case LAN_SERVER_DISCOVEY:
+				String host = new String();
+				String port = new String();
+				serverList.add(0, msg.getBody());
+				// player.ConnectToServer(host, port);
 				break;
 		
 			default:

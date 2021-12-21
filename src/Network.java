@@ -45,7 +45,7 @@ public class Network {
 		if(group == Group.host)
 			Master.ReadFromClient(id, msg);
 		else
-			Giocatore.ReadFromClient(id, msg);
+			Giocatore.ReadFromServer(msg);
 
 		buf.clear();
 		Read();

@@ -67,6 +67,10 @@ public class Message {
 		this.body = body;
 	}
 
+	public void Add (String s) {
+		body += " " + s;
+	}
+
 	@Override
 	public String toString() {
 		return head + " " + body;

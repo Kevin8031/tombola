@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
@@ -15,16 +14,14 @@ public class Client extends Network {
 	private Thread clientThread;
 	private String name;
 	private MulticastSocket multicastSocket;
-	private Thread reciveThread;
+	private Thread multicastThread;
 	private boolean searchGame;
 
 	Client() {
 		group = Group.player;
 		
-		// sendThread = new Thread(() -> SearchGame());
-		// sendThread.start();
-		reciveThread = new Thread(() -> SearchGame());
-		reciveThread.start();
+		multicastThread = new Thread(() -> SearchGame());
+		multicastThread.start();
 	}
 	
 	Client(Socket socket, int id) {
@@ -39,15 +36,26 @@ public class Client extends Network {
 				try {
 					socket.close();
 					clientThread.join(100);
-					System.out.println("Disconnesso");
+					System.out.println("Disconnected");
 				} catch (Exception e) {
 					System.err.println(e);
 				}
 			}
 			else
 				System.out.println("Already disconnected!");
+			
+			if(multicastSocket != null) {
+				try {
+					searchGame = false;
+					multicastThread.join(100);
+					multicastSocket.close();
+					System.out.println("Stopped searching for a game.");
+
+				} catch (Exception e) {
+					System.err.println(e);
+				}
+			}
 		}
-		
 	}
 
 	public boolean ConnectToServer(String host, int port) {
@@ -81,33 +89,6 @@ public class Client extends Network {
 		Read();
 	}
 
-	// private void SearchGame() {
-	// 	String message = "Cerco Partita";		
-	// 	byte[] byt;
-	// 	searchGame = true;
-	// 	try {
-	// 		multicastSend = new MulticastSocket(4321);
-	// 		InetAddress inetSend = InetAddress.getByName("228.5.6.7");
-	// 		multicastSend.joinGroup(inetSend);
-	// 		while (searchGame) {
-	// 			DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inetSend, 4321);
-	// 			multicastSend.send(send);
-	// 			System.out.println("Multicast: " + message);
-
-	// 			byt = new byte[256];
-	// 			DatagramPacket recv = new DatagramPacket(byt, byt.length);
-	// 			multicastSend.receive(recv);
-	// 			String msg = new String(byt);
-	// 			System.out.println("Multicast answer: " + msg);
-	// 			// System.out.println(multicastSend.getInetAddress().toString());
-
-	// 			Thread.sleep(5000);
-	// 		}
-	// 	} catch (Exception e) {
-	// 		System.err.println(e);
-	// 	}
-	// }
-
 	private void SearchGame() {
 		byte[] byt;
 		searchGame = true;
@@ -117,15 +98,18 @@ public class Client extends Network {
 			multicastSocket.joinGroup(inet);
 			System.out.println("Searching for a game.");
 			while (searchGame) {
-				// recive packet
+				// receive packet
 				byt = new byte[256];
 				DatagramPacket recv = new DatagramPacket(byt, byt.length);
 				multicastSocket.receive(recv);
 
 				// get packet body
-				String msg = new String(byt);
+				Message msg = Message.getHeadAndBody(new String(byt));
 				System.out.println("Multicast message: " + msg);
-				System.out.println(recv.getAddress().getHostAddress());
+				if(MessageType.valueOf(msg.getHead()).equals(MessageType.LAN_SERVER_DISCOVEY)) {
+					msg.Add(recv.getAddress().getHostAddress());
+					Giocatore.ReadFromServer(msg);
+				}
 			}
 		} catch (IOException e) {
 			System.err.println(e);
