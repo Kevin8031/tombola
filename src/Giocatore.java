@@ -212,16 +212,16 @@ public class Giocatore extends Tabella {
 				int i = 0;
 				int j;
 				while (i < s.length() - 1) {
-					if(s.charAt(i) == ' ')
+					if(s.charAt(i++) == ' ')
 						break;
 				}
 
 				j = i;
 				while (i < s.length() - 1) {
-					if(s.charAt(i) != ' ')
+					if(s.charAt(i++) == ' ')
 						break;
 				}
-				String port = s.substring(j, i);
+				String port = s.substring(j, i - 1);
 
 				String host = s.substring(i, s.length());
 				player.ConnectToServer(host, Integer.valueOf(port));

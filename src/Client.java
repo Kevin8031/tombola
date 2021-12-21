@@ -55,7 +55,7 @@ public class Client extends Network {
 				outStream = new PrintStream(socket.getOutputStream());
 				clientThread = new Thread(() -> {Init();});
 				clientThread.start();
-				System.out.println(socket.toString());
+				System.out.println("Successfully connected to: " +socket.toString());
 				
 				return !socket.isClosed();
 			} catch (IOException e) {
