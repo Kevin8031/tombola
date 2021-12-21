@@ -15,8 +15,8 @@ public class Client extends Network {
 	private String name;
 	private MulticastSocket multicastSend;
 	private MulticastSocket multicastRecive;
-	private Thread sendThread;
 	private Thread reciveThread;
+	private boolean searchGame;
 
 	Client() {
 		group = Group.player;
@@ -31,8 +31,8 @@ public class Client extends Network {
 		group = Group.player;
 		super.id = id;
 		this.socket = socket;
-		sendThread = new Thread(() -> SearchGame());
-		sendThread.start();
+		reciveThread = new Thread(() -> SearchGame());
+		reciveThread.start();
 	}
 
 	public void DisconnectFromServer() {
@@ -83,45 +83,47 @@ public class Client extends Network {
 		Read();
 	}
 
+	// private void SearchGame() {
+	// 	String message = "Cerco Partita";		
+	// 	byte[] byt;
+	// 	searchGame = true;
+	// 	try {
+	// 		multicastSend = new MulticastSocket(4321);
+	// 		InetAddress inetSend = InetAddress.getByName("228.5.6.7");
+	// 		multicastSend.joinGroup(inetSend);
+	// 		while (searchGame) {
+	// 			DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inetSend, 4321);
+	// 			multicastSend.send(send);
+	// 			System.out.println("Multicast: " + message);
+
+	// 			byt = new byte[256];
+	// 			DatagramPacket recv = new DatagramPacket(byt, byt.length);
+	// 			multicastSend.receive(recv);
+	// 			String msg = new String(byt);
+	// 			System.out.println("Multicast answer: " + msg);
+	// 			// System.out.println(multicastSend.getInetAddress().toString());
+
+	// 			Thread.sleep(5000);
+	// 		}
+	// 	} catch (Exception e) {
+	// 		System.err.println(e);
+	// 	}
+	// }
+
 	private void SearchGame() {
-		String message = "Cerco Partita";		
 		byte[] byt;
-		try {
-			multicastSend = new MulticastSocket(4321);
-			InetAddress inetSend = InetAddress.getByName("228.5.6.7");
-			multicastSend.joinGroup(inetSend);
-			while (true) {
-				DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inetSend, 4321);
-				multicastSend.send(send);
-				System.out.println("Multicast: " + message);
-
-				byt = new byte[256];
-				DatagramPacket recv = new DatagramPacket(byt, byt.length);
-				multicastSend.receive(recv);
-				String msg = new String(byt);
-				System.out.println("Multicast answer: " + msg);
-				// System.out.println(multicastSend.getInetAddress().toString());
-
-				Thread.sleep(5000);
-			}
-		} catch (Exception e) {
-			System.err.println(e);
-		}
-	}
-
-	private void ReciveGame() {
-		byte[] byt;
+		searchGame = true;
 		try {
 			multicastRecive = new MulticastSocket(4321);
-			InetAddress inetRecive = InetAddress.getByName("228.5.6.8");
+			InetAddress inetRecive = InetAddress.getByName("228.5.6.7");
 			multicastRecive.joinGroup(inetRecive);
-			while (true) {
+			while (searchGame) {
 				byt = new byte[256];
 				DatagramPacket recv = new DatagramPacket(byt, byt.length);
 				multicastRecive.receive(recv);
 				String msg = new String(byt);
-				System.out.println("Multicast answer: " + msg);
-				System.out.println(multicastRecive.getInetAddress().toString());
+				System.out.println("Multicast message: " + msg);
+				System.out.println(recv.getAddress().getHostAddress());
 			}
 		} catch (IOException e) {
 			System.err.println(e);

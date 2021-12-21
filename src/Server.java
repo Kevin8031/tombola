@@ -48,6 +48,8 @@ public class Server extends Network {
 					lanThread.setName("lanThread");
 					lanThread.start();
 					System.out.println("[SERVER] Server started!");
+					serverName = new String("Tombola");
+					System.out.println("[SEVRER] Name: " + serverName);
 					return true;
 				} catch (IOException e) {
 					System.err.println(e);
@@ -145,32 +147,20 @@ public class Server extends Network {
 	private void OpenToLan() {
 		byte[] byt = new byte[256];
 		try {
-			multicastRecive = new MulticastSocket(4321);
 			multicastSend = new MulticastSocket(4321);
 			
-			//NetworkInterface nic = NetworkInterface.getByName("enp3s0");
-			InetAddress inetRecive = InetAddress.getByName("228.5.6.7");
-			InetAddress inetSend = InetAddress.getByName("228.5.6.8");
-			multicastRecive.joinGroup(inetRecive);
+			InetAddress inetSend = InetAddress.getByName("228.5.6.7");
 			multicastSend.joinGroup(inetSend);
 			
 			System.out.println("[SERVER] Server opened to lan.");
+			String msg = new String("LAN_SERVER_DISCOVEY_" + serverName);
+
 			while (openToLan) {
-				DatagramPacket recv = new DatagramPacket(byt, byt.length);
-				multicastRecive.receive(recv);
-				String msg = new String(byt);
+				DatagramPacket send = new DatagramPacket(msg.getBytes(), msg.length(), inetSend, 4322);
+				multicastSend.send(send);
 				msg = msg.trim();
-
-				if(msg.equals("Cerco Partita")) {
-					System.out.println("Mutlicast recived: " + msg);
-					String message = multicastRecive.getLocalSocketAddress().toString();
-					message = serverSocket.getLocalSocketAddress().toString();
-					DatagramPacket send = new DatagramPacket(message.getBytes(), message.length(), inetRecive, 4322);
-					multicastSend.send(send);
-					System.out.println("Sending multicast:" + message);
-				}
-
 				byt = new byte[256];
+				Thread.sleep(5000);
 			}
 			
 		} catch (Exception e) {
