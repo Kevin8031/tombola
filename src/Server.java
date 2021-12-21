@@ -129,7 +129,7 @@ public class Server extends Network {
 			String msg = new String("LAN_SERVER_DISCOVEY_" + serverName);
 
 			while (openToLan) {
-				DatagramPacket send = new DatagramPacket(msg.getBytes(), msg.length(), InetAddress.getByName("0.0.0.0"), 4321);
+				DatagramPacket send = new DatagramPacket(msg.getBytes(), msg.length(), InetAddress.getByName("0.0.0.0"), 8888);
 				datagramSocket.send(send);
 				System.out.println("[LAN SEARCH] Sent: " + msg);
 				Thread.sleep(5000);
