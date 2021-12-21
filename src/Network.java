@@ -12,6 +12,9 @@ public class Network {
 		}
 	}
 
+	final protected int MULTICAST_PORT = 8888;
+	final protected int SERVER_PORT = 4321;
+
 	// client
 	protected int id;
 

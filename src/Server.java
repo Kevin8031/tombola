@@ -39,7 +39,7 @@ public class Server extends Network {
 		if(group == Group.host) {
 			if(serverSocket == null) {
 				try {
-					serverSocket = new ServerSocket(60001);
+					serverSocket = new ServerSocket(SERVER_PORT);
 					serverThread = new Thread(() -> Accept());
 					serverThread.setName("serverThread");
 					serverThread.start();
@@ -123,13 +123,13 @@ public class Server extends Network {
 
 	private void OpenToLan() {
 		try {
-			datagramSocket = new DatagramSocket(8888, InetAddress.getByName("0.0.0.0"));
+			datagramSocket = new DatagramSocket(MULTICAST_PORT, InetAddress.getByName("0.0.0.0"));
 			datagramSocket.setBroadcast(true);
 			System.out.println("[SERVER] Server opened to lan.");
 			String msg = new String("LAN_SERVER_DISCOVEY_" + serverName);
 
 			while (openToLan) {
-				DatagramPacket send = new DatagramPacket(msg.getBytes(), msg.length(), InetAddress.getByName("0.0.0.0"), 8888);
+				DatagramPacket send = new DatagramPacket(msg.getBytes(), msg.length(), InetAddress.getByName("0.0.0.0"), MULTICAST_PORT);
 				datagramSocket.send(send);
 				System.out.println("[LAN SEARCH] Sent: " + msg);
 				Thread.sleep(5000);
