@@ -1,9 +1,9 @@
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.MulticastSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Scanner;
@@ -13,8 +13,7 @@ public class Client extends Network {
 	private Socket socket;
 	private Thread clientThread;
 	private String name;
-	private MulticastSocket multicastSend;
-	private MulticastSocket multicastRecive;
+	private DatagramSocket datagramSocket;
 	private Thread reciveThread;
 	private boolean searchGame;
 
@@ -112,17 +111,20 @@ public class Client extends Network {
 		byte[] byt;
 		searchGame = true;
 		try {
-			multicastRecive = new MulticastSocket(4321);
-			InetAddress inetRecive = InetAddress.getByName("228.5.6.7");
-			multicastRecive.joinGroup(inetRecive);
+			datagramSocket = new DatagramSocket(4321, InetAddress.getByName("0.0.0.0"));
+			datagramSocket.setBroadcast(true);
 			while (searchGame) {
+				// recive packet
 				byt = new byte[256];
 				DatagramPacket recv = new DatagramPacket(byt, byt.length);
-				multicastRecive.receive(recv);
+				datagramSocket.receive(recv);
+
+				// get packet body
 				String msg = new String(byt);
 				System.out.println("Multicast message: " + msg);
 				System.out.println(recv.getAddress().getHostAddress());
 			}
+			datagramSocket.setBroadcast(false);
 		} catch (IOException e) {
 			System.err.println(e);
 		}

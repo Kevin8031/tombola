@@ -1,8 +1,8 @@
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -15,8 +15,7 @@ public class Server extends Network {
 
 	private Network.Group group;
 	private ServerSocket serverSocket;
-	private MulticastSocket multicastRecive;
-	private MulticastSocket multicastSend;
+	private DatagramSocket datagramSocket;
 	private Thread serverThread;
 	private Thread lanThread;
 	private ArrayList<Client> client;
@@ -44,9 +43,11 @@ public class Server extends Network {
 					serverThread = new Thread(() -> Accept());
 					serverThread.setName("serverThread");
 					serverThread.start();
+
 					lanThread = new Thread(() -> OpenToLan());
 					lanThread.setName("lanThread");
 					lanThread.start();
+
 					System.out.println("[SERVER] Server started!");
 					serverName = new String("Tombola");
 					System.out.println("[SEVRER] Name: " + serverName);
@@ -90,30 +91,6 @@ public class Server extends Network {
 			else {
 				System.out.println("[SERVER] Cannot stop server. Server already stopped!");
 			}
-
-			if(multicastRecive != null) {
-				try {
-					lanThread.join(1);
-					multicastRecive.close();
-
-					System.out.println("[SERVER] Lan discovery (send) stopped. ");
-				} catch (Exception e) {
-					System.err.println(e);
-				}
-			} else
-				System.out.println("[SERVER] Lan discovery already stopped. ");
-
-			if(multicastSend != null) {
-				try {
-					multicastSend.close();
-
-					System.out.println("[SERVER] Lan discovery (recive) stopped. ");
-				} catch (Exception e) {
-					System.err.println(e);
-				}
-			} else
-				System.out.println("[SERVER] Lan discovery already stopped. ");
-
 		} else {
 			System.out.println("[SERVER] Only hosts can stop servers.");
 		}
@@ -146,21 +123,18 @@ public class Server extends Network {
 
 	private void OpenToLan() {
 		try {
-			multicastSend = new MulticastSocket(4321);
-			
-			InetAddress inetSend = InetAddress.getByName("228.5.6.7");
-			multicastSend.joinGroup(inetSend);
-			
+			datagramSocket = new DatagramSocket(4321, InetAddress.getByName("0.0.0.0"));
+			datagramSocket.setBroadcast(true);
 			System.out.println("[SERVER] Server opened to lan.");
 			String msg = new String("LAN_SERVER_DISCOVEY_" + serverName);
 
 			while (openToLan) {
-				DatagramPacket send = new DatagramPacket(msg.getBytes(), msg.length(), inetSend, 4322);
-				multicastSend.send(send);
-				msg = msg.trim();
+				DatagramPacket send = new DatagramPacket(msg.getBytes(), msg.length(), InetAddress.getByName("0.0.0.0"), 4321);
+				datagramSocket.send(send);
 				System.out.println("[LAN SEARCH] Sent: " + msg);
 				Thread.sleep(5000);
 			}
+			datagramSocket.setBroadcast(false);
 			
 		} catch (Exception e) {
 			System.err.println(e);
