@@ -52,7 +52,13 @@ public class Network {
 			Read();
 		} catch (NoSuchElementException e) {
 			System.err.println(e);
-			System.out.println("[ERROR] Server closed.");
+			if(group == Group.player)
+				System.out.println("[ERROR] Server closed.");
+			else {
+				System.out.println("[ERROR] Client disconnected.");
+				Message msg = new Message(MessageType.Disconnect);
+				Master.ReadFromClient(id, msg);
+			}
 		}
 	}
 

@@ -17,7 +17,7 @@ public class Server extends Network {
 	private MulticastSocket multicastSocket;
 	private Thread serverThread;
 	private Thread lanThread;
-	private Map<Integer, Client> client;
+	private static Map<Integer, Client> client;
 	private boolean openToLan;
 	private String serverName;
 	private boolean gameStarted;
@@ -166,6 +166,13 @@ public class Server extends Network {
 			}
 		} else
 			System.out.println("[SERVER] Lan visibility already stopped");
+	}
+
+	public static void RemoveClient(int id) {
+		client.forEach((k, v) -> {
+			if(k.equals(id))
+				client.remove(k, v);
+		});
 	}
 
 	public Map<Integer, Client> getClients() {

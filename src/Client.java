@@ -42,6 +42,9 @@ public class Client extends Network {
 				System.out.println("Already disconnected!");
 			
 			StopLanSearch();
+		} else {
+			System.out.println("[SERVER] Removing " + id + " " + name);
+			
 		}
 	}
 
