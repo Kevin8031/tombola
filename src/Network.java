@@ -43,7 +43,7 @@ public class Network {
 			Message msg = Message.getHeadAndBody(new String(buf.array()));
 			msg.setBody(msg.getBody().trim());
 
-			if(group == Group.player)
+			if(group == Group.host)
 				Master.ReadFromClient(id, msg);
 			else
 				Giocatore.ReadFromServer(msg);
