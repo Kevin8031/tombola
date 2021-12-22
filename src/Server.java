@@ -45,8 +45,6 @@ public class Server extends Network {
 					serverThread.setName("serverThread");
 					serverThread.start();
 
-					StartOpenToLan();
-
 					System.out.println("[SERVER] Server started!");
 					serverName = new String("Tombola");
 					System.out.println("[SEVRER] Name: " + serverName);
@@ -95,6 +93,10 @@ public class Server extends Network {
 		}
 	}
 
+	public boolean isServerStarted() {
+		return !serverSocket.isClosed();
+	}
+
 	private void Accept() {
 		if(group == Group.host) {
 			try {
@@ -107,7 +109,7 @@ public class Server extends Network {
 				p.outStream = new PrintStream(s.getOutputStream());
 				p.setName(("player" + uid));
 
-				new Thread(() -> p.Read()).start();;
+				new Thread(() -> p.Read()).start();
 				client.put(uid, p);
 				System.out.println("[NEW CLIENT] Client connected: " + client.get(uid++).getSocket().toString());
 				System.out.println("[SERVER] No. of clients: " + client.size());
@@ -124,6 +126,10 @@ public class Server extends Network {
 		lanThread = new Thread(() -> OpenToLan());
 		lanThread.setName("lanThread");
 		lanThread.start();
+		if(!isServerStarted()) {
+			System.out.println("[LAN SEARCH] Server was not started. Starting...");
+			StartServer();
+		}
 	}
 
 	private void OpenToLan() {
