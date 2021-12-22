@@ -104,6 +104,7 @@ public class Server extends Network {
 				map.put(uid, ByteBuffer.allocate(1024));
 				Socket s = serverSocket.accept();
 				Client p = new Client(s, uid);
+				p.group = Group.host;
 				
 				p.inStream = new Scanner(s.getInputStream());
 				p.outStream = new PrintStream(s.getOutputStream());
