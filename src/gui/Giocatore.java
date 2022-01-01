@@ -143,10 +143,11 @@ public class Giocatore extends JFrame {
 		JDialog dialog = new JDialog();
 		JTextField name = new JTextField();
 		JLabel nameLabel = new JLabel("Username");
-		JScrollPane scroll = new JScrollPane(list);
 
 		serverList = new DefaultListModel<String>();
 		list = new JList<String>(serverList);
+		JScrollPane scroll = new JScrollPane(list);
+		serverList.add(0, "Ciao");
 
 		player.StartLanSearch();
 		serverList = new DefaultListModel<String>();
@@ -157,7 +158,6 @@ public class Giocatore extends JFrame {
 
 		list = new JList<String>(serverList);
 		scroll.setBounds(0, 31, _WIDTH, 100);
-		scroll.add(list);
 
 		dialog.setSize(_WIDTH, _HEIGHT);
 		dialog.setLayout(null);
