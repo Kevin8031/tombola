@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Scanner;
 
+import gui.Giocatore;
+
 public class Client extends Network {
 
 	private Socket socket;
@@ -105,6 +107,7 @@ public class Client extends Network {
 				if(MessageType.valueOf(msg.getHead()).equals(MessageType.LAN_SERVER_DISCOVEY)) {
 					msg.setBody(msg.getBody().trim());
 					msg.Add(recv.getAddress().getHostAddress());
+					Giocatore.ReadFromServer(msg);
 				}
 			}
 		} catch (IOException e) {
