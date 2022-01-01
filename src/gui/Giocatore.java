@@ -90,6 +90,7 @@ public class Giocatore extends JFrame {
 								addActionListener(l -> addName());
 							}
 
+							// TODO addName
 							private void addName() {
 								player.setName("Kevin");
 								Message msg = new Message(MessageType.SetName, "Kevin");
@@ -101,7 +102,6 @@ public class Giocatore extends JFrame {
 			}
 			
 		});
-
 
 		// add (centerPanel)
 		centerPanel.add(new Cartella());
@@ -156,12 +156,11 @@ public class Giocatore extends JFrame {
 
 		scroll.setBounds(0, 31, _WIDTH, 100);
 
-		dialog.setSize(_WIDTH - 1, _HEIGHT - 1);
+		dialog.setSize(_WIDTH, _HEIGHT);
 		dialog.setLayout(null);
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		dialog.setLocationRelativeTo(null);
 		dialog.setResizable(false);
-		dialog.setVisible(true);
 
 		dialog.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
@@ -210,7 +209,7 @@ public class Giocatore extends JFrame {
 				}
 			}
 		});
-		dialog.setSize(_WIDTH, _HEIGHT);
+		dialog.setVisible(true);
 	}
 
 	private void dialogConnectToServer() {
