@@ -1,10 +1,11 @@
+package game;
 public class Tabellone extends Tabella {
 	// constants
 	final private short RIGHE = 9;
 	final private short COLONNE = 10;
 
 	// constructor
-	Tabellone() {
+	public Tabellone() {
 		tabella = new int[RIGHE * COLONNE];
 		generaTabella();
 	}

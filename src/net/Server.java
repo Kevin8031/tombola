@@ -1,3 +1,4 @@
+package net;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.DatagramPacket;
@@ -20,13 +21,11 @@ public class Server extends Network {
 	private static Map<Integer, Client> client;
 	private boolean openToLan;
 	private String serverName;
-	private boolean gameStarted;
 
 	private static Map<Integer, ByteBuffer> map;
 	private int uid;
 
-	Server() {
-		gameStarted = false;
+	public Server() {
 		group = Network.Group.host;
 
 		//readThread = new Thread(() -> Read());
@@ -192,7 +191,7 @@ public class Server extends Network {
 	}
 
 	public void setClient(Map<Integer, Client> client) {
-		this.client = client;
+		Server.client = client;
 	}
 	
 	public boolean isOpenToLan() {

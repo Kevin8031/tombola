@@ -1,3 +1,4 @@
+package net;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.DatagramPacket;
@@ -17,11 +18,11 @@ public class Client extends Network {
 	private Thread multicastThread;
 	private boolean searchGame;
 
-	Client() {
+	public Client() {
 		group = Group.player;
 	}
 	
-	Client(Socket socket, int id) {
+	public Client(Socket socket, int id) {
 		group = Group.player;
 		super.id = id;
 		this.socket = socket;
@@ -50,6 +51,7 @@ public class Client extends Network {
 
 	public boolean ConnectToServer(String host, int port) {
 		if(group == Group.player) {
+			System.out.println("Attempting connection to: " + host + ":" + port);
 			try {
 				socket = new Socket();
 				SocketAddress socketAddress = new InetSocketAddress(InetAddress.getByName(host), port);
@@ -58,8 +60,8 @@ public class Client extends Network {
 				outStream = new PrintStream(socket.getOutputStream());
 				clientThread = new Thread(() -> {Init();});
 				clientThread.start();
-				System.out.println("Successfully connected to: " +socket.toString());
-				
+				System.out.println("Successfully connected to: " + socket.toString());
+				OnConnection();
 				return !socket.isClosed();
 			} catch (IOException e) {
 				System.err.println(e);
@@ -103,12 +105,16 @@ public class Client extends Network {
 				if(MessageType.valueOf(msg.getHead()).equals(MessageType.LAN_SERVER_DISCOVEY)) {
 					msg.setBody(msg.getBody().trim());
 					msg.Add(recv.getAddress().getHostAddress());
-					Giocatore.ReadFromServer(msg);
 				}
 			}
 		} catch (IOException e) {
 			System.err.println(e);
 		}
+	}
+
+	public void OnConnection() {
+		Message msg = new Message(MessageType.SetName, name);
+		Send(msg);
 	}
 
 	public void StopLanSearch() {

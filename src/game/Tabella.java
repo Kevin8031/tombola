@@ -1,10 +1,11 @@
+package game;
 import java.util.*;
 
 public class Tabella {
 	// constants
-	final short RIGHE = 3;
-	final short COLONNE = 9;
-	final short NUMERO_CELLE = 15;
+	public static final short RIGHE = 3;
+	public static final short COLONNE = 9;
+	private final short NUMERO_CELLE = 15;
 	
 	// attributes
 	private Random random;
@@ -15,7 +16,7 @@ public class Tabella {
 	private boolean[] combo;
 
 	// constructors
-	Tabella() {
+	public Tabella() {
 		random = new Random();
 		tabella = new int[RIGHE * COLONNE];
 		numPresentiRighe = new int[RIGHE];
@@ -43,7 +44,7 @@ public class Tabella {
 		generaTabella();
 	}
 
-	// methods (GUI)
+	// methods
 	public void generaTabella() {
 		Arrays.fill(tabella, -1);
 		Arrays.fill(numeriDuplicati, 0);
@@ -182,4 +183,21 @@ public class Tabella {
 		return Combo.invalid;
 	}
 
+	public void AddNumber(int num) {
+		numeriEstratti.add(num);
+	}
+	@Override
+	public String toString() {
+		String s = new String();
+
+		for (int i : tabella) {
+			s += String.valueOf(i) + ' ';
+		}
+
+		return s;
+	}
+
+	// public static Tabella New() {
+
+	// }
 }

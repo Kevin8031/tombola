@@ -1,7 +1,11 @@
+package net;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+
+import gui.Giocatore;
+import gui.Master;
 
 public class Network {
 	enum Group {
@@ -40,6 +44,7 @@ public class Network {
 	public void Read() {
 		try {
 			buf.put(inStream.nextLine().getBytes());
+
 			Message msg = Message.getHeadAndBody(new String(buf.array()));
 			msg.setBody(msg.getBody().trim());
 

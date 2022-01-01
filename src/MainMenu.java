@@ -1,12 +1,17 @@
 import javax.swing.JButton;
 import javax.swing.JFrame;
+
+import gui.Cartella;
+import gui.Giocatore;
+import gui.Master;
+
 import java.awt.*;
 
-public class Gioco extends JFrame {
-	Giocatore giocatore;
+public class MainMenu extends JFrame {
+	Cartella giocatore;
 	Master master;
 
-	Gioco() {
+	MainMenu() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("Tombola - Main Menu");
 		setSize(350, 200);

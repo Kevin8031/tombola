@@ -1,5 +1,12 @@
+package gui;
 
 import javax.swing.*;
+
+import game.Tabellone;
+import net.Message;
+import net.MessageType;
+import net.Server;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
@@ -17,7 +24,7 @@ public class Master extends Tabellone {
 	
 	private static Server host;
 
-	Master(JFrame parent) {
+	public Master(JFrame parent) {
 		host = new Server();
 		caselle = new JButton[90];
 		numeriEstratti = new ArrayList<Integer>(90);

@@ -1,3 +1,4 @@
+package net;
 public class Message {
 	private String head;
 	private String body;
@@ -12,12 +13,12 @@ public class Message {
 		this.body = body;
 	}
 	
-	Message(MessageType head, String body) {
+	public Message(MessageType head, String body) {
 		this.head = head.toString();
 		this.body = body;
 	}
 
-	Message(MessageType head) {
+	public Message(MessageType head) {
 		this.head = head.toString();
 	}
 

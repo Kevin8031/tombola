@@ -1,3 +1,4 @@
+package net;
 public enum MessageType {
 	NewNumber,
 
