@@ -157,6 +157,7 @@ public class Giocatore extends JFrame {
 
 		list = new JList<String>(serverList);
 		scroll.setBounds(0, 31, _WIDTH, 100);
+		scroll.add(list);
 
 		dialog.setSize(_WIDTH, _HEIGHT);
 		dialog.setLayout(null);
