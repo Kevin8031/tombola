@@ -12,8 +12,8 @@ import java.awt.*;
 
 public class Giocatore extends JFrame {
 	private static Client player;
-	private JList<String> list;
 	private static DefaultListModel<String> serverList;
+	private JList<String> list;
 
 	private JPanel centerPanel;
 	private JPanel leftPanel;
@@ -147,19 +147,16 @@ public class Giocatore extends JFrame {
 		serverList = new DefaultListModel<String>();
 		list = new JList<String>(serverList);
 		JScrollPane scroll = new JScrollPane(list);
-		serverList.add(0, "Ciao");
 
 		player.StartLanSearch();
-		serverList = new DefaultListModel<String>();
-		
+
 		nameLabel.setBounds((_WIDTH / 2 - 90) - 80, 0, 120, 30);
 		name.setHorizontalAlignment(JTextField.HORIZONTAL);
 		name.setBounds(_WIDTH / 2 - 90, 0, 180, 30);
 
-		list = new JList<String>(serverList);
 		scroll.setBounds(0, 31, _WIDTH, 100);
 
-		dialog.setSize(_WIDTH, _HEIGHT);
+		dialog.setSize(_WIDTH - 1, _HEIGHT - 1);
 		dialog.setLayout(null);
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		dialog.setLocationRelativeTo(null);
@@ -213,6 +210,7 @@ public class Giocatore extends JFrame {
 				}
 			}
 		});
+		dialog.setSize(_WIDTH, _HEIGHT);
 	}
 
 	private void dialogConnectToServer() {
