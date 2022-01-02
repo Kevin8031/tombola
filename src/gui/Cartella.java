@@ -6,6 +6,7 @@ import game.Tabella;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 
 public class Cartella extends JPanel {
 	final private int RIGHE = Tabella.RIGHE;
@@ -77,5 +78,7 @@ public class Cartella extends JPanel {
 			}
 	}
 
-
+	public void setNumeriEstratti(ArrayList<Integer> list) {
+		tabella.setNumeriEstratti(list);
+	}
 }
