@@ -78,7 +78,7 @@ public class Cartella extends JPanel {
 			}
 	}
 
-	public void setNumeriEstratti(ArrayList<Integer> list) {
-		tabella.setNumeriEstratti(list);
+	public void setNumeriEstratti(ArrayList<Integer> numeriEstratti) {
+		tabella.setNumeriEstratti(numeriEstratti);
 	}
 }
