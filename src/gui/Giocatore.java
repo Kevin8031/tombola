@@ -304,6 +304,10 @@ public class Giocatore extends JFrame {
 					setUserName();
 				}
 				break;
+			
+			case GetTabella:
+				System.out.println("[Server] Asked for table. Sending table to server.");
+				break;
 		
 			default:
 				System.out.println("[NET] Error: \"" + msg.getHead() + "\" is not a valid command.");
