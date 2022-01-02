@@ -8,26 +8,28 @@ import net.Message;
 import net.MessageType;
 
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.awt.*;
 
 public class Giocatore extends JFrame {
 	// constants
-	private final Color WEST_COLOR = new Color(250, 219, 62);
+	final private Color CENTER_BACKGROUND = new Color(77, 168, 235);
+	private final Color WEST_BACKGROUND = new Color(235, 202, 66);
 	private final Font FONT = new Font("Roboto", Font.BOLD, 20);
 
 	// attributes
-	private JFrame parent;
-	private static Client player;
+	private static int numero;
+	private static Tabella tabella;
 	private static DefaultListModel<String> serverList;
-	private JList<String> list;
+	private static Client player;
+	private ArrayList<Cartella> cartelle;
 
+	// attributes (GUI)
+	private JFrame parent;
+	private JList<String> list;
 	private JPanel centerPanel;
 	private JPanel leftPanel;
 	private static JLabel numeroLabel;
-
-	private static int numero;
-	private static Tabella tabella;
-
 
 	public Giocatore(JFrame parent) {
 		this.parent = parent;
@@ -37,6 +39,7 @@ public class Giocatore extends JFrame {
 		leftPanel = new JPanel();
 		numeroLabel = new JLabel("Numero");
 		tabella = new Tabella();
+		cartelle = new ArrayList<Cartella>();
 		
 		// init
 		dialogLanServer();
@@ -108,19 +111,23 @@ public class Giocatore extends JFrame {
 		});
 
 		// add (centerPanel)
-		centerPanel.add(new Cartella());
-		centerPanel.add(new Cartella());
-		centerPanel.add(new Cartella());
+		cartelle.add(0, new Cartella(this));
+		centerPanel.add(cartelle.get(0));
+		cartelle.add(0, new Cartella(this));
+		centerPanel.add(cartelle.get(0));
+		cartelle.add(0, new Cartella(this));
+		centerPanel.add(cartelle.get(0));
 
 		// add (leftPanel)
 		leftPanel.add(numeroLabel);
 
 		// set (centerPanel)
 		centerPanel.setPreferredSize(new Dimension(100, 100));
+		centerPanel.setBackground(CENTER_BACKGROUND);
 
 		// set (leftPanel)
 		leftPanel.setPreferredSize(new Dimension(100, 100));
-		leftPanel.setBackground(WEST_COLOR);
+		leftPanel.setBackground(WEST_BACKGROUND);
 
 		// add (frame)
 		add(centerPanel, BorderLayout.CENTER);
