@@ -1,19 +1,16 @@
 package gui;
-
 import javax.swing.*;
-
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
 import net.Client;
 import net.Message;
 import net.MessageType;
 
-import java.awt.event.*;
-import java.util.ArrayList;
-import java.awt.*;
-
 public class Giocatore extends JFrame {
 	// constants
 	final private Color CENTER_BACKGROUND = new Color(77, 168, 235);
-	private final Color WEST_BACKGROUND = new Color(235, 202, 66);
+	private final Color WEST_BACKGROUND = new Color(235, 202, 66);	
 	private final static Font FONT = new Font("Roboto", Font.BOLD, 20);
 
 	// attributes
@@ -28,46 +25,46 @@ public class Giocatore extends JFrame {
 	private JList<String> list;
 	private JPanel centerPanel;
 	private JPanel leftPanel;
+	private Image image;
 	private static JScrollPane numList;
 	private JLabel numeroLabel;
 
+	// constructor
 	public Giocatore(JFrame parent) {
 		this.parent = parent;
-		// new
+
 		player = new Client();
+		numList = new JScrollPane(list);
 		centerPanel = new JPanel();
 		leftPanel = new JPanel();
 		numeroLabel = new JLabel("Numeri");
 		cartelle = new ArrayList<Cartella>();
 		numeriEstratti = new ArrayList<Integer>();
-		numList = new JScrollPane();
+		image = Toolkit.getDefaultToolkit().getImage("C://Users//arman//Desktop//GITHUB//Repos//tombola//src//icon.png");
+		setIconImage(image);
 		
 		// init
 		dialogLanServer();
 
-		// setters
+		// setters (numeroLabel)
 		numeroLabel.setForeground(Color.darkGray);
 		numeroLabel.setFont(FONT);
-		numeroLabel.setPreferredSize(new Dimension(120, 30));
+		numeroLabel.setPreferredSize(new Dimension(120, 10));
 
 		// setters (frame)
-		setSize(700, 450);
+		setSize(700, 420);
 		setLocationRelativeTo(null);
 		setLayout(new BorderLayout(5, 5));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setTitle("Tombola");
+
+		// MenuBar
 		setJMenuBar(new JMenuBar() {
 			{
-				setBackground(new Color(16, 7, 232));
-				setForeground(Color.WHITE);
 				add(new JMenu("File") {
 					{
-						this.setBackground(new Color(16, 7, 232));
-						this.setForeground(Color.WHITE);
 						add(new JMenuItem("Exit") {
 							{
-								this.setBackground(new Color(16, 7, 232));
-								this.setForeground(Color.WHITE);
 								addActionListener(e -> parent.dispose());
 							}
 						});
@@ -76,16 +73,12 @@ public class Giocatore extends JFrame {
 
 				add(new JMenu("Server") {
 					{
-						this.setBackground(new Color(16, 7, 232));
-						this.setForeground(Color.WHITE);
 						add(new JMenuItem("Connect To Server") {{ addActionListener(e -> dialogConnectToServer()); }});
 
 						add(new JMenuItem("List Server") {{ addActionListener(e -> dialogLanServer()); }});
 
 						add(new JMenuItem("Disconect") {
 							{
-								this.setBackground(new Color(16, 7, 232));
-								this.setForeground(Color.WHITE);
 								addActionListener(e -> player.DisconnectFromServer());
 							}
 						});
@@ -121,7 +114,7 @@ public class Giocatore extends JFrame {
 		// set (leftPanel)
 		// TODO praticamente la lista deve essere grande e il tasto no. fai qualcosa per aggiustarlo
 		leftPanel.setPreferredSize(new Dimension(120, 100));
-		leftPanel.setBackground(WEST_BACKGROUND);
+		leftPanel.setBackground(Color.WHITE);
 		leftPanel.setLayout(new GridLayout(2, 1));
 
 		// add (frame)
@@ -183,10 +176,13 @@ public class Giocatore extends JFrame {
 	private void dialogLanServer() {
 		final int _WIDTH = 450;
 		final int _HEIGHT = 224;
-
+		
 		JFrame frame = new JFrame();
 		JTextField name = new JTextField();
 		JLabel nameLabel = new JLabel("Username");
+		
+		image = Toolkit.getDefaultToolkit().getImage("C://Users//arman//Desktop//GITHUB//Repos//tombola//src//icon.png");
+		frame.setIconImage(image);
 
 		serverList = new DefaultListModel<String>();
 		list = new JList<String>(serverList);
