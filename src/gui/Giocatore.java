@@ -19,10 +19,10 @@ public class Giocatore extends JFrame {
 
 	// attributes
 	private static int num;
-	private static Tabella tabella;
 	private static DefaultListModel<String> serverList;
 	private static Client player;
 	private ArrayList<Cartella> cartelle;
+	private static ArrayList<Integer> numeriEstratti;
 
 	// attributes (GUI)
 	private JFrame parent;
@@ -38,8 +38,8 @@ public class Giocatore extends JFrame {
 		centerPanel = new JPanel();
 		leftPanel = new JPanel();
 		numeroLabel = new JLabel("Numero");
-		tabella = new Tabella();
 		cartelle = new ArrayList<Cartella>();
+		numeriEstratti = new ArrayList<Integer>();
 		
 		// init
 		dialogLanServer();
@@ -291,10 +291,10 @@ public class Giocatore extends JFrame {
 		switch (MessageType.valueOf(msg.getHead())) {
 			case NewNumber:
 				num = Integer.valueOf(msg.getBody());
-				tabella.AddNumber(num);
+				numeriEstratti.add(num);
 
 				String s = new String();
-				for (int num : tabella.getTabella()) {
+				for (int num : numeriEstratti) {
 					s += num + " ";
 				}
 
