@@ -11,6 +11,12 @@ import java.awt.event.*;
 import java.awt.*;
 
 public class Giocatore extends JFrame {
+	// constants
+	private final Color WEST_COLOR = new Color(250, 219, 62);
+	private final Font FONT = new Font("Roboto", Font.BOLD, 20);
+
+	// attributes
+	private JFrame parent;
 	private static Client player;
 	private static DefaultListModel<String> serverList;
 	private JList<String> list;
@@ -22,22 +28,27 @@ public class Giocatore extends JFrame {
 	private static int numero;
 	private static Tabella tabella;
 
-	public Giocatore(JFrame frame) {
+
+	public Giocatore(JFrame parent) {
+		this.parent = parent;
 		// new
 		player = new Client();
-
 		centerPanel = new JPanel();
 		leftPanel = new JPanel();
-
 		numeroLabel = new JLabel("Numero");
+		tabella = new Tabella();
 		
 		// init
 		dialogLanServer();
 
+		// setters
+		numeroLabel.setForeground(Color.darkGray);
+		numeroLabel.setFont(FONT);
+
 		// setters (frame)
 		setSize(700, 450);
 		setLocationRelativeTo(null);
-		setLayout(new BorderLayout());
+		setLayout(new BorderLayout(5, 5));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setTitle("Tombola");
 		setJMenuBar(new JMenuBar() {
@@ -53,7 +64,7 @@ public class Giocatore extends JFrame {
 							{
 								this.setBackground(new Color(16, 7, 232));
 								this.setForeground(Color.WHITE);
-								addActionListener(e -> frame.dispose());
+								addActionListener(e -> parent.dispose());
 							}
 						});
 					}
@@ -85,16 +96,9 @@ public class Giocatore extends JFrame {
 
 				add(new JMenu("Giocatore") {
 					{
-						add(new JMenuItem("Nome") {
+						add(new JMenuItem("Cambia nome") {
 							{
-								addActionListener(l -> addName());
-							}
-
-							// TODO addName
-							private void addName() {
-								player.setName("Kevin");
-								Message msg = new Message(MessageType.SetName, "Kevin");
-								player.Send(msg);
+								addActionListener(l -> setUserName());
 							}
 						});
 					}
@@ -112,12 +116,11 @@ public class Giocatore extends JFrame {
 		leftPanel.add(numeroLabel);
 
 		// set (centerPanel)
-		centerPanel.setBackground(Color.red);
 		centerPanel.setPreferredSize(new Dimension(100, 100));
 
 		// set (leftPanel)
 		leftPanel.setPreferredSize(new Dimension(100, 100));
-		leftPanel.setBackground(Color.BLUE);
+		leftPanel.setBackground(WEST_COLOR);
 
 		// add (frame)
 		add(centerPanel, BorderLayout.CENTER);
@@ -125,22 +128,61 @@ public class Giocatore extends JFrame {
 
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				frame.setVisible(true);
+				parent.setVisible(true);
 			}
 		});
 	}
 
 	// methods
-	private void ShowWindow() {
+	private void ShowWindow(JFrame frame) {
+		frame.dispose();
+		player.StopLanSearch();
 		setVisible(true);
 	}
 
 	// methods (net)
+	private static void setUserName() {
+		JDialog dialog = new JDialog();
+		JTextField name = new JTextField();
+		JLabel label = new JLabel("Username");
+
+		label.setBounds(15, 5, 120, 30);
+		name.setBounds(150 - 70, 5, 120, 30);
+		dialog.add(label);
+		dialog.add(name);
+		dialog.add(new JButton("OK") {
+			{
+				addActionListener(l -> _setName());
+				setBounds(205, 5, 70, 30);
+			}
+			
+			public void _setName() {
+				String s = new String(name.getText());
+				if(s.length() > 0) {
+						player.setName(name.getText());
+						System.out.println("Name assigned: " + s + ", pending server approval.");
+						Message msg = new Message(MessageType.SetName, player.getName());
+						player.Send(msg);
+						dialog.dispose();
+					} else {
+					JOptionPane.showMessageDialog(dialog, "Nessun nome inserito", "Errore", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+		dialog.setSize(300, 80);
+		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		dialog.setLocationRelativeTo(null);
+		dialog.setLayout(null);
+		dialog.setResizable(false);
+		dialog.setTitle("Cambia Username");
+		dialog.setVisible(true);
+	}
+
 	private void dialogLanServer() {
 		final int _WIDTH = 450;
 		final int _HEIGHT = 222;
 
-		JDialog dialog = new JDialog();
+		JFrame frame = new JFrame();
 		JTextField name = new JTextField();
 		JLabel nameLabel = new JLabel("Username");
 
@@ -156,23 +198,22 @@ public class Giocatore extends JFrame {
 
 		scroll.setBounds(0, 31, _WIDTH, 100);
 
-		dialog.setSize(_WIDTH, _HEIGHT);
-		dialog.setLayout(null);
-		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		dialog.setLocationRelativeTo(null);
-		dialog.setResizable(false);
+		frame.setSize(_WIDTH, _HEIGHT);
+		frame.setLayout(null);
+		frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		frame.setLocationRelativeTo(null);
+		frame.setResizable(false);
 
-		dialog.addWindowListener(new WindowAdapter() {
+		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				player.StopLanSearch();
-				ShowWindow();
+				ShowWindow(frame);
 			}
 		});
-		
-		dialog.add(nameLabel);
-		dialog.add(name);
-		dialog.add(scroll);
-		dialog.add(new JButton("Connetti") {
+
+		frame.add(nameLabel);
+		frame.add(name);
+		frame.add(scroll);
+		frame.add(new JButton("Connetti") {
 			{
 				addActionListener(l -> Connect());
 				setBounds((_WIDTH / 2) - 75, 132, 150, 60);
@@ -180,12 +221,8 @@ public class Giocatore extends JFrame {
 
 			private void Connect() {
 				if(list.getSelectedValuesList().size() > 0) {
-					if(name.getText() != "Username") {
-						player.setName(name.getText());
-						System.out.println("Name assigned: " + player.getName() + ", pending server approval.");
-					}
-					else
-						System.out.println("Skipping name set");
+					player.setName(name.getText());
+					System.out.println("Name assigned: " + player.getName() + ", pending server approval.");
 
 					String s = list.getSelectedValue();
 					int i = 0;
@@ -203,13 +240,20 @@ public class Giocatore extends JFrame {
 					String port = s.substring(j, i - 1);
 
 					String host = s.substring(i, s.length());
-					player.ConnectToServer(host, Integer.valueOf(port));
+					if(player.ConnectToServer(host, Integer.valueOf(port))) {
+						ShowWindow(frame);
+					}
+					else {
+						parent.setVisible(true);
+						JOptionPane.showMessageDialog(frame, "Impossibile connettersi al server", "Errore", JOptionPane.ERROR_MESSAGE);
+					}
 				} else {
-					System.out.println("No servers found.");
+					JOptionPane.showMessageDialog(frame, "Selezionare un server", "Errore", JOptionPane.ERROR_MESSAGE);
+					System.out.println("No servers selected.");
 				}
 			}
 		});
-		dialog.setVisible(true);
+		frame.setVisible(true);
 	}
 
 	private void dialogConnectToServer() {
@@ -250,8 +294,13 @@ public class Giocatore extends JFrame {
 				break;
 			
 			case SetName:
-				if(msg.getBody() == "true")
+				if(msg.getBody().equals("true"))
 					System.out.println("Name successfully set.");
+				else {
+					System.out.println("Cannot set message: " + msg.getBody());
+					JOptionPane.showMessageDialog(null, msg.getBody(), "Errore", JOptionPane.ERROR_MESSAGE);
+					setUserName();
+				}
 				break;
 		
 			default:

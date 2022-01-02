@@ -194,9 +194,14 @@ public class Master extends Tabellone {
 		System.out.println("[" + id + " \"" + host.getClient(id).getName() + "\"" + "] Says: " + msg.toString());
 
 		switch (MessageType.valueOf(msg.getHead())) {
-			case NewNumber:
-				host.getClient(id).setName(msg.getBody());
-				System.out.println("Name set for: " + id + " \"" + host.getClient(id).getName() + "\"");
+			case SetName:
+				String s = new String(msg.getBody());
+				if(s.length() > 0) {
+					host.getClient(id).setName(s);
+					System.out.println("Name set for: " + id + " \"" + host.getClient(id).getName() + "\"");
+					host.getClient(id).Send(new Message(MessageType.SetName, "true"));
+				} else
+					host.getClient(id).Send(new Message(MessageType.SetName, "Il nome non può essere vuoto"));
 				break;
 
 			case Disconnect:
