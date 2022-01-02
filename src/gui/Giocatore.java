@@ -306,6 +306,7 @@ public class Giocatore extends JFrame {
 				break;
 			
 			case GetTabella:
+				// TODO make it work
 				System.out.println("[Server] Asked for table. Sending table to server.");
 				break;
 		
