@@ -8,19 +8,21 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class Cartella extends JPanel {
-	final int RIGHE = Tabella.RIGHE;
-	final int COLONNE = Tabella.COLONNE;
+	final private int RIGHE = Tabella.RIGHE;
+	final private int COLONNE = Tabella.COLONNE;
+	final private Font FONT = new Font("Roboto", Font.BOLD, 36);
+
+	// attributes
+	private static int numero;
+	private static Tabella tabella;
 
 	// attributes (GUI)
 	private static JLabel labelNumero;
 	private GridLayout griglia;
 	private JButton[] caselle;
-	private static int numero;
-
-	private static Tabella tabella;
 
 	// constructor
-	public Cartella() {
+	public Cartella(JFrame parent) {
 		tabella = new Tabella();
 		griglia = new GridLayout(3, 9, 3, 3);
 		labelNumero = new JLabel("- NUMERO -");
@@ -30,9 +32,9 @@ public class Cartella extends JPanel {
 		labelNumero.setHorizontalTextPosition(JLabel.CENTER);
 		labelNumero.setVerticalTextPosition(JLabel.CENTER);
 		labelNumero.setForeground(Color.WHITE);
-		labelNumero.setFont(new Font("Roboto", Font.BOLD, 36));
+		labelNumero.setFont(FONT);
 
-		setBackground(new Color(74, 0, 255));
+		setBackground(Color.white);
 		setLayout(griglia);
 		
 		tabella.generaTabella();
