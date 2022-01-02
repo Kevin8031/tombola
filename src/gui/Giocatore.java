@@ -37,7 +37,7 @@ public class Giocatore extends JFrame {
 		numList = new JScrollPane(list);
 		centerPanel = new JPanel();
 		leftPanel = new JPanel();
-		numeroLabel = new JLabel("Numeri");
+		numeroLabel = new JLabel("Numeri", SwingConstants.CENTER);
 		cartelle = new ArrayList<Cartella>();
 		numeriEstratti = new ArrayList<Integer>();
 		image = Toolkit.getDefaultToolkit().getImage("C://Users//arman//Desktop//GITHUB//Repos//tombola//src//icon.png");
@@ -47,12 +47,12 @@ public class Giocatore extends JFrame {
 		dialogLanServer();
 
 		// setters (numeroLabel)
-		numeroLabel.setForeground(Color.darkGray);
+		numeroLabel.setPreferredSize(new Dimension(120, 30));
+		numeroLabel.setBackground(Color.YELLOW);
 		numeroLabel.setFont(FONT);
-		numeroLabel.setPreferredSize(new Dimension(120, 10));
 
 		// setters (frame)
-		setSize(700, 420);
+		setSize(700, 445);
 		setLocationRelativeTo(null);
 		setLayout(new BorderLayout(5, 5));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -103,19 +103,21 @@ public class Giocatore extends JFrame {
 		cartelle.get(0).setNumeriEstratti(numeriEstratti);
 		centerPanel.add(cartelle.get(0));
 
+		// set (centerPanel)
+		centerPanel.setPreferredSize(new Dimension(100, 100));
+		centerPanel.setBackground(Color.WHITE);
+		
 		// add (leftPanel)
 		leftPanel.add(numeroLabel);
 		leftPanel.add(numList);
 
-		// set (centerPanel)
-		centerPanel.setPreferredSize(new Dimension(100, 100));
-		centerPanel.setBackground(CENTER_BACKGROUND);
-
-		// set (leftPanel)
 		// TODO praticamente la lista deve essere grande e il tasto no. fai qualcosa per aggiustarlo
-		leftPanel.setPreferredSize(new Dimension(120, 100));
-		leftPanel.setBackground(Color.WHITE);
-		leftPanel.setLayout(new GridLayout(2, 1));
+		// set (leftPanel)
+		leftPanel.setPreferredSize(new Dimension(120, 445));
+		leftPanel.getComponent(0).setBounds(0, 0, 120, 60);
+		leftPanel.getComponent(1).setBounds(0, 61, 120, 390);
+		leftPanel.setBackground(Color.YELLOW);
+		leftPanel.setLayout(null);
 
 		// add (frame)
 		add(centerPanel, BorderLayout.CENTER);

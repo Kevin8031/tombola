@@ -1,16 +1,13 @@
 package gui;
-
 import javax.swing.*;
-
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Random;
 import game.Tabellone;
 import net.Message;
 import net.MessageType;
 import net.Server;
-
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Random;
-import java.awt.event.*;
 
 public class Master extends Tabellone {
     // attributes (GUI)
@@ -18,34 +15,39 @@ public class Master extends Tabellone {
 	private JPanel centerPanel;
 	private JPanel leftPanel;
 	private JPanel topPanel;
-
-	private JPanel panel1;
 	private JPanel buttonPanel;
+	private JPanel panel1;
 	private JLabel numero;
 	private GridLayout griglia;
 	private Tabellone tabellone;
 	private JButton[] caselle;
+	private Image image;
 	
+	// attributes (Network)
 	private static Server host;
 
+	// constructor
 	public Master(JFrame parent) {
-		host = new Server();
-		caselle = new JButton[90];
-		numeriEstratti = new ArrayList<Integer>(90);
 		frame = new JFrame("Tombola");
-		griglia = new GridLayout(9, 10, 5, 5);
-		panel1 = new JPanel();
-		numero = new JLabel("-Numero Uscito-");
-		buttonPanel = new JPanel();
-		tabellone = new Tabellone();
-		frame.setSize(600, 350);
-		frame.setLayout(new BorderLayout());
-
 		centerPanel = new JPanel();
 		leftPanel = new JPanel();
 		topPanel = new JPanel();
+		buttonPanel = new JPanel();
+		panel1 = new JPanel();
+		numero = new JLabel("-Numero Uscito-");
+		griglia = new GridLayout(9, 10, 5, 5);
+		tabellone = new Tabellone();
+		caselle = new JButton[90];
+		numeriEstratti = new ArrayList<Integer>(90);
+		host = new Server();
 		
+		// setters (frame)
+		frame.setSize(600, 350);
+		frame.setLayout(new BorderLayout());
+		image = Toolkit.getDefaultToolkit().getImage("C://Users//arman//Desktop//GITHUB//Repos//tombola//src//icon.png");
+		frame.setIconImage(image);
 		
+		// setters (panel1)
 		panel1.setBackground(Color.gray);
 		panel1.add(new JButton("Genera Numero") {
 			{
@@ -60,6 +62,7 @@ public class Master extends Tabellone {
 		
 		GeneraTabella();
 
+		// setters (-Panel)
 		centerPanel.setSize(new Dimension(100, 100));
 		centerPanel.add(buttonPanel);
 		centerPanel.setBackground(Color.BLUE);
@@ -79,6 +82,7 @@ public class Master extends Tabellone {
 		frame.add(topPanel, BorderLayout.NORTH);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
+		// MenuBar
 		frame.setJMenuBar(new JMenuBar() {
 			{
 				add(new JMenu("File") {
