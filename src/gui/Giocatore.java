@@ -2,7 +2,6 @@ package gui;
 
 import javax.swing.*;
 
-import game.Tabella;
 import net.Client;
 import net.Message;
 import net.MessageType;
@@ -15,7 +14,7 @@ public class Giocatore extends JFrame {
 	// constants
 	final private Color CENTER_BACKGROUND = new Color(77, 168, 235);
 	private final Color WEST_BACKGROUND = new Color(235, 202, 66);
-	private final Font FONT = new Font("Roboto", Font.BOLD, 20);
+	private final static Font FONT = new Font("Roboto", Font.BOLD, 20);
 
 	// attributes
 	private static int num;
@@ -29,7 +28,8 @@ public class Giocatore extends JFrame {
 	private JList<String> list;
 	private JPanel centerPanel;
 	private JPanel leftPanel;
-	private static JLabel numeroLabel;
+	private static JScrollPane numList;
+	private JLabel numeroLabel;
 
 	public Giocatore(JFrame parent) {
 		this.parent = parent;
@@ -37,9 +37,10 @@ public class Giocatore extends JFrame {
 		player = new Client();
 		centerPanel = new JPanel();
 		leftPanel = new JPanel();
-		numeroLabel = new JLabel("Numero");
+		numeroLabel = new JLabel("Numeri");
 		cartelle = new ArrayList<Cartella>();
 		numeriEstratti = new ArrayList<Integer>();
+		numList = new JScrollPane();
 		
 		// init
 		dialogLanServer();
@@ -112,22 +113,29 @@ public class Giocatore extends JFrame {
 
 		// add (centerPanel)
 		cartelle.add(0, new Cartella(this));
+		cartelle.get(0).setNumeriEstratti(numeriEstratti);
 		centerPanel.add(cartelle.get(0));
+
 		cartelle.add(0, new Cartella(this));
+		cartelle.get(0).setNumeriEstratti(numeriEstratti);
 		centerPanel.add(cartelle.get(0));
+		
 		cartelle.add(0, new Cartella(this));
+		cartelle.get(0).setNumeriEstratti(numeriEstratti);
 		centerPanel.add(cartelle.get(0));
 
 		// add (leftPanel)
 		leftPanel.add(numeroLabel);
+		leftPanel.add(numList);
 
 		// set (centerPanel)
 		centerPanel.setPreferredSize(new Dimension(100, 100));
 		centerPanel.setBackground(CENTER_BACKGROUND);
 
 		// set (leftPanel)
-		leftPanel.setPreferredSize(new Dimension(100, 100));
+		leftPanel.setPreferredSize(new Dimension(120, 100));
 		leftPanel.setBackground(WEST_BACKGROUND);
+		leftPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
 
 		// add (frame)
 		add(centerPanel, BorderLayout.CENTER);
@@ -292,13 +300,9 @@ public class Giocatore extends JFrame {
 			case NewNumber:
 				num = Integer.valueOf(msg.getBody());
 				numeriEstratti.add(num);
-
-				String s = new String();
-				for (int num : numeriEstratti) {
-					s += num + " ";
-				}
-
-				numeroLabel.setText(s);
+				numList.add(new JLabel(String.valueOf(num)) {{ setFont(FONT); }});
+				// leftPanel.validate();
+				// leftPanel.repaint();
 				break;
 
 			case LAN_SERVER_DISCOVEY:
