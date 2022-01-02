@@ -26,24 +26,6 @@ public class Tabella {
 		Arrays.fill(tabella, -1);
 	}
 
-	// getters and setters
-	public int[] getTabella() {
-		return tabella;
-	}
-
-	public int getTabella(int index) {
-		return tabella[index];
-	}
-
-	public void setTabella(int[] tabella) {
-		this.tabella = tabella;
-	}
-
-	public void Reset() {
-		numeriEstratti.clear();
-		generaTabella();
-	}
-
 	// methods
 	public void generaTabella() {
 		Arrays.fill(tabella, -1);
@@ -197,7 +179,29 @@ public class Tabella {
 		return s;
 	}
 
-	// public static Tabella New() {
+	// getters and setters
+	public int[] getTabella() {
+		return tabella;
+	}
 
-	// }
+	public int getTabella(int index) {
+		return tabella[index];
+	}
+
+	public void setTabella(int[] tabella) {
+		this.tabella = tabella;
+	}
+
+	public void Reset() {
+		numeriEstratti.clear();
+		generaTabella();
+	}
+
+	public static ArrayList<Integer> getNumeriEstratti() {
+		return numeriEstratti;
+	}
+
+	public static void setNumeriEstratti(ArrayList<Integer> numeriEstratti) {
+		Tabella.numeriEstratti = numeriEstratti;
+	}
 }
