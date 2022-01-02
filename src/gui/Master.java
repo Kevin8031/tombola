@@ -15,8 +15,12 @@ import java.awt.event.*;
 public class Master extends Tabellone {
     // attributes (GUI)
 	private JFrame frame;
+	private JPanel centerPanel;
+	private JPanel leftPanel;
+	private JPanel topPanel;
+
 	private JPanel panel1;
-	private JPanel panel2;
+	private JPanel buttonPanel;
 	private JLabel numero;
 	private GridLayout griglia;
 	private Tabellone tabellone;
@@ -32,11 +36,16 @@ public class Master extends Tabellone {
 		griglia = new GridLayout(9, 10, 5, 5);
 		panel1 = new JPanel();
 		numero = new JLabel("-Numero Uscito-");
-		panel2 = new JPanel();
+		buttonPanel = new JPanel();
 		tabellone = new Tabellone();
 		frame.setSize(600, 350);
-		frame.setLayout(new GridLayout(2,1));
+		frame.setLayout(new BorderLayout());
 
+		centerPanel = new JPanel();
+		leftPanel = new JPanel();
+		topPanel = new JPanel();
+		
+		
 		panel1.setBackground(Color.gray);
 		panel1.add(new JButton("Genera Numero") {
 			{
@@ -45,14 +54,29 @@ public class Master extends Tabellone {
 		});
 		panel1.add(numero);
 		panel1.setLayout(new GridLayout());
-
-		panel2.setBackground(Color.darkGray);
-		panel2.setLayout(griglia);
-
+		
+		buttonPanel.setBackground(Color.darkGray);
+		buttonPanel.setLayout(griglia);
+		
 		GeneraTabella();
 
-		frame.add(panel1);
-		frame.add(panel2);
+		centerPanel.setSize(new Dimension(100, 100));
+		centerPanel.add(buttonPanel);
+		centerPanel.setBackground(Color.BLUE);
+		centerPanel.setLayout(new GridLayout());
+
+		leftPanel.setSize(110, 100);
+
+		topPanel.setSize(100, 100);
+		topPanel.add(new JButton("Genera Numero") {
+			{
+				addActionListener(e -> GeneraNumero());
+			}
+		});
+
+		frame.add(leftPanel, BorderLayout.WEST);
+		frame.add(centerPanel, BorderLayout.CENTER);
+		frame.add(topPanel, BorderLayout.NORTH);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		frame.setJMenuBar(new JMenuBar() {
@@ -125,7 +149,7 @@ public class Master extends Tabellone {
 		for(int i = 0; i < tabellone.getTabella().length; i++) {
 			caselle[i] = new JButton(String.valueOf(i + 1));
 			caselle[i].addActionListener(l -> CheatNumero(l));
-			panel2.add(caselle[i]);
+			buttonPanel.add(caselle[i]);
 		}
 	}
 
@@ -160,17 +184,18 @@ public class Master extends Tabellone {
 	private void ListClients() {
 		JDialog dialog = new JDialog(frame, "Clients");
 		DefaultListModel<String> dlm = new DefaultListModel<String>();
-		JList<String> jList = new JList<String>(dlm);
+		JList<String> list = new JList<String>(dlm);
+		JScrollPane scroll = new JScrollPane(list);
 
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		dialog.setSize(150, 150);
+		dialog.setSize(400, 150);
 
-		dialog.add(jList);
+		dialog.add(scroll);
 
 		dialog.setVisible(true);
 
 		host.getClients().forEach((k, v) -> {
-			dlm.add(0, v.getSocket().getRemoteSocketAddress().toString());
+			dlm.add(0, v.getId() + " " + v.getName());
 		});
 	}
 
@@ -215,7 +240,7 @@ public class Master extends Tabellone {
 
 	private void ResetAll() {
 		for (JButton btn : caselle) {
-			panel2.remove(btn);
+			buttonPanel.remove(btn);
 			btn = null;
 		}		
 
