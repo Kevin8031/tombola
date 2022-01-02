@@ -18,7 +18,7 @@ public class Giocatore extends JFrame {
 	private final Font FONT = new Font("Roboto", Font.BOLD, 20);
 
 	// attributes
-	private static int numero;
+	private static int num;
 	private static Tabella tabella;
 	private static DefaultListModel<String> serverList;
 	private static Client player;
@@ -290,9 +290,15 @@ public class Giocatore extends JFrame {
 
 		switch (MessageType.valueOf(msg.getHead())) {
 			case NewNumber:
-				numero = Integer.valueOf(msg.getBody());
-				numeroLabel.setText(msg.getBody());
-				tabella.AddNumber(numero);
+				num = Integer.valueOf(msg.getBody());
+				tabella.AddNumber(num);
+
+				String s = new String();
+				for (int num : tabella.getTabella()) {
+					s += num + " ";
+				}
+
+				numeroLabel.setText(s);
 				break;
 
 			case LAN_SERVER_DISCOVEY:
