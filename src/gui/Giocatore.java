@@ -9,8 +9,8 @@ import net.MessageType;
 
 public class Giocatore extends JFrame {
 	// constants
-	final private Color CENTER_BACKGROUND = new Color(77, 168, 235);
-	private final Color WEST_BACKGROUND = new Color(235, 202, 66);	
+	// final private Color CENTER_BACKGROUND = new Color(77, 168, 235);
+	// private final Color WEST_BACKGROUND = new Color(235, 202, 66);	
 	private final static Font FONT = new Font("Roboto", Font.BOLD, 20);
 
 	// attributes
