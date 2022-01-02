@@ -48,6 +48,7 @@ public class Giocatore extends JFrame {
 		// setters
 		numeroLabel.setForeground(Color.darkGray);
 		numeroLabel.setFont(FONT);
+		numeroLabel.setPreferredSize(new Dimension(120, 30));
 
 		// setters (frame)
 		setSize(700, 450);
@@ -118,9 +119,10 @@ public class Giocatore extends JFrame {
 		centerPanel.setBackground(CENTER_BACKGROUND);
 
 		// set (leftPanel)
+		// TODO praticamente la lista deve essere grande e il tasto no. fai qualcosa per aggiustarlo
 		leftPanel.setPreferredSize(new Dimension(120, 100));
 		leftPanel.setBackground(WEST_BACKGROUND);
-		leftPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+		leftPanel.setLayout(new GridLayout(2, 1));
 
 		// add (frame)
 		add(centerPanel, BorderLayout.CENTER);
@@ -180,7 +182,7 @@ public class Giocatore extends JFrame {
 
 	private void dialogLanServer() {
 		final int _WIDTH = 450;
-		final int _HEIGHT = 222;
+		final int _HEIGHT = 224;
 
 		JFrame frame = new JFrame();
 		JTextField name = new JTextField();
@@ -192,11 +194,11 @@ public class Giocatore extends JFrame {
 
 		player.StartLanSearch();
 
-		nameLabel.setBounds((_WIDTH / 2 - 90) - 80, 0, 120, 30);
+		nameLabel.setBounds((_WIDTH / 2 - 90) - 80, 1, 120, 30);
 		name.setHorizontalAlignment(JTextField.HORIZONTAL);
-		name.setBounds(_WIDTH / 2 - 90, 0, 180, 30);
+		name.setBounds(_WIDTH / 2 - 90, 1, 180, 30);
 
-		scroll.setBounds(0, 31, _WIDTH, 100);
+		scroll.setBounds(0, 32, _WIDTH, 100);
 
 		frame.setSize(_WIDTH, _HEIGHT);
 		frame.setLayout(null);
@@ -216,7 +218,7 @@ public class Giocatore extends JFrame {
 		frame.add(new JButton("Connetti") {
 			{
 				addActionListener(l -> Connect());
-				setBounds((_WIDTH / 2) - 75, 132, 150, 60);
+				setBounds((_WIDTH / 2) - 75, 133, 150, 60);
 			}
 
 			private void Connect() {
@@ -286,8 +288,6 @@ public class Giocatore extends JFrame {
 				num = Integer.valueOf(msg.getBody());
 				numeriEstratti.add(num);
 				numList.add(new JLabel(String.valueOf(num)) {{ setFont(FONT); }});
-				// leftPanel.validate();
-				// leftPanel.repaint();
 				break;
 
 			case LAN_SERVER_DISCOVEY:
