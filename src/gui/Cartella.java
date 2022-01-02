@@ -18,13 +18,11 @@ public class Cartella extends JPanel {
 
 	// attributes (GUI)
 	private static JLabel labelNumero;
-	private GridLayout griglia;
 	private JButton[] caselle;
 
 	// constructor
 	public Cartella(JFrame parent) {
-		tabella = new Tabella();
-		griglia = new GridLayout(3, 9, 3, 3);
+		tabella = new Tabella(); 
 		labelNumero = new JLabel("- NUMERO -");
 		caselle = new JButton[RIGHE * COLONNE];
 
@@ -35,7 +33,7 @@ public class Cartella extends JPanel {
 		labelNumero.setFont(FONT);
 
 		setBackground(Color.white);
-		setLayout(griglia);
+		setLayout(new GridLayout(3, 9, 3, 3));
 		
 		tabella.generaTabella();
 		
@@ -78,4 +76,6 @@ public class Cartella extends JPanel {
 					}
 			}
 	}
+
+
 }
