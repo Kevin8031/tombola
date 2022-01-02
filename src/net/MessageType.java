@@ -4,6 +4,7 @@ public enum MessageType {
 
 	CheckCombo,
 	SetName,
+	GetTabella,
 
 	Disconnect,
 
