@@ -181,24 +181,6 @@ public class Master extends Tabellone {
 		}
 	}
 
-	private void ListClients() {
-		JDialog dialog = new JDialog(frame, "Clients");
-		DefaultListModel<String> dlm = new DefaultListModel<String>();
-		JList<String> list = new JList<String>(dlm);
-		JScrollPane scroll = new JScrollPane(list);
-
-		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		dialog.setSize(400, 150);
-
-		dialog.add(scroll);
-
-		dialog.setVisible(true);
-
-		host.getClients().forEach((k, v) -> {
-			dlm.add(0, v.getId() + " " + v.getName());
-		});
-	}
-
 	private void CheatNumero(ActionEvent e) {
 		JButton btn = (JButton)e.getSource();
 
@@ -233,6 +215,8 @@ public class Master extends Tabellone {
 				host.getClients().get(id).DisconnectFromServer();
 				break;
 		
+			case GetTabella:
+				ShowClientTable(id);
 			default:
 				break;
 		}
@@ -249,5 +233,36 @@ public class Master extends Tabellone {
 		frame.validate();
 		frame.repaint();
 		System.out.println("Game resetted!");
+	}
+
+	private void ListClients() {
+		JDialog dialog = new JDialog(frame, "Clients");
+		DefaultListModel<String> dlm = new DefaultListModel<String>();
+		JList<String> list = new JList<String>(dlm);
+		JScrollPane scroll = new JScrollPane(list);
+
+		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		dialog.setSize(400, 150);
+
+		dialog.add(scroll);
+
+		dialog.setVisible(true);
+
+		host.getClients().forEach((k, v) -> {
+			dlm.add(k, v.getId() + " " + v.getName());
+		});
+
+		list.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent evt) {
+				if(evt.getClickCount() == 2)
+					host.getClient(list.getSelectedIndex()).Send(new Message(MessageType.GetTabella));
+			}
+		});
+
+	}
+
+	// TODO make it work
+	private static void ShowClientTable(int id) {
+		System.out.println("Showing table of " + id);
 	}
 }
