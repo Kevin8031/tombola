@@ -57,9 +57,8 @@ public class Giocatore extends JFrame {
 		setTitle("Tombola");
 		setJMenuBar(new JMenuBar() {
 			{
-				
-				this.setBackground(new Color(16, 7, 232));
-				this.setForeground(Color.WHITE);
+				setBackground(new Color(16, 7, 232));
+				setForeground(Color.WHITE);
 				add(new JMenu("File") {
 					{
 						this.setBackground(new Color(16, 7, 232));
@@ -78,16 +77,10 @@ public class Giocatore extends JFrame {
 					{
 						this.setBackground(new Color(16, 7, 232));
 						this.setForeground(Color.WHITE);
-						add(new JMenuItem("Connect To Server") {
-							{
-								addActionListener(e -> dialogConnectToServer());
-							}
-						});
-						add(new JMenuItem("List Server") {
-							{
-								addActionListener(e -> dialogLanServer());
-							}
-						});
+						add(new JMenuItem("Connect To Server") {{ addActionListener(e -> dialogConnectToServer()); }});
+
+						add(new JMenuItem("List Server") {{ addActionListener(e -> dialogLanServer()); }});
+
 						add(new JMenuItem("Disconect") {
 							{
 								this.setBackground(new Color(16, 7, 232));
@@ -97,16 +90,8 @@ public class Giocatore extends JFrame {
 						});
 					}
 				});
-
-				add(new JMenu("Giocatore") {
-					{
-						add(new JMenuItem("Cambia nome") {
-							{
-								addActionListener(l -> setUserName());
-							}
-						});
-					}
-				});
+				
+				add(new JMenu("Giocatore") { { add(new JMenuItem("Cambia nome") {{ addActionListener(l -> setUserName()); }}); } });
 			}
 			
 		});
