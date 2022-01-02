@@ -11,7 +11,7 @@ public class Tabella {
 	private Random random;
 	protected int[] tabella;
 	private int numPresentiRighe[];
-	protected static ArrayList<Integer> numeriEstratti;
+	protected ArrayList<Integer> numeriEstratti;
 	private int[] numeriDuplicati;
 	private boolean[] combo;
 
@@ -197,11 +197,11 @@ public class Tabella {
 		generaTabella();
 	}
 
-	public static ArrayList<Integer> getNumeriEstratti() {
+	public ArrayList<Integer> getNumeriEstratti() {
 		return numeriEstratti;
 	}
 
-	public static void setNumeriEstratti(ArrayList<Integer> numeriEstratti) {
-		Tabella.numeriEstratti = numeriEstratti;
+	public void setNumeriEstratti(ArrayList<Integer> numeriEstratti) {
+		this.numeriEstratti = numeriEstratti;
 	}
 }
