@@ -22,6 +22,33 @@ public class Message {
 		this.head = head.toString();
 	}
 
+	public String getBodyAt(int index) {
+		int i = 0;
+		int j = 0;
+
+		if(index < i) {
+			while(i < index) {
+				while (body.charAt(j++) == ' ')
+					break;
+			}
+
+			body.substring(j, getEndIndex(body, i));
+			return new String();
+		}
+		else {
+			System.out.println("Index too big");
+			return null;
+		}
+
+	}
+
+	public int getEndIndex(String body, int beginIndex) {
+		while (beginIndex < body.length()) {
+			if(body.charAt(beginIndex++) == ' ')
+				break;
+		}
+		return beginIndex - 1;
+	}
 
 	public static Message getHeadAndBody(String s) {
 		int i = 0;
@@ -54,7 +81,7 @@ public class Message {
 		}
 
 		body = s.substring(i, s.length());
-		return head;
+		return body;
 	}
 
 	public String getHead() {
@@ -74,7 +101,17 @@ public class Message {
 	}
 
 	public void Add (String s) {
-		body += " " + s;
+		if(body.length() == 0)
+			body += s +  " ";
+		else
+			body += " " + s;
+	}
+	
+	public void Add (int n) {
+		if(body.length() == 0)
+			body += n +  " ";
+		else
+			body += " " + n;
 	}
 
 	@Override
