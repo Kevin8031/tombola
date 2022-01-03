@@ -32,7 +32,6 @@ public class Server extends Network {
 		//readThread.start();
 		client = new HashMap<Integer, Client>();
 		map = new HashMap<Integer, ByteBuffer>();
-		openToLan = true;
 	}
 	
 	public boolean StartServer() {
@@ -104,7 +103,7 @@ public class Server extends Network {
 				Socket s = serverSocket.accept();
 				Client p = new Client(s, uid);
 				p.group = Group.host;
-				
+
 				p.inStream = new Scanner(s.getInputStream());
 				p.outStream = new PrintStream(s.getOutputStream());
 				p.setName(("player" + uid));
@@ -123,12 +122,17 @@ public class Server extends Network {
 	}
 
 	public void StartOpenToLan() {
-		lanThread = new Thread(() -> OpenToLan());
-		lanThread.setName("lanThread");
-		lanThread.start();
-		if(!isServerStarted()) {
-			System.out.println("[LAN SEARCH] Server was not started. Starting...");
-			StartServer();
+		if(lanThread == null) {
+			lanThread = new Thread(() -> OpenToLan());
+			lanThread.setName("lanThread");
+			lanThread.start();
+			openToLan = true;
+			if(!isServerStarted()) {
+				System.out.println("[LAN SEARCH] Server was not started. Starting...");
+				StartServer();
+			}
+		} else {
+			System.out.println("[LAN SEARCH] Already started.");
 		}
 	}
 
@@ -146,7 +150,7 @@ public class Server extends Network {
 				System.out.println("[LAN SEARCH] Sent: " + msg);
 				Thread.sleep(5000);
 			}
-			
+			System.out.println("[SERVER] Not visible on lan.");
 		} catch (Exception e) {
 			System.err.println(e);
 			System.out.println("[SERVER] Cannot open server to lan.");
@@ -157,10 +161,11 @@ public class Server extends Network {
 		if(multicastSocket != null) {
 			openToLan = false;
 			try {
-				lanThread.join(100);
 				multicastSocket.close();
 				multicastSocket = null;
-				System.out.println("[SERVER] Not visible on lan");
+				System.out.println("[LAN SEARCH] Waiting for thread to finish execution...");
+				lanThread.join();
+				lanThread = null;
 			} catch (Exception e) {
 				System.err.println(e);
 			}
