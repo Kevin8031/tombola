@@ -18,7 +18,7 @@ public class Giocatore extends JFrame {
 	private static DefaultListModel<String> serverList;
 	private static DefaultListModel<Integer> numberList;
 	private static Client player;
-	private ArrayList<Cartella> cartelle;
+	private static ArrayList<Cartella> cartelle;
 	private static ArrayList<Integer> numeriEstratti;
 
 	// attributes (GUI)
@@ -306,11 +306,18 @@ public class Giocatore extends JFrame {
 			case GetTabella:
 				// TODO make it work
 				System.out.println("[Server] Asked for table. Sending table to server.");
+				SendTabella();
 				break;
 		
 			default:
 				System.out.println("[NET] Error: \"" + msg.getHead() + "\" is not a valid command.");
 				break;
 		}
+	}
+
+	private static void SendTabella() {
+		Message msg = new Message(MessageType.GetTabella);
+
+		msg.Add(cartelle.size());
 	}
 }
