@@ -20,6 +20,7 @@ public class Message {
 
 	public Message(MessageType head) {
 		this.head = head.toString();
+		this.body = new String();
 	}
 
 	public String getBodyAt(int index) {
@@ -102,14 +103,14 @@ public class Message {
 
 	public void Add (String s) {
 		if(body.length() == 0)
-			body += s +  " ";
+			body += s;
 		else
 			body += " " + s;
 	}
 	
 	public void Add (int n) {
 		if(body.length() == 0)
-			body += n +  " ";
+			body += n;
 		else
 			body += " " + n;
 	}
