@@ -1,7 +1,10 @@
 package gui;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import net.Client;
 import net.Message;
@@ -40,8 +43,12 @@ public class Giocatore extends JFrame {
 		numeroLabel = new JLabel("Numeri", SwingConstants.CENTER);
 		cartelle = new ArrayList<Cartella>();
 		numeriEstratti = new ArrayList<Integer>();
-		image = Toolkit.getDefaultToolkit().getImage("C://Users//arman//Desktop//GITHUB//Repos//tombola//src//icon.png");
-		setIconImage(image);
+		// image = Toolkit.getDefaultToolkit().getImage("resource/icon.png");
+		try {
+			setIconImage(ImageIO.read(new File("res/icon.png")));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 		
 		// init
 		dialogLanServer();
