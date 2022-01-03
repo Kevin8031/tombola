@@ -1,122 +1,63 @@
 package net;
-public class Message {
-	private String head;
-	private String body;
 
-	Message() {
-		head = new String();
-		body = new String();
+import java.util.ArrayList;
+
+public class Message<T> {
+	private MessageHead<T> head;
+	private ArrayList<Object> body;
+
+	public Message() {
+		this.head = new MessageHead<T>();
+		this.body = new ArrayList<Object>();
 	}
 
-	Message(String head, String body) {
+	public Message(MessageHead<T> head) {
 		this.head = head;
-		this.body = body;
-	}
-	
-	public Message(MessageType head, String body) {
-		this.head = head.toString();
-		this.body = body;
 	}
 
-	public Message(MessageType head) {
-		this.head = head.toString();
-		this.body = new String();
+	public <I> Message(MessageHead<T> head, I... body) {
+		this.head = head;
+		this.body = new ArrayList<Object>();
+		Add(body);
 	}
 
-	public String getBodyAt(int index) {
-		int i = 0;
-		int j = 0;
+	public <I> Message(I... body) {
+		this.head = new MessageHead<T>();
+		this.body = new ArrayList<Object>();
+		Add(body);
+	}
 
-		if(index < i) {
-			while(i < index) {
-				while (body.charAt(j++) == ' ')
-					break;
-			}
-
-			body.substring(j, getEndIndex(body, i));
-			return new String();
+	public <I> void Add (I... body) {
+		for (I element : body) {
+			this.body.add(element);
+			UpdateSize();
 		}
-		else {
-			System.out.println("Index too big");
+	}
+
+	public <I> I Get(I obj) {
+		if(body.size() > 0) {
+			I element = (I)body.get(0);
+			body.remove(0);
+			UpdateSize();
+			return element;
+		} else
 			return null;
-		}
-
 	}
 
-	public int getEndIndex(String body, int beginIndex) {
-		while (beginIndex < body.length()) {
-			if(body.charAt(beginIndex++) == ' ')
-				break;
-		}
-		return beginIndex - 1;
-	}
-
-	public static Message getHeadAndBody(String s) {
-		int i = 0;
-		while(i < s.length() - 1) {
-			if(s.charAt(i++) == ' ')
-			break;
-		}
-		
-		String head = s.substring(0, i - 1);
-		String body = s.substring(i, s.length());
-		return new Message(head, body);
-	}
-	
-	public String getHead(String s) {
-		int i = 0;
-		while(i < s.length() - 1) {
-			if(s.charAt(i++) == ' ')
-				break;
-		}
-
-		head = s.substring(0, i - 1);
-		return head;
-	}
-
-	public String getBody(String s) {
-		int i = 0;
-		while(i < s.length() - 1) {
-			if(s.charAt(i++) == ' ')
-				break;
-		}
-
-		body = s.substring(i, s.length());
+	public ArrayList<Object> GetAll() {
 		return body;
 	}
 
-	public String getHead() {
-		return head;
+	private void UpdateSize() {
+		head.size = body.size();
 	}
 
-	public void setHead(String head) {
-		this.head = head;
+	public int getSize() {
+		return head.size;
 	}
+}
 
-	public String getBody() {
-		return body;
-	}
-
-	public void setBody(String body) {
-		this.body = body;
-	}
-
-	public void Add (String s) {
-		if(body.length() == 0)
-			body += s;
-		else
-			body += " " + s;
-	}
-	
-	public void Add (int n) {
-		if(body.length() == 0)
-			body += n;
-		else
-			body += " " + n;
-	}
-
-	@Override
-	public String toString() {
-		return head + " " + body;
-	}
+class MessageHead<T> {
+	protected T id;
+	protected int size;
 }
