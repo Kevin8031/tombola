@@ -16,16 +16,17 @@ public class Giocatore extends JFrame {
 	// attributes
 	private static int num;
 	private static DefaultListModel<String> serverList;
+	private static DefaultListModel<Integer> numberList;
 	private static Client player;
 	private ArrayList<Cartella> cartelle;
 	private static ArrayList<Integer> numeriEstratti;
 
 	// attributes (GUI)
 	private JFrame parent;
-	private JList<String> list;
 	private JPanel centerPanel;
 	private JPanel leftPanel;
 	private Image icon;
+	private JList<Integer> list;
 	private static JScrollPane numList;
 	private JLabel numeroLabel;
 
@@ -34,6 +35,8 @@ public class Giocatore extends JFrame {
 		this.parent = parent;
 
 		player = new Client();
+		numberList = new DefaultListModel<Integer>();
+		list = new JList<Integer>(numberList);
 		numList = new JScrollPane(list);
 		centerPanel = new JPanel();
 		leftPanel = new JPanel();
@@ -106,17 +109,15 @@ public class Giocatore extends JFrame {
 		// set (centerPanel)
 		centerPanel.setPreferredSize(new Dimension(100, 100));
 		centerPanel.setBackground(Color.WHITE);
-		
-		// add (leftPanel)
-		leftPanel.add(numeroLabel);
-		leftPanel.add(numList);
 
 		// set (leftPanel)
 		leftPanel.setPreferredSize(new Dimension(120, 445));
-		leftPanel.getComponent(0).setBounds(0, 0, 120, 60);
-		leftPanel.getComponent(1).setBounds(0, 61, 120, 390);
 		leftPanel.setBackground(Color.YELLOW);
-		leftPanel.setLayout(null);
+		leftPanel.setLayout(new BorderLayout());
+
+		// add (leftPanel)
+		leftPanel.add(numeroLabel, BorderLayout.NORTH);
+		leftPanel.add(numList, BorderLayout.CENTER);
 
 		// add (frame)
 		add(centerPanel, BorderLayout.CENTER);
@@ -177,7 +178,7 @@ public class Giocatore extends JFrame {
 	private void dialogLanServer() {
 		final int _WIDTH = 450;
 		final int _HEIGHT = 224;
-		
+
 		JFrame frame = new JFrame();
 		JTextField name = new JTextField();
 		JLabel nameLabel = new JLabel("Username");
@@ -186,7 +187,7 @@ public class Giocatore extends JFrame {
 		frame.setIconImage(icon);
 
 		serverList = new DefaultListModel<String>();
-		list = new JList<String>(serverList);
+		JList<String> list = new JList<String>(serverList);
 		JScrollPane scroll = new JScrollPane(list);
 
 		player.StartLanSearch();
@@ -284,7 +285,7 @@ public class Giocatore extends JFrame {
 			case NewNumber:
 				num = Integer.valueOf(msg.getBody());
 				numeriEstratti.add(num);
-				numList.add(new JLabel(String.valueOf(num)) {{ setFont(FONT); }});
+				numberList.add(0, num);
 				break;
 
 			case LAN_SERVER_DISCOVEY:
