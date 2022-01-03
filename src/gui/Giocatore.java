@@ -25,7 +25,7 @@ public class Giocatore extends JFrame {
 	private JList<String> list;
 	private JPanel centerPanel;
 	private JPanel leftPanel;
-	private Image image;
+	private Image icon;
 	private static JScrollPane numList;
 	private JLabel numeroLabel;
 
@@ -40,8 +40,8 @@ public class Giocatore extends JFrame {
 		numeroLabel = new JLabel("Numeri", SwingConstants.CENTER);
 		cartelle = new ArrayList<Cartella>();
 		numeriEstratti = new ArrayList<Integer>();
-		image = Toolkit.getDefaultToolkit().getImage("res/icon.png");
-		setIconImage(image);
+		icon = Toolkit.getDefaultToolkit().getImage("res/icon.png");
+		setIconImage(icon);
 		
 		// init
 		dialogLanServer();
@@ -111,7 +111,6 @@ public class Giocatore extends JFrame {
 		leftPanel.add(numeroLabel);
 		leftPanel.add(numList);
 
-		// TODO praticamente la lista deve essere grande e il tasto no. fai qualcosa per aggiustarlo
 		// set (leftPanel)
 		leftPanel.setPreferredSize(new Dimension(120, 445));
 		leftPanel.getComponent(0).setBounds(0, 0, 120, 60);
@@ -183,8 +182,8 @@ public class Giocatore extends JFrame {
 		JTextField name = new JTextField();
 		JLabel nameLabel = new JLabel("Username");
 		
-		image = Toolkit.getDefaultToolkit().getImage("C://Users//arman//Desktop//GITHUB//Repos//tombola//src//icon.png");
-		frame.setIconImage(image);
+		icon = Toolkit.getDefaultToolkit().getImage("C://Users//arman//Desktop//GITHUB//Repos//tombola//src//icon.png");
+		frame.setIconImage(icon);
 
 		serverList = new DefaultListModel<String>();
 		list = new JList<String>(serverList);
