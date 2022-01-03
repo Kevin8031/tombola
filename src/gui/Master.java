@@ -220,7 +220,7 @@ public class Master extends Tabellone {
 				break;
 		
 			case GetTabella:
-				ShowClientTable(id);
+				ShowClientTable(msg, id);
 			default:
 				break;
 		}
@@ -258,15 +258,21 @@ public class Master extends Tabellone {
 
 		list.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent evt) {
-				if(evt.getClickCount() == 2)
+				if(evt.getClickCount() == 2) {
 					host.getClient(list.getSelectedIndex()).Send(new Message(MessageType.GetTabella));
+				}
 			}
 		});
 
 	}
 
 	// TODO make it work
-	private static void ShowClientTable(int id) {
+	private static void ShowClientTable(Message msg, int id) {
 		System.out.println("Showing table of " + id);
+		JDialog dialog = new JDialog();
+
+		
+
+		dialog.setVisible(true);
 	}
 }
