@@ -55,6 +55,10 @@ public class Message<T> {
 	public int getSize() {
 		return head.size;
 	}
+
+	public T getHead() {
+		return head.id;
+	}
 }
 
 class MessageHead<T> {
