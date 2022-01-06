@@ -1,7 +1,7 @@
 package client;
 import client.gui.MainMenu;
 
-public class Main {
+public class Client {
 	public static void main(String[] args) {
 		new MainMenu();
 	}
