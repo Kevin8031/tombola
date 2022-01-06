@@ -1,5 +1,7 @@
 package net;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -32,6 +34,7 @@ public class Server<T> {
 				serverThread = new Thread(() -> Accept());
 				serverThread.setName("serverThread");
 				serverThread.start();
+				serverName = "Server";
 
 				System.out.println("[SERVER] Server started!");
 				System.out.println("[SEVRER] Name: " + serverName);
@@ -103,19 +106,27 @@ public class Server<T> {
 			InetAddress inet = InetAddress.getByName(Common.MULTICAST_INET);
 			multicastSocket.joinGroup(inet);
 			System.out.println("[SERVER] Server opened to lan.");
-			Message<T> msg = new Message<T>(MessageType.LAN_SERVER_DISCOVEY);
+
+			Message<MessageType> msg = new Message<MessageType>();
+			msg.setHeadId(MessageType.LAN_SERVER_DISCOVEY);
 			msg.Add(serverName, serverSocket.getLocalPort());
 
 			while (openToLan) {
-				DatagramPacket send = new DatagramPacket(msg.toString().getBytes(), msg.toString().length(), inet, Common.MULTICAST_PORT);
+				ByteArrayOutputStream baos = new ByteArrayOutputStream(6400);
+				ObjectOutputStream oos = new ObjectOutputStream(baos);
+				oos.writeObject(msg);
+				byte[] data = baos.toByteArray();
+				DatagramPacket send = new DatagramPacket(data, data.length, inet, Common.MULTICAST_PORT);
 				multicastSocket.send(send);
+				
 				System.out.println("[LAN SEARCH] Sent: " + msg);
 				Thread.sleep(5000);
 			}
 			System.out.println("[SERVER] Not visible on lan.");
 		} catch (Exception e) {
 			System.err.println(e);
-			System.out.println("[SERVER] Cannot open server to lan.");
+			System.err.println("[SERVER] Cannot open server to lan.");
+			StopOpenToLan();
 		}
 	}
 

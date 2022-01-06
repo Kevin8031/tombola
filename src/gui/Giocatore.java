@@ -135,7 +135,7 @@ public class Giocatore extends JFrame {
 	// methods
 	private void ShowWindow(JFrame frame) {
 		frame.dispose();
-		// player.StopLanSearch();
+		client.StopLanSearch();
 		setVisible(true);
 	}
 
@@ -192,7 +192,8 @@ public class Giocatore extends JFrame {
 		JList<String> list = new JList<String>(serverList);
 		JScrollPane scroll = new JScrollPane(list);
 
-		// player.StartLanSearch();
+		client.StartLanSearch();
+		readThread.start();
 
 		nameLabel.setBounds((_WIDTH / 2 - 90) - 80, 1, 120, 30);
 		name.setHorizontalAlignment(JTextField.HORIZONTAL);
@@ -301,10 +302,11 @@ public class Giocatore extends JFrame {
 						}
 						break;
 
-					// case LAN_SERVER_DISCOVEY:
+					case LAN_SERVER_DISCOVEY:
+						System.out.println("Lan");
 					// 	if(!serverList.contains(msg.getBody()))
 					// 		serverList.add(0, msg.getBody());
-					// 	break;
+						break;
 					
 					case SetName:
 						String s = new String();

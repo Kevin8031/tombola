@@ -1,5 +1,7 @@
 package net;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.PrintStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -7,6 +9,8 @@ import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+
+import gui.Giocatore;
 
 public class Client<T> {
 	private Thread multicastThread;
@@ -53,7 +57,7 @@ public class Client<T> {
 	}
 
 	public Queue<T> Incoming() {
-		return connection.qMessageIn;
+		return qMessageIn;
 	}
 
 	public void StartLanSearch() {
@@ -63,7 +67,7 @@ public class Client<T> {
 	}
 
 	private void LanSearch() {
-		byte[] byt;
+		byte[] data;
 		searchGame = true;
 		try {
 			multicastSocket = new MulticastSocket(Common.MULTICAST_PORT);
@@ -72,15 +76,23 @@ public class Client<T> {
 			System.out.println("Searching for a game.");
 			while (searchGame) {
 				// receive packet
-				byt = new byte[256];
-				DatagramPacket recv = new DatagramPacket(byt, byt.length);
+				data = new byte[6400];
+				DatagramPacket recv = new DatagramPacket(data, data.length);
+				ByteArrayInputStream bais = new ByteArrayInputStream(data);
 				multicastSocket.receive(recv);
-
+				ObjectInputStream ois = new ObjectInputStream(bais);
+				Message<T> msg = null;
+				try {
+					msg = (Message<T>)ois.readObject();
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
 				// get packet body
-				Message<T> msg = new Message<T>();
 				System.out.println("Multicast message: " + msg);
 				if(msg.getHeadId() == MessageType.LAN_SERVER_DISCOVEY) {
 					msg.Add(recv.getAddress().getHostAddress());
+					qMessageIn.pushFront(msg);
+					Giocatore.Notify();
 				}
 			}
 		} catch (IOException e) {
