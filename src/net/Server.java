@@ -7,88 +7,61 @@ import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.Deque;
+import java.util.LinkedList;
 
-public class Server extends Network {
-
-	private Network.Group group;
+public class Server<T> {
 	private ServerSocket serverSocket;
 	private MulticastSocket multicastSocket;
 	private Thread serverThread;
 	private Thread lanThread;
-	private static Map<Integer, Client> client;
 	private boolean openToLan;
 	private String serverName;
 
-	private static Map<Integer, ByteBuffer> map;
-	private int uid;
-
+	private Deque<Connection<T>> connections;
+	private Queue<T> qMessageIn;
+	private int idCounter;
 	public Server() {
-		group = Network.Group.host;
-
-		//readThread = new Thread(() -> Read());
-		//readThread.start();
-		client = new HashMap<Integer, Client>();
-		map = new HashMap<Integer, ByteBuffer>();
+		connections = new LinkedList<Connection<T>>();
+		qMessageIn = new Queue<T>();
+		idCounter = 0;
 	}
 	
-	public boolean StartServer() {
-		if(group == Group.host) {
-			if(serverSocket == null) {
-				try {
-					serverSocket = new ServerSocket(SERVER_PORT);
-					serverThread = new Thread(() -> Accept());
-					serverThread.setName("serverThread");
-					serverThread.start();
+	public void Start(boolean bWait) {
+		if(serverSocket == null) {
+			try {
+				serverSocket = new ServerSocket(Common.SERVER_PORT);
+				serverThread = new Thread(() -> Accept());
+				serverThread.setName("serverThread");
+				serverThread.start();
 
-					System.out.println("[SERVER] Server started!");
-					serverName = new String("Tombola");
-					System.out.println("[SEVRER] Name: " + serverName);
-					return true;
-				} catch (IOException e) {
-					System.err.println(e);
-					return false;
-				}
+				System.out.println("[SERVER] Server started!");
+				System.out.println("[SEVRER] Name: " + serverName);
+			} catch (IOException e) {
+				System.err.println(e);
 			}
-			else {
-				System.out.println("[SERVER] Server already started.");
-				return true;
-			}
-		} else {
-			System.out.println("[SERVER] Only hosts can connect to servers.");
-			return false;
+		}
+		else {
+			System.out.println("[SERVER] Server already started.");
 		}
 	}
 
-	public void StopServer() {
-		if(group == Group.host) {
-			if(serverSocket != null) {
-				try {
-					client.forEach((k, v) -> {
-						if(v != null) {
-							v.DisconnectFromServer();
-							v.inStream.close();
-							v.outStream.close();
-						}
-					});
-					serverThread.join(1);
-					serverSocket.close();
-					
-					System.out.println("[SERVER] Server Stopped");
-				} catch (Exception e) {
-					System.err.println(e);
-				}
+	public void Stop() {
+		if(serverSocket != null) {
+			try {
+				
+				serverThread.join(1);
+				serverSocket.close();
+				
+				System.out.println("[SERVER] Server Stopped");
+			} catch (Exception e) {
+				System.err.println(e);
 			}
-			else {
-				System.out.println("[SERVER] Cannot stop server. Server already stopped!");
-			}
-
-			StopOpenToLan();
-		} else {
-			System.out.println("[SERVER] Only hosts can stop servers.");
 		}
+		else {
+			System.out.println("[SERVER] Cannot stop server. Server already stopped!");
+		}
+		StopOpenToLan();
 	}
 
 	public boolean isServerStarted() {
@@ -96,28 +69,18 @@ public class Server extends Network {
 	}
 
 	private void Accept() {
-		if(group == Group.host) {
-			try {
-				System.out.println("[SERVER] Waiting for client to connect...");
-				map.put(uid, ByteBuffer.allocate(1024));
-				Socket s = serverSocket.accept();
-				Client p = new Client(s, uid);
-				p.group = Group.host;
+		try {
+			System.out.println("[SERVER] Waiting for client to connect...");
+			Socket s = serverSocket.accept();
+			Connection<T> newconn = new Connection<T>(Connection.Group.server, s, qMessageIn);
+			connections.addLast(newconn);
+			connections.getLast().ConnectToClient(idCounter++);
 
-				p.inStream = new Scanner(s.getInputStream());
-				p.outStream = new PrintStream(s.getOutputStream());
-				p.setName(("player" + uid));
-
-				new Thread(() -> p.Read()).start();
-				client.put(uid, p);
-				System.out.println("[NEW CLIENT] Client connected: " + client.get(uid++).getSocket().toString());
-				System.out.println("[SERVER] No. of clients: " + client.size());
-				Accept();
-			} catch (IOException e) {
-				System.err.println(e);
-			}
-		} else {
-			System.out.println("[SERVER] Only hosts can accept clients.");
+			System.out.println("[NEW CLIENT] Client connected: " + newconn.getSocket().toString());
+			System.out.println("[SERVER] No. of clients: " + connections.size());
+			Accept();
+		} catch (IOException e) {
+			System.err.println(e);
 		}
 	}
 
@@ -129,7 +92,7 @@ public class Server extends Network {
 			openToLan = true;
 			if(!isServerStarted()) {
 				System.out.println("[LAN SEARCH] Server was not started. Starting...");
-				StartServer();
+				Start(true);
 			}
 		} else {
 			System.out.println("[LAN SEARCH] Already started.");
@@ -139,13 +102,14 @@ public class Server extends Network {
 	private void OpenToLan() {
 		try {
 			multicastSocket = new MulticastSocket();
-			InetAddress inet = InetAddress.getByName(MULTICAST_INET);
+			InetAddress inet = InetAddress.getByName(Common.MULTICAST_INET);
 			multicastSocket.joinGroup(inet);
 			System.out.println("[SERVER] Server opened to lan.");
-			Message msg = Message.getHeadAndBody(new String(MessageType.LAN_SERVER_DISCOVEY + " " + serverName + " " + serverSocket.getLocalPort()));
+			Message<T> msg = new Message<T>(MessageType.LAN_SERVER_DISCOVEY);
+			msg.Add(serverName, serverSocket.getLocalPort());
 
 			while (openToLan) {
-				DatagramPacket send = new DatagramPacket(msg.toString().getBytes(), msg.toString().length(), inet, MULTICAST_PORT);
+				DatagramPacket send = new DatagramPacket(msg.toString().getBytes(), msg.toString().length(), inet, Common.MULTICAST_PORT);
 				multicastSocket.send(send);
 				System.out.println("[LAN SEARCH] Sent: " + msg);
 				Thread.sleep(5000);
@@ -173,47 +137,47 @@ public class Server extends Network {
 			System.out.println("[SERVER] Lan visibility already stopped");
 	}
 
-	public static void RemoveClient(int id) {
-		client.forEach((k, v) -> {
-			if(k.equals(id))
-				client.remove(k, v);
-		});
+	public void MessageClient(Connection<T> client, Message<T> msg) {
+		if(client != null && client.isConnected()) {
+			client.Send(msg);
+		} else {
+			client.Disconnect();
+
+			connections.remove(client);
+		}
 	}
 
-	public Map<Integer, Client> getClients() {
-		return client;
+	public void MessageAllClients(Message<T> msg, Connection<T> ignoreClient) {
+		boolean invalidClient = false;
+		for (Connection<T> c : connections) {
+			if(c != ignoreClient)
+				if(c != null && c.isConnected())
+					c.Send(msg);
+				else
+					invalidClient = true;
+		}
+
+		if(invalidClient)
+			connections.remove(null);
 	}
 
-	public Client getClient(int id) {
-		Client c[] = new Client[1];
+	public Connection<T> getClient(int id) {
+		for (Connection<T> connection : connections)
+			if(connection.getId() == id)
+				return connection;
 
-		client.forEach((k, v) -> {
-			if(k.equals(id))
-				c[0] = v;
-		});
-
-		return c[0];
+		return null;
 	}
 
-	public void setClient(Map<Integer, Client> client) {
-		Server.client = client;
-	}
-	
-	public boolean isOpenToLan() {
-		return openToLan;
+	public Deque<Connection<T>> getClients() {
+		return connections;
 	}
 
-	public void setOpenToLan(boolean openToLan) {
-		this.openToLan = openToLan;
-
-		if(openToLan)
-			lanThread.start();
+	public Queue<T> Incoming() {
+		return qMessageIn;
 	}
 
-	@Override
-	public void Send(Message msg) {
-		client.forEach((k, v) -> {
-			v.Send(msg);
-		});
+	public Deque<Connection<T>> getConnections() {
+		return connections;
 	}
 }

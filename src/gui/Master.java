@@ -5,12 +5,12 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Random;
 import game.Tabellone;
+import net.Connection;
 import net.Message;
 import net.MessageType;
 import net.Server;
-
 public class Master extends Tabellone {
-    // attributes (GUI)
+	// attributes (GUI)
 	private JFrame frame;
 	private JPanel centerPanel;
 	private JPanel leftPanel;
@@ -22,9 +22,11 @@ public class Master extends Tabellone {
 	private Tabellone tabellone;
 	private JButton[] caselle;
 	private Image image;
+	private static Thread readThread;
+	private boolean retry = true;
 	
 	// attributes (Network)
-	private static Server host;
+	private Server<MessageType> server;
 
 	// constructor
 	public Master(JFrame parent) {
@@ -39,7 +41,9 @@ public class Master extends Tabellone {
 		tabellone = new Tabellone();
 		caselle = new JButton[90];
 		numeriEstratti = new ArrayList<Integer>(90);
-		host = new Server();
+		readThread = new Thread(() -> ReadFromClient());
+		readThread.setName("ReadThread");
+		server = new Server<MessageType>();
 		
 		// setters (frame)
 		frame.setSize(600, 350);
@@ -99,22 +103,22 @@ public class Master extends Tabellone {
 					{
 						add(new JMenuItem("Start Server") {
 							{
-								addActionListener(e -> host.StartServer());
+								addActionListener(e -> server.Start(true));
 							}
 						});
 						add(new JMenuItem("Start Open To Lan") {
 							{
-								addActionListener(e -> host.StartOpenToLan());
+								addActionListener(e -> server.StartOpenToLan());
 							}
 						});
 						add(new JMenuItem("Stop Open To Lan") {
 							{
-								addActionListener(e -> host.StopOpenToLan());
+								addActionListener(e -> server.StopOpenToLan());
 							}
 						});
 						add(new JMenuItem("Close Server") {
 							{
-								addActionListener(e -> host.StopServer());
+								addActionListener(e -> server.Stop());
 							}
 						});
 					}
@@ -139,16 +143,17 @@ public class Master extends Tabellone {
 
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				host.StopServer();
+				server.Stop();
 				parent.setVisible(true);
 			}
 		});
 
 		frame.setVisible(true);
-		host.StartServer();
+		server.Start(true);
+		readThread.start();
 	}
 
-    // methods (GUI)
+	// methods (GUI)
 	private void GeneraTabella() {
 		for(int i = 0; i < tabellone.getTabella().length; i++) {
 			caselle[i] = new JButton(String.valueOf(i + 1));
@@ -173,8 +178,8 @@ public class Master extends Tabellone {
 			caselle[num - 1].setBackground(Color.BLACK);
 			caselle[num - 1].setForeground(Color.WHITE);
 
-			Message msg = new Message(MessageType.NewNumber, String.valueOf(num));
-			host.Send(msg);
+			Message<MessageType> msg = new Message<MessageType>(MessageType.NewNumber, num);
+			server.MessageAllClients(msg, null);
 		}
 		else {
 			new JOptionPane("Gioco Finito") {
@@ -197,32 +202,54 @@ public class Master extends Tabellone {
 		caselle[num - 1].setBackground(Color.BLACK);
 		caselle[num - 1].setForeground(Color.WHITE);
 
-		Message msg = new Message(MessageType.NewNumber, String.valueOf(num));
-		host.Send(msg);
+		Message<MessageType> msg = new Message<MessageType>(MessageType.NewNumber, num);
+		server.MessageAllClients(msg, null);
 	}
 
-	public static void ReadFromClient(int id, Message msg) {
-		System.out.println("[" + id + " \"" + host.getClient(id).getName() + "\"" + "] Says: " + msg.toString());
+	public void ReadFromClient() {
+		while(retry) {
+			if(server.Incoming().count() > 0) {
+				// System.out.println("[" + id + " \"" + server.getClient(id).getName() + "\"" + "] Says: " + msg.toString());
+				Message<MessageType> msg = server.Incoming().popBack();
+				int id = msg.getId();
+				switch (msg.getHeadId()) {
+					case SetName:
+						String s = new String();
+						s = msg.Get(s);
+						Message<MessageType> msg1 = new Message<MessageType>(MessageType.SetName);
+						if(!s.equals("null")) {
+							server.getClient(id).setName(s);
+							System.out.println("Name set for: " + id + " \"" + server.getClient(id).getName() + "\"");
+							msg.Add("true");
+							server.getClient(id).Send(msg1);
+						} else
+						System.out.println("No name set for: " + id + " \"" + server.getClient(id).getName() + "\". Setting a default name");
+							msg1.Add(server.getClient(id).getName());
+							server.getClient(id).Send(msg1);
+						break;
 
-		switch (MessageType.valueOf(msg.getHead())) {
-			case SetName:
-				String s = new String(msg.getBody());
-				if(s.length() > 0) {
-					host.getClient(id).setName(s);
-					System.out.println("Name set for: " + id + " \"" + host.getClient(id).getName() + "\"");
-					host.getClient(id).Send(new Message(MessageType.SetName, "true"));
-				} else
-					host.getClient(id).Send(new Message(MessageType.SetName, "Il nome non può essere vuoto"));
-				break;
+					// case Disconnect:
+					// 	server.getClient(id).DisconnectFromServer();
+					// 	server.getClients().remove(id, server.getClient(id));
+					// 	break;
+				
+					case GetTabella:
+						ShowClientTable(msg, id);
+						break;
 
-			case Disconnect:
-				host.getClients().get(id).DisconnectFromServer();
-				break;
-		
-			case GetTabella:
-				ShowClientTable(msg, id);
-			default:
-				break;
+					default:
+						System.out.println("Invalid message");
+						break;
+				}
+			}
+			try {
+				synchronized (Master.readThread) {
+					readThread.wait();
+				}
+				ReadFromClient();
+			} catch (InterruptedException e) {
+				System.err.println(e);
+			}
 		}
 	}
 
@@ -252,27 +279,39 @@ public class Master extends Tabellone {
 
 		dialog.setVisible(true);
 
-		host.getClients().forEach((k, v) -> {
-			dlm.add(k, v.getId() + " " + v.getName());
-		});
+		for (Connection<MessageType> conn : server.getConnections()) {
+			dlm.add(conn.getId(), conn.getName());
+		}
 
 		list.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent evt) {
 				if(evt.getClickCount() == 2) {
-					host.getClient(list.getSelectedIndex()).Send(new Message(MessageType.GetTabella));
+					server.getClient(list.getSelectedIndex()).Send(new Message<MessageType>(MessageType.GetTabella));
 				}
 			}
 		});
 
 	}
 
-	// TODO make it work
-	private static void ShowClientTable(Message msg, int id) {
+	private void ShowClientTable(Message<MessageType> msg, int id) {
 		System.out.println("Showing table of " + id);
 		JDialog dialog = new JDialog();
 
-		
+		ArrayList<Cartella> cartelle = null;
+		cartelle = msg.Get(cartelle);
 
+		for (int i = cartelle.size() - 1; i >= 0; i--) {
+			dialog.add(cartelle.get(i));
+		}
+		dialog.setLayout(new FlowLayout());
+		dialog.setSize(400, 400);
+		dialog.setLocationRelativeTo(null);
 		dialog.setVisible(true);
+	}
+
+	public static void Notify() {
+		synchronized (Master.readThread) {
+			readThread.notify();
+		}
 	}
 }

@@ -1,9 +1,10 @@
 package net;
 import java.io.*;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+
+import gui.Giocatore;
+import gui.Master;
 
 public class Connection<T> {
 	enum Group {
@@ -14,22 +15,24 @@ public class Connection<T> {
 			return name();
 		}
 	}
-	
+
 	// client
 	protected int id;
 	protected Thread readThread;
+	protected String name = "player";
 
 	// both
 	protected Group owner = Group.server;
-	protected ObjectInput inStream;
-	protected ObjectOutput outStream;
 
-	protected Queue qMessageIn;
-	protected Queue qMessageOut;
+	protected ObjectInput inStream;
+	protected ObjectOutputStream outStream;
+
+	protected Queue<T> qMessageIn;
+	protected Queue<T> qMessageOut;
 	
 	private Socket socket;
 
-	public Connection(Group owner, Socket socket, Queue qMessageIn) {
+	public Connection(Group owner, Socket socket, Queue<T> qMessageIn) {
 		this.owner = owner;
 		this.socket = socket;
 		this.qMessageIn = qMessageIn;
@@ -37,23 +40,28 @@ public class Connection<T> {
 
 	// relevant for server
 	public void ConnectToClient(int uid) {
-		if(owner == Group.server)
+		if(owner == Group.server) {
 			id = uid;
+			try {
+				inStream = new ObjectInputStream(socket.getInputStream());
+				outStream = new ObjectOutputStream(socket.getOutputStream());
+				readThread = new Thread(() -> { Read(); setName(String.valueOf(id)); });
+				readThread.start();
+			} catch (IOException e) {
+				System.err.println(e);
+			}
+		}
 	}
 
 	// relevant for client
-	public void ConnectToServer(String host, int port) {
+	public void ConnectToServer(SocketAddress socketAddress) {
 		if(owner == Group.client) {
-			System.out.println("Attempting connection to: " + host + ":" + port);
 			try {
-				socket = new Socket();
-				SocketAddress socketAddress = new InetSocketAddress(InetAddress.getByName(host), port);
 				socket.connect(socketAddress);
-				inStream = new ObjectInputStream(socket.getInputStream());
 				outStream = new ObjectOutputStream(socket.getOutputStream());
+				inStream = new ObjectInputStream(socket.getInputStream());
 				readThread = new Thread(() -> { Read(); });
 				readThread.start();
-				System.out.println("Successfully connected to: " + socket.toString());
 			} catch (IOException e) {
 				System.err.println(e);
 			}
@@ -69,7 +77,7 @@ public class Connection<T> {
 				socket.close();
 				System.out.println("Disconnected");
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.err.println(e);
 			}
 		} else
 			System.out.println("Already disconnected");
@@ -84,8 +92,13 @@ public class Connection<T> {
 
 	public void Read() {
 		try {
-			Object in = inStream.readObject();
+			Message<T> in = (Message<T>)inStream.readObject();
+			in.setId(id);
 			qMessageIn.pushFront(in);
+			if(owner == Group.server)
+				Master.Notify();
+			else
+				Giocatore.Notify();
 			Read();
 		} catch (Exception e) {
 			System.err.println(e);
@@ -98,9 +111,27 @@ public class Connection<T> {
 				outStream.writeObject(msg);
 				System.out.println("[" + id + " - " + owner + "] Sent: " + msg.toString());
 			} catch (Exception e) {
-				e.printStackTrace();
+				System.err.println(e);
 			}
 		} else
 			System.out.println("[ERROR] Cannot send message \"" + msg.toString() + "\". Not connected to anyone.");
 	}
+
+	public int getId() {
+		return id;
+	}
+
+	public Socket getSocket() {
+		return socket;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String s) {
+		this.name = s;
+	}
+
+	public void OnMessage() {};
 }

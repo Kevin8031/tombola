@@ -7,78 +7,53 @@ import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.util.Scanner;
 
-import gui.Giocatore;
-
-public class Client extends Network {
-
-	private Socket socket;
-	private Thread clientThread;
-	private String name;
-	private MulticastSocket multicastSocket;
+public class Client<T> {
 	private Thread multicastThread;
+	private MulticastSocket multicastSocket;
 	private boolean searchGame;
 
+	private Connection<T> connection;
+	private Queue<T> qMessageIn;
+
 	public Client() {
-		group = Group.player;
-	}
-	
-	public Client(Socket socket, int id) {
-		group = Group.player;
-		super.id = id;
-		this.socket = socket;
+		qMessageIn = new Queue<T>();
 	}
 
-	public void DisconnectFromServer() {
-		if(group == Group.player) {
-			if(socket != null) {
-				try {
-					socket.close();
-					clientThread.join(100);
-					System.out.println("Disconnected");
-				} catch (Exception e) {
-					System.err.println(e);
-				}
-			}
-			else
-				System.out.println("Already disconnected!");
-			
-			StopLanSearch();
-		} else {
-			System.out.println("[SERVER] Removing " + id + " " + name);
-			
-		}
-	}
-
-	public boolean ConnectToServer(String host, int port) {
-		if(group == Group.player) {
-			System.out.println("Attempting connection to: " + host + ":" + port);
+	public boolean Connect(String host, int port) {
+		System.out.println("Attempting connection to: " + host + ":" + port);
 			try {
-				socket = new Socket();
+				Socket socket = new Socket();
 				SocketAddress socketAddress = new InetSocketAddress(InetAddress.getByName(host), port);
-				socket.connect(socketAddress);
-				inStream = new Scanner(socket.getInputStream());
-				outStream = new PrintStream(socket.getOutputStream());
-				clientThread = new Thread(() -> {Init();});
-				clientThread.start();
+				connection = new Connection<T>(Connection.Group.client, socket, qMessageIn);
+				connection.ConnectToServer(socketAddress);
 				System.out.println("Successfully connected to: " + socket.toString());
-				OnConnection();
-				return !socket.isClosed();
+				return true;
 			} catch (IOException e) {
 				System.err.println(e);
 				return false;
 			}
-		} else {
-			System.out.println("Only players can connect to servers.");
-			return false;
-		}
 	}
 
-	public void Init() {
-		//Message msg = new Message(Net.SetName, "player");
+	public void Disconnect() {
+		if(IsConnected())
+		connection.Disconnect();
+	}
+	
+	public boolean IsConnected() {
+		if(connection != null)
+			return connection.isConnected();
+		else
+			return false;
+	}
 
-		Read();
+	public void Send(Message<T> msg) {
+		if(IsConnected())
+			connection.Send(msg);
+	}
+
+	public Queue<T> Incoming() {
+		return connection.qMessageIn;
 	}
 
 	public void StartLanSearch() {
@@ -91,8 +66,8 @@ public class Client extends Network {
 		byte[] byt;
 		searchGame = true;
 		try {
-			multicastSocket = new MulticastSocket(MULTICAST_PORT);
-			InetAddress inet = InetAddress.getByName(MULTICAST_INET);
+			multicastSocket = new MulticastSocket(Common.MULTICAST_PORT);
+			InetAddress inet = InetAddress.getByName(Common.MULTICAST_INET);
 			multicastSocket.joinGroup(inet);
 			System.out.println("Searching for a game.");
 			while (searchGame) {
@@ -102,22 +77,15 @@ public class Client extends Network {
 				multicastSocket.receive(recv);
 
 				// get packet body
-				Message msg = Message.getHeadAndBody(new String(byt));
+				Message<T> msg = new Message<T>();
 				System.out.println("Multicast message: " + msg);
-				if(MessageType.valueOf(msg.getHead()).equals(MessageType.LAN_SERVER_DISCOVEY)) {
-					msg.setBody(msg.getBody().trim());
+				if(msg.getHeadId() == MessageType.LAN_SERVER_DISCOVEY) {
 					msg.Add(recv.getAddress().getHostAddress());
-					Giocatore.ReadFromServer(msg);
 				}
 			}
 		} catch (IOException e) {
 			System.err.println(e);
 		}
-	}
-
-	public void OnConnection() {
-		Message msg = new Message(MessageType.SetName, name);
-		Send(msg);
 	}
 
 	public void StopLanSearch() {
@@ -135,27 +103,11 @@ public class Client extends Network {
 			System.out.println("Lan search already stopped.");
 	}
 
-	public Socket getSocket() {
-		return socket;
-	}
-
-	public void setSocket(Socket socket) {
-		this.socket = socket;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		super.id = id;
-	}
-
 	public String getName() {
-		return name;
+		return connection.name;
 	}
 
 	public void setName(String name) {
-		this.name = name;
-	}	
+		connection.name = name;
+	}
 }

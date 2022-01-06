@@ -1,10 +1,12 @@
 package net;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Message<T> {
+public class Message<T> implements Serializable {
 	private MessageHead<T> head;
 	private ArrayList<Object> body;
+	private int id;
 
 	public Message() {
 		this.head = new MessageHead<T>();
@@ -13,6 +15,18 @@ public class Message<T> {
 
 	public Message(MessageHead<T> head) {
 		this.head = head;
+		this.body = new ArrayList<Object>();
+	}
+
+	public Message(T id) {
+		this.head = new MessageHead<T>(id);
+		this.body = new ArrayList<Object>();
+	}
+
+	public <I> Message(T id, I... body) {
+		this.head = new MessageHead<T>(id);
+		this.body = new ArrayList<Object>();
+		Add(body);
 	}
 
 	public <I> Message(MessageHead<T> head, I... body) {
@@ -56,12 +70,26 @@ public class Message<T> {
 		return head.size;
 	}
 
-	public T getHead() {
+	public T getHeadId() {
 		return head.id;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 }
 
-class MessageHead<T> {
+class MessageHead<T> implements Serializable {
 	protected T id;
 	protected int size;
+
+	protected MessageHead(T id) {
+		this.id = id;
+	}
+
+	protected MessageHead() {}
 }

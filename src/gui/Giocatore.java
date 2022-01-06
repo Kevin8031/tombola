@@ -6,20 +6,20 @@ import java.util.ArrayList;
 import net.Client;
 import net.Message;
 import net.MessageType;
-
 public class Giocatore extends JFrame {
 	// constants
 	// final private Color CENTER_BACKGROUND = new Color(77, 168, 235);
 	// private final Color WEST_BACKGROUND = new Color(235, 202, 66);	
-	private final static Font FONT = new Font("Roboto", Font.BOLD, 20);
+	private final Font FONT = new Font("Roboto", Font.BOLD, 20);
 
 	// attributes
-	private static int num;
-	private static DefaultListModel<String> serverList;
-	private static DefaultListModel<Integer> numberList;
-	private static Client player;
-	private static ArrayList<Cartella> cartelle;
-	private static ArrayList<Integer> numeriEstratti;
+	private int num;
+	private DefaultListModel<String> serverList;
+	private DefaultListModel<Integer> numberList;
+	private Client<MessageType> client;
+	private ArrayList<Cartella> cartelle;
+	private ArrayList<Integer> numeriEstratti;
+	private static Thread readThread;
 
 	// attributes (GUI)
 	private JFrame parent;
@@ -27,14 +27,14 @@ public class Giocatore extends JFrame {
 	private JPanel leftPanel;
 	private Image icon;
 	private JList<Integer> list;
-	private static JScrollPane numList;
+	private JScrollPane numList;
 	private JLabel numeroLabel;
 
 	// constructor
 	public Giocatore(JFrame parent) {
 		this.parent = parent;
 
-		player = new Client();
+		client = new Client<MessageType>();
 		numberList = new DefaultListModel<Integer>();
 		list = new JList<Integer>(numberList);
 		numList = new JScrollPane(list);
@@ -43,18 +43,20 @@ public class Giocatore extends JFrame {
 		numeroLabel = new JLabel("Numeri", SwingConstants.CENTER);
 		cartelle = new ArrayList<Cartella>();
 		numeriEstratti = new ArrayList<Integer>();
+		readThread = new Thread(() -> ReadFromServer());
+		readThread.setName("ReadThread");
 		icon = Toolkit.getDefaultToolkit().getImage("res/icon.png");
-		setIconImage(icon);
-		
+
 		// init
 		dialogLanServer();
-
+		
 		// setters (numeroLabel)
 		numeroLabel.setPreferredSize(new Dimension(120, 30));
 		numeroLabel.setBackground(Color.YELLOW);
 		numeroLabel.setFont(FONT);
-
+		
 		// setters (frame)
+		setIconImage(icon);
 		setSize(700, 445);
 		setLocationRelativeTo(null);
 		setLayout(new BorderLayout(5, 5));
@@ -82,7 +84,7 @@ public class Giocatore extends JFrame {
 
 						add(new JMenuItem("Disconect") {
 							{
-								addActionListener(e -> player.DisconnectFromServer());
+								addActionListener(e -> client.Disconnect());
 							}
 						});
 					}
@@ -133,12 +135,12 @@ public class Giocatore extends JFrame {
 	// methods
 	private void ShowWindow(JFrame frame) {
 		frame.dispose();
-		player.StopLanSearch();
+		// player.StopLanSearch();
 		setVisible(true);
 	}
 
 	// methods (net)
-	private static void setUserName() {
+	private void setUserName() {
 		JDialog dialog = new JDialog();
 		JTextField name = new JTextField();
 		JLabel label = new JLabel("Username");
@@ -156,10 +158,10 @@ public class Giocatore extends JFrame {
 			public void _setName() {
 				String s = new String(name.getText());
 				if(s.length() > 0) {
-						player.setName(name.getText());
+						client.setName(name.getText());
 						System.out.println("Name assigned: " + s + ", pending server approval.");
-						Message msg = new Message(MessageType.SetName, player.getName());
-						player.Send(msg);
+						Message<MessageType> msg = new Message<MessageType>(MessageType.SetName, client.getName());
+						client.Send(msg);
 						dialog.dispose();
 					} else {
 					JOptionPane.showMessageDialog(dialog, "Nessun nome inserito", "Errore", JOptionPane.ERROR_MESSAGE);
@@ -190,7 +192,7 @@ public class Giocatore extends JFrame {
 		JList<String> list = new JList<String>(serverList);
 		JScrollPane scroll = new JScrollPane(list);
 
-		player.StartLanSearch();
+		// player.StartLanSearch();
 
 		nameLabel.setBounds((_WIDTH / 2 - 90) - 80, 1, 120, 30);
 		name.setHorizontalAlignment(JTextField.HORIZONTAL);
@@ -221,8 +223,8 @@ public class Giocatore extends JFrame {
 
 			private void Connect() {
 				if(list.getSelectedValuesList().size() > 0) {
-					player.setName(name.getText());
-					System.out.println("Name assigned: " + player.getName() + ", pending server approval.");
+					client.setName(name.getText());
+					System.out.println("Name assigned: " + client.getName() + ", pending server approval.");
 
 					String s = list.getSelectedValue();
 					int i = 0;
@@ -240,7 +242,7 @@ public class Giocatore extends JFrame {
 					String port = s.substring(j, i - 1);
 
 					String host = s.substring(i, s.length());
-					if(player.ConnectToServer(host, Integer.valueOf(port))) {
+					if(client.Connect(host, Integer.valueOf(port))) {
 						ShowWindow(frame);
 					}
 					else {
@@ -270,7 +272,12 @@ public class Giocatore extends JFrame {
 		dialog.add(port);
 		dialog.add(new JButton("Connetti") {
 			{
-				addActionListener(e -> player.ConnectToServer(host.getText(), Integer.valueOf(port.getText())));
+				addActionListener(e -> Connect());
+			}
+
+			private void Connect() {
+				client.Connect(host.getText(), Integer.valueOf(port.getText()));
+				readThread.start();
 			}
 		});
 
@@ -278,46 +285,68 @@ public class Giocatore extends JFrame {
 		dialog.setVisible(true);
 	}
 
-	public static void ReadFromServer(Message msg) {
-		System.out.println("[Server] Says: " + msg.toString());
+	public void ReadFromServer() {
+		while (true) {
+			if(client.Incoming().count() > 0) {
+				Message<MessageType> msg = client.Incoming().popFront();
+				System.out.println("[Server] Says: " + msg.toString());
 
-		switch (MessageType.valueOf(msg.getHead())) {
-			case NewNumber:
-				num = Integer.valueOf(msg.getBody());
-				numeriEstratti.add(num);
-				numberList.add(0, num);
-				break;
+				switch (msg.getHeadId()) {
+					case NewNumber:
+						num = msg.Get(num);
+						numeriEstratti.add(num);
+						numberList.add(0, num);
+						for (Cartella cartella : cartelle) {
+							cartella.setNum(num);
+						}
+						break;
 
-			case LAN_SERVER_DISCOVEY:
-				if(!serverList.contains(msg.getBody()))
-					serverList.add(0, msg.getBody());
-				break;
-			
-			case SetName:
-				if(msg.getBody().equals("true"))
-					System.out.println("Name successfully set.");
-				else {
-					System.out.println("Cannot set message: " + msg.getBody());
-					JOptionPane.showMessageDialog(null, msg.getBody(), "Errore", JOptionPane.ERROR_MESSAGE);
-					setUserName();
+					// case LAN_SERVER_DISCOVEY:
+					// 	if(!serverList.contains(msg.getBody()))
+					// 		serverList.add(0, msg.getBody());
+					// 	break;
+					
+					case SetName:
+						String s = new String();
+						if(s.equals("true"))
+							System.out.println("Name successfully set.");
+						else {
+							System.out.println("Cannot set name: " + s);
+							JOptionPane.showMessageDialog(null, "Nome assegnato dal server: " + s, "Info", JOptionPane.INFORMATION_MESSAGE);
+							client.setName(s);
+						}
+						break;
+					
+					case GetTabella:
+						System.out.println("[Server] Asked for table. Sending table to server.");
+						SendTabella();
+						break;
+				
+					default:
+						System.out.println("[NET] Error: \"" + msg.getHeadId() + "\" is not a valid command.");
+						break;
 				}
-				break;
-			
-			case GetTabella:
-				// TODO make it work
-				System.out.println("[Server] Asked for table. Sending table to server.");
-				SendTabella();
-				break;
-		
-			default:
-				System.out.println("[NET] Error: \"" + msg.getHead() + "\" is not a valid command.");
-				break;
+			}
+			try {
+				synchronized (Giocatore.readThread) {
+					readThread.wait();
+				}
+				ReadFromServer();
+			} catch (InterruptedException e) {
+				System.err.println(e);
+			}
 		}
 	}
 
-	private static void SendTabella() {
-		Message msg = new Message(MessageType.GetTabella);
+	private void SendTabella() {
+		Message<MessageType> msg = new Message<MessageType>(MessageType.GetTabella);
+		msg.Add(cartelle);
+		client.Send(msg);
+	}
 
-		msg.Add(cartelle.size());
+	public static void Notify() {
+		synchronized (Giocatore.readThread) {
+			readThread.notify();
+		}
 	}
 }

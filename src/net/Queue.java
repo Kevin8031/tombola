@@ -3,40 +3,41 @@ package net;
 import java.util.Deque;
 import java.util.LinkedList;
 
-public class Queue {
-	private Deque<Object> queue;
+public class Queue<T> {
+	private Deque<Message<T>> queue;
 
-	Queue() {
-		queue = new LinkedList<Object>();
+	public Queue() {
+		queue = new LinkedList<Message<T>>();
 	}
 
-	public void pushFront(Object e) {
+	public void pushFront(Message<T> e) {
 		queue.addFirst(e);
 	}
 
-	public void pushBack(Object e) {
+	public void pushBack(Message<T> e) {
 		queue.addLast(e);
 	}
 
 	public int count() {
-		return queue.size();
+		int size = queue.size();
+		return size;
 	}
 
-	public Object popFront() {
+	public Message<T> popFront() {
 		return queue.pop();
 	}
 
-	public Object popBack() {
-		Object e = queue.getLast();
+	public Message<T> popBack() {
+		Message<T> e = queue.getLast();
 		queue.removeLast();
 		return e;
 	}
 
-	public Object front() {
+	public Message<T> front() {
 		return queue.getFirst();
 	}
 
-	public Object last() {
+	public Message<T> last() {
 		return queue.getLast();
 	}
 
