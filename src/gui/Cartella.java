@@ -16,11 +16,11 @@ public class Cartella extends JPanel {
 	final private Font FONT = new Font("Roboto", Font.BOLD, 36);
 	
 	// attributes
-	private static int numero;
-	private static Tabella tabella;
+	private int numero;
+	private Tabella tabella;
 	
 	// attributes (GUI)
-	private static JLabel labelNumero;
+	private JLabel labelNumero;
 	private JButton[] caselle;
 	private Border blackline;
 
@@ -53,6 +53,7 @@ public class Cartella extends JPanel {
 		if(btn.getText().equals(String.valueOf(numero))) {
 			btn.setBackground(Color.BLACK);
 			btn.setForeground(Color.WHITE);
+			btn.setEnabled(false);
 
 			Combo combo = tabella.CheckCombo();
 			System.out.println(combo.toString());
@@ -86,12 +87,21 @@ public class Cartella extends JPanel {
 						caselle[pos].addActionListener(e -> ControllaNumero(e));
 						caselle[pos].setName(String.valueOf(pos));
 						caselle[pos].addMouseListener(new MouseAdapter() {
+							Color c = null;
 							public void mouseEntered(MouseEvent evt) {
-								caselle[pos].setBackground(color);
+								if(caselle[pos].isEnabled()) {
+									c = caselle[pos].getBackground();
+									caselle[pos].setBackground(color);
+								}
 							}
 							
 							public void mouseExited(MouseEvent evt) {
-								caselle[pos].setBackground(Color.WHITE);
+								if(caselle[pos].isEnabled())
+									caselle[pos].setBackground(c);
+							}
+
+							public void mouseReleased(MouseEvent evt) {
+								c = caselle[pos].getBackground();
 							}
 						});
 					}
@@ -100,5 +110,9 @@ public class Cartella extends JPanel {
 
 	public void setNumeriEstratti(ArrayList<Integer> numeriEstratti) {
 		tabella.setNumeriEstratti(numeriEstratti);
+	}
+
+	public void setNum(int n) {
+		this.numero = n;
 	}
 }
