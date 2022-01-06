@@ -1,7 +1,8 @@
 package game;
+import java.io.Serializable;
 import java.util.*;
 
-public class Tabella {
+public class Tabella implements Serializable{
 	// constants
 	public static final short RIGHE = 3;
 	public static final short COLONNE = 9;
