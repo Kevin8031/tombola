@@ -187,7 +187,7 @@ public class Giocatore extends JFrame {
 		JTextField name = new JTextField();
 		JLabel nameLabel = new JLabel("Username");
 		
-		icon = Toolkit.getDefaultToolkit().getImage("C://Users//arman//Desktop//GITHUB//Repos//tombola//src//icon.png");
+		icon = Toolkit.getDefaultToolkit().getImage("res/icon.png");
 		frame.setIconImage(icon);
 
 		serverList = new DefaultListModel<String>();

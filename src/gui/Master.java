@@ -48,7 +48,7 @@ public class Master extends Tabellone {
 		// setters (frame)
 		frame.setSize(600, 350);
 		frame.setLayout(new BorderLayout());
-		image = Toolkit.getDefaultToolkit().getImage("C://Users//arman//Desktop//GITHUB//Repos//tombola//src//icon.png");
+		image = Toolkit.getDefaultToolkit().getImage("res/icon.png");
 		frame.setIconImage(image);
 		
 		// setters (panel1)

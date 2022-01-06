@@ -18,7 +18,7 @@ public class MainMenu extends JFrame {
 	// constructor
 	public MainMenu() {
 		blackline = BorderFactory.createLineBorder(Color.BLACK);
-		image = Toolkit.getDefaultToolkit().getImage("C://Users//arman//Desktop//GITHUB//Repos//tombola//src//icon.png");
+		image = Toolkit.getDefaultToolkit().getImage("res/icon.png");
 
 		setIconImage(image);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
