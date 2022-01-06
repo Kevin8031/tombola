@@ -1,4 +1,4 @@
-package game;
+package client.game;
 public class Tabellone extends Tabella {
 	// constants
 	final private short RIGHE = 9;

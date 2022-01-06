@@ -1,4 +1,4 @@
-package game;
+package client.game;
 public enum Combo {
 	Ambo,
 	Terno,

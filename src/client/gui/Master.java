@@ -1,10 +1,13 @@
-package gui;
+package client.gui;
 import javax.swing.*;
+
+import client.game.Tabellone;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Random;
-import game.Tabellone;
+
 import net.Connection;
 import net.Message;
 import net.MessageType;

@@ -10,7 +10,7 @@ import java.net.MulticastSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 
-import gui.Giocatore;
+import client.gui.Giocatore;
 
 public class Client<T> {
 	private Thread multicastThread;

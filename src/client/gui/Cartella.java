@@ -1,11 +1,11 @@
-package gui;
+package client.gui;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-import game.Combo;
-import game.Tabella;
+import client.game.Combo;
+import client.game.Tabella;
 
 public class Cartella extends JPanel {
 	// constants

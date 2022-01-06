@@ -3,8 +3,8 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketAddress;
 
-import gui.Giocatore;
-import gui.Master;
+import client.gui.Giocatore;
+import client.gui.Master;
 
 public class Connection<T> {
 	enum Group {

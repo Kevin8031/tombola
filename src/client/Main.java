@@ -1,4 +1,5 @@
-import gui.MainMenu;
+package client;
+import client.gui.MainMenu;
 
 public class Main {
 	public static void main(String[] args) {
