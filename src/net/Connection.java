@@ -75,7 +75,7 @@ public class Connection<T> {
 		if(isConnected()) {
 			try {
 				socket.close();
-				System.out.println("Disconnected");
+				System.out.println("[" + id + " \"" + name + "\"] " + "Disconnected");
 			} catch (IOException e) {
 				System.err.println(e);
 			}
@@ -85,7 +85,7 @@ public class Connection<T> {
 
 	public boolean isConnected() {
 		if(socket != null)
-			return socket.isConnected();
+			return !socket.isClosed();
 		else
 			return false;
 	}
@@ -102,6 +102,7 @@ public class Connection<T> {
 			Read();
 		} catch (Exception e) {
 			System.err.println(e);
+			Disconnect();
 		}
 	}
 
@@ -112,6 +113,7 @@ public class Connection<T> {
 				System.out.println("[" + id + " - " + owner + "] Sent: " + msg.toString());
 			} catch (Exception e) {
 				System.err.println(e);
+				Disconnect();
 			}
 		} else
 			System.out.println("[ERROR] Cannot send message \"" + msg.toString() + "\". Not connected to anyone.");

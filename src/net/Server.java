@@ -151,23 +151,18 @@ public class Server<T> {
 			client.Send(msg);
 		} else {
 			client.Disconnect();
-
 			connections.remove(client);
 		}
 	}
 
 	public void MessageAllClients(Message<T> msg, Connection<T> ignoreClient) {
-		boolean invalidClient = false;
 		for (Connection<T> c : connections) {
 			if(c != ignoreClient)
 				if(c != null && c.isConnected())
 					c.Send(msg);
 				else
-					invalidClient = true;
+					connections.remove(c);
 		}
-
-		if(invalidClient)
-			connections.remove(null);
 	}
 
 	public Connection<T> getClient(int id) {
@@ -176,6 +171,13 @@ public class Server<T> {
 				return connection;
 
 		return null;
+	}
+
+	public void removeClient(int id) {
+		for (Connection<T> connection : connections) {
+			if (connection.getId() == id)
+				connections.remove(connection);
+		}
 	}
 
 	public Deque<Connection<T>> getClients() {

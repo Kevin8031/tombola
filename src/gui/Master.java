@@ -228,10 +228,10 @@ public class Master extends Tabellone {
 							server.getClient(id).Send(msg1);
 						break;
 
-					// case Disconnect:
-					// 	server.getClient(id).DisconnectFromServer();
-					// 	server.getClients().remove(id, server.getClient(id));
-					// 	break;
+					case Disconnect:
+						server.getClient(id).Disconnect();
+						server.removeClient(id);
+						break;
 				
 					case GetTabella:
 						ShowClientTable(msg, id);
@@ -286,7 +286,7 @@ public class Master extends Tabellone {
 		list.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent evt) {
 				if(evt.getClickCount() == 2) {
-					server.getClient(list.getSelectedIndex()).Send(new Message<MessageType>(MessageType.GetTabella));
+					server.MessageClient(server.getClient(list.getSelectedIndex()), new Message<MessageType>(MessageType.GetTabella));
 				}
 			}
 		});

@@ -2,6 +2,7 @@ package gui;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.lang.Thread.State;
 import java.util.ArrayList;
 import net.Client;
 import net.Message;
@@ -84,7 +85,7 @@ public class Giocatore extends JFrame {
 
 						add(new JMenuItem("Disconect") {
 							{
-								addActionListener(e -> client.Disconnect());
+								addActionListener(e -> Disconnect());
 							}
 						});
 					}
@@ -127,6 +128,7 @@ public class Giocatore extends JFrame {
 
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
+				Disconnect();
 				parent.setVisible(true);
 			}
 		});
@@ -193,7 +195,9 @@ public class Giocatore extends JFrame {
 		JScrollPane scroll = new JScrollPane(list);
 
 		client.StartLanSearch();
-		readThread.start();
+
+		if(readThread.getState() == State.NEW)
+			readThread.start();
 
 		nameLabel.setBounds((_WIDTH / 2 - 90) - 80, 1, 120, 30);
 		name.setHorizontalAlignment(JTextField.HORIZONTAL);
@@ -278,7 +282,6 @@ public class Giocatore extends JFrame {
 
 			private void Connect() {
 				client.Connect(host.getText(), Integer.valueOf(port.getText()));
-				readThread.start();
 			}
 		});
 
@@ -350,5 +353,10 @@ public class Giocatore extends JFrame {
 		synchronized (Giocatore.readThread) {
 			readThread.notify();
 		}
+	}
+
+	private void Disconnect() {
+		client.Send(new Message<MessageType>(MessageType.Disconnect));
+		client.Disconnect();
 	}
 }
