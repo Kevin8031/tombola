@@ -74,6 +74,10 @@ public class Message<T> implements Serializable {
 		return head.id;
 	}
 
+	public void setHeadId(T id) {
+		head.id = id;
+	}
+
 	public int getId() {
 		return id;
 	}
