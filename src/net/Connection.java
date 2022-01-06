@@ -90,6 +90,7 @@ public class Connection<T> {
 			return false;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void Read() {
 		try {
 			Message<T> in = (Message<T>)inStream.readObject();

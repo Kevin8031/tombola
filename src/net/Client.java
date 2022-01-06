@@ -2,7 +2,6 @@ package net;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.PrintStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -66,6 +65,7 @@ public class Client<T> {
 		multicastThread.start();
 	}
 
+	@SuppressWarnings("unchecked")
 	private void LanSearch() {
 		byte[] data;
 		searchGame = true;
