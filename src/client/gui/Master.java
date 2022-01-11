@@ -11,6 +11,7 @@ import java.util.Random;
 import net.Connection;
 import net.Message;
 import net.MessageType;
+import net.OwnedMessage;
 import net.Server;
 public class Master extends Tabellone {
 	// attributes (GUI)
@@ -106,7 +107,7 @@ public class Master extends Tabellone {
 					{
 						add(new JMenuItem("Start Server") {
 							{
-								addActionListener(e -> server.Start(true));
+								addActionListener(e -> server.Start());
 							}
 						});
 						add(new JMenuItem("Start Open To Lan") {
@@ -152,7 +153,7 @@ public class Master extends Tabellone {
 		});
 
 		frame.setVisible(true);
-		server.Start(true);
+		server.Start();
 		readThread.start();
 	}
 
@@ -181,7 +182,7 @@ public class Master extends Tabellone {
 			caselle[num - 1].setBackground(Color.BLACK);
 			caselle[num - 1].setForeground(Color.WHITE);
 
-			Message<MessageType> msg = new Message<MessageType>(MessageType.NewNumber, num);
+			OwnedMessage<MessageType> msg = new OwnedMessage<MessageType>(MessageType.NewNumber, num);
 			server.MessageAllClients(msg, null);
 		}
 		else {
@@ -205,7 +206,7 @@ public class Master extends Tabellone {
 		caselle[num - 1].setBackground(Color.BLACK);
 		caselle[num - 1].setForeground(Color.WHITE);
 
-		Message<MessageType> msg = new Message<MessageType>(MessageType.NewNumber, num);
+		OwnedMessage<MessageType> msg = new OwnedMessage<MessageType>(MessageType.NewNumber, num);
 		server.MessageAllClients(msg, null);
 	}
 
@@ -213,13 +214,13 @@ public class Master extends Tabellone {
 		while(retry) {
 			if(server.Incoming().count() > 0) {
 				// System.out.println("[" + id + " \"" + server.getClient(id).getName() + "\"" + "] Says: " + msg.toString());
-				Message<MessageType> msg = server.Incoming().popBack();
+				Message<MessageType> msg = server.Incoming().popBack().getMsg();
 				int id = msg.getId();
 				switch (msg.getHeadId()) {
 					case SetName:
 						String s = new String();
 						s = msg.Get(s);
-						Message<MessageType> msg1 = new Message<MessageType>(MessageType.SetName);
+						OwnedMessage<MessageType> msg1 = new OwnedMessage<MessageType>(MessageType.SetName);
 						if(!s.equals("null")) {
 							server.getClient(id).setName(s);
 							System.out.println("Name set for: " + id + " \"" + server.getClient(id).getName() + "\"");
@@ -289,7 +290,7 @@ public class Master extends Tabellone {
 		list.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent evt) {
 				if(evt.getClickCount() == 2) {
-					server.MessageClient(server.getClient(list.getSelectedIndex()), new Message<MessageType>(MessageType.GetTabella));
+					server.MessageClient(server.getClient(list.getSelectedIndex()), new OwnedMessage<MessageType>(MessageType.GetTabella));
 				}
 			}
 		});

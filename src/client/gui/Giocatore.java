@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import net.Client;
 import net.Message;
 import net.MessageType;
+import net.OwnedMessage;
 public class Giocatore extends JFrame {
 	// constants
 	// final private Color CENTER_BACKGROUND = new Color(77, 168, 235);
@@ -162,7 +163,7 @@ public class Giocatore extends JFrame {
 				if(s.length() > 0) {
 						client.setName(name.getText());
 						System.out.println("Name assigned: " + s + ", pending server approval.");
-						Message<MessageType> msg = new Message<MessageType>(MessageType.SetName, client.getName());
+						OwnedMessage<MessageType> msg = new OwnedMessage<MessageType>(MessageType.SetName, client.getName());
 						client.Send(msg);
 						dialog.dispose();
 					} else {
@@ -292,7 +293,7 @@ public class Giocatore extends JFrame {
 	public void ReadFromServer() {
 		while (true) {
 			if(client.Incoming().count() > 0) {
-				Message<MessageType> msg = client.Incoming().popFront();
+				Message<MessageType> msg = client.Incoming().popFront().getMsg();
 				System.out.println("[Server] Says: " + msg.toString());
 
 				switch (msg.getHeadId()) {
@@ -344,7 +345,7 @@ public class Giocatore extends JFrame {
 	}
 
 	private void SendTabella() {
-		Message<MessageType> msg = new Message<MessageType>(MessageType.GetTabella);
+		OwnedMessage<MessageType> msg = new OwnedMessage<MessageType>(MessageType.GetTabella);
 		msg.Add(cartelle);
 		client.Send(msg);
 	}
@@ -356,7 +357,7 @@ public class Giocatore extends JFrame {
 	}
 
 	private void Disconnect() {
-		client.Send(new Message<MessageType>(MessageType.Disconnect));
+		client.Send(new OwnedMessage<MessageType>(MessageType.Disconnect));
 		client.Disconnect();
 	}
 }

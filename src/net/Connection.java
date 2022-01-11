@@ -3,9 +3,6 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketAddress;
 
-import client.gui.Giocatore;
-import client.gui.Master;
-
 public class Connection<T> {
 	enum Group {
 		client,
@@ -27,12 +24,13 @@ public class Connection<T> {
 	protected ObjectInput inStream;
 	protected ObjectOutputStream outStream;
 
-	protected Queue<T> qMessageIn;
-	protected Queue<T> qMessageOut;
+	protected TsQueue<T> qMessageIn;
+	protected TsQueue<T> qMessageOut;
+	private OwnedMessage<T> msgTempIn;
 	
 	private Socket socket;
 
-	public Connection(Group owner, Socket socket, Queue<T> qMessageIn) {
+	public Connection(Group owner, Socket socket, TsQueue<T> qMessageIn) {
 		this.owner = owner;
 		this.socket = socket;
 		this.qMessageIn = qMessageIn;
@@ -92,21 +90,16 @@ public class Connection<T> {
 
 	public void Read() {
 		try {
-			Message<T> in = (Message<T>)inStream.readObject();
-			in.setId(id);
-			qMessageIn.pushFront(in);
-			if(owner == Group.server)
-				Master.Notify();
-			else
-				Giocatore.Notify();
+			msgTempIn = (OwnedMessage<T>)inStream.readObject();
+			msgTempIn.getMsg().setId(id);
+			AddToIncomingMessageQueue();
 			Read();
 		} catch (Exception e) {
-			System.err.println(e);
 			Disconnect();
 		}
 	}
 
-	public void Send(Message<T> msg) {
+	public void Send(OwnedMessage<T> msg) {
 		if(outStream != null) {
 			try {
 				outStream.writeObject(msg);
@@ -117,6 +110,15 @@ public class Connection<T> {
 			}
 		} else
 			System.out.println("[ERROR] Cannot send message \"" + msg.toString() + "\". Not connected to anyone.");
+	}
+
+	public void AddToIncomingMessageQueue() {
+		if(owner == Group.server) {
+			msgTempIn.setRemote(this);
+			qMessageIn.pushBack(msgTempIn);
+		}
+		else
+			qMessageIn.pushBack(msgTempIn);
 	}
 
 	public int getId() {

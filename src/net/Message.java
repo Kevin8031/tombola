@@ -25,19 +25,19 @@ public class Message<T> implements Serializable {
 
 	public <I> Message(T id, I... body) {
 		this.head = new MessageHead<T>(id);
-		this.body = new ArrayList<Object>();
+		this.body = new ArrayList<Object>(body.length);
 		Add(body);
 	}
 
 	public <I> Message(MessageHead<T> head, I... body) {
 		this.head = head;
-		this.body = new ArrayList<Object>();
+		this.body = new ArrayList<Object>(body.length);
 		Add(body);
 	}
 
 	public <I> Message(I... body) {
 		this.head = new MessageHead<T>();
-		this.body = new ArrayList<Object>();
+		this.body = new ArrayList<Object>(body.length);
 		Add(body);
 	}
 

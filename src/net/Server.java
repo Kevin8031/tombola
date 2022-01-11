@@ -19,15 +19,15 @@ public class Server<T> {
 	private String serverName;
 
 	private Deque<Connection<T>> connections;
-	private Queue<T> qMessageIn;
+	private TsQueue<T> qMessageIn;
 	private int idCounter;
 	public Server() {
 		connections = new LinkedList<Connection<T>>();
-		qMessageIn = new Queue<T>();
+		qMessageIn = new TsQueue<T>();
 		idCounter = 0;
 	}
 	
-	public void Start(boolean bWait) {
+	public void Start() {
 		if(serverSocket == null) {
 			try {
 				serverSocket = new ServerSocket(Common.SERVER_PORT);
@@ -74,11 +74,12 @@ public class Server<T> {
 			System.out.println("[SERVER] Waiting for client to connect...");
 			Socket s = serverSocket.accept();
 			Connection<T> newconn = new Connection<T>(Connection.Group.server, s, qMessageIn);
-			connections.addLast(newconn);
-			connections.getLast().ConnectToClient(idCounter++);
-
-			System.out.println("[NEW CLIENT] Client connected: " + newconn.getSocket().toString());
-			System.out.println("[SERVER] No. of clients: " + connections.size());
+			if(OnClientConnect(newconn)) {
+				connections.addLast(newconn);
+				connections.getLast().ConnectToClient(idCounter++);
+				System.out.println("[NEW CLIENT] Client connected: " + newconn.getSocket().toString());
+				System.out.println("[SERVER] No. of clients: " + clientNumber());
+			}
 			Accept();
 		} catch (IOException e) {
 			System.err.println(e);
@@ -93,7 +94,7 @@ public class Server<T> {
 			openToLan = true;
 			if(!isServerStarted()) {
 				System.out.println("[LAN SEARCH] Server was not started. Starting...");
-				Start(true);
+				Start();
 			}
 		} else {
 			System.out.println("[LAN SEARCH] Already started.");
@@ -139,14 +140,12 @@ public class Server<T> {
 				System.out.println("[LAN SEARCH] Waiting for thread to finish execution...");
 				lanThread.join();
 				lanThread = null;
-			} catch (Exception e) {
-				System.err.println(e);
-			}
+			} catch (Exception e) {}
 		} else
 			System.out.println("[SERVER] Lan visibility already stopped");
 	}
 
-	public void MessageClient(Connection<T> client, Message<T> msg) {
+	public void MessageClient(Connection<T> client, OwnedMessage<T> msg) {
 		if(client != null && client.isConnected()) {
 			client.Send(msg);
 		} else {
@@ -155,7 +154,7 @@ public class Server<T> {
 		}
 	}
 
-	public void MessageAllClients(Message<T> msg, Connection<T> ignoreClient) {
+	public void MessageAllClients(OwnedMessage<T> msg, Connection<T> ignoreClient) {
 		for (Connection<T> c : connections) {
 			if(c != ignoreClient)
 				if(c != null && c.isConnected())
@@ -184,11 +183,37 @@ public class Server<T> {
 		return connections;
 	}
 
-	public Queue<T> Incoming() {
+	public TsQueue<T> Incoming() {
 		return qMessageIn;
 	}
 
 	public Deque<Connection<T>> getConnections() {
 		return connections;
+	}
+
+	public void Update(boolean bWait) {
+		if(bWait) qMessageIn.Wait();
+
+		while(!qMessageIn.empty()) {
+			OwnedMessage<T> msg = qMessageIn.popFront();
+			OnMessage(msg.getRemote(), msg.getMsg());
+		}
+	}
+
+	// Override
+	public boolean OnClientConnect(Connection<T> client) {
+		return false;
+	}
+
+	public void OnMessage(Connection<T> client, Message<T> msg) {
+
+	}
+
+	public void OnClientDisconnect(Connection<T> client) {
+		
+	}
+
+	public int clientNumber() {
+		return connections.size();
 	}
 }
