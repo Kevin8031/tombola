@@ -1,22 +1,14 @@
 package net;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Deque;
 import java.util.LinkedList;
 
 public class Server<T> {
-	private ServerSocket serverSocket;
-	private MulticastSocket multicastSocket;
+	protected ServerSocket serverSocket;
 	private Thread serverThread;
-	private Thread lanThread;
-	private boolean openToLan;
-	private String serverName;
+	protected String serverName;
 
 	private Deque<Connection<T>> connections;
 	private TsQueue<T> qMessageIn;
@@ -63,7 +55,7 @@ public class Server<T> {
 		else {
 			System.out.println("[SERVER] Cannot stop server. Server already stopped!");
 		}
-		StopOpenToLan();
+		OnServerStop();
 	}
 
 	public boolean isRunning() {
@@ -85,65 +77,6 @@ public class Server<T> {
 		} catch (IOException e) {
 			System.err.println(e);
 		}
-	}
-
-	public void StartOpenToLan() {
-		if(lanThread == null) {
-			lanThread = new Thread(() -> OpenToLan());
-			lanThread.setName("lanThread");
-			lanThread.start();
-			openToLan = true;
-			if(!isRunning()) {
-				System.out.println("[LAN SEARCH] Server was not started. Starting...");
-				Start();
-			}
-		} else {
-			System.out.println("[LAN SEARCH] Already started.");
-		}
-	}
-
-	private void OpenToLan() {
-		try {
-			multicastSocket = new MulticastSocket();
-			InetAddress inet = InetAddress.getByName(Common.MULTICAST_INET);
-			multicastSocket.joinGroup(inet);
-			System.out.println("[SERVER] Server opened to lan.");
-
-			Message<MessageType> msg = new Message<MessageType>();
-			msg.setHeadId(MessageType.LAN_SERVER_DISCOVEY);
-			msg.Add(serverName, serverSocket.getLocalPort(), connections.size());
-
-			while (openToLan) {
-				ByteArrayOutputStream baos = new ByteArrayOutputStream(6400);
-				ObjectOutputStream oos = new ObjectOutputStream(baos);
-				oos.writeObject(msg);
-				byte[] data = baos.toByteArray();
-				DatagramPacket send = new DatagramPacket(data, data.length, inet, Common.MULTICAST_PORT);
-				multicastSocket.send(send);
-				
-				System.out.println("[LAN SEARCH] Sent: " + msg);
-				Thread.sleep(5000);
-			}
-			System.out.println("[SERVER] Not visible on lan.");
-		} catch (Exception e) {
-			System.err.println(e);
-			System.err.println("[SERVER] Cannot open server to lan.");
-			StopOpenToLan();
-		}
-	}
-
-	public void StopOpenToLan() {
-		if(multicastSocket != null) {
-			openToLan = false;
-			try {
-				multicastSocket.close();
-				multicastSocket = null;
-				System.out.println("[LAN SEARCH] Waiting for thread to finish execution...");
-				lanThread.join();
-				lanThread = null;
-			} catch (Exception e) {}
-		} else
-			System.out.println("[SERVER] Lan visibility already stopped");
 	}
 
 	public void MessageClient(Connection<T> client, OwnedMessage<T> msg) {
@@ -202,17 +135,13 @@ public class Server<T> {
 	}
 
 	// Override
-	public boolean OnClientConnect(Connection<T> client) {
-		return false;
-	}
+	public boolean OnClientConnect(Connection<T> client) { return false; }
 
-	public void OnMessage(Connection<T> client, Message<T> msg) {
+	public void OnMessage(Connection<T> client, Message<T> msg) {}
 
-	}
+	public void OnClientDisconnect(Connection<T> client) {}
 
-	public void OnClientDisconnect(Connection<T> client) {
-		
-	}
+	public void OnServerStop() {}
 
 	public int clientNumber() {
 		return connections.size();
