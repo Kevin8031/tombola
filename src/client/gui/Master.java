@@ -112,12 +112,12 @@ public class Master extends Tabellone {
 						});
 						add(new JMenuItem("Start Open To Lan") {
 							{
-								addActionListener(e -> server.StartOpenToLan());
+								// addActionListener(e -> server.StartOpenToLan());
 							}
 						});
 						add(new JMenuItem("Stop Open To Lan") {
 							{
-								addActionListener(e -> server.StopOpenToLan());
+								// addActionListener(e -> server.StopOpenToLan());
 							}
 						});
 						add(new JMenuItem("Close Server") {
