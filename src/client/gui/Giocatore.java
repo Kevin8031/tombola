@@ -317,7 +317,7 @@ public class Giocatore extends JFrame {
 						String host = null;
 						host = msg.Get(host);
 
-						String entry = new String(serverName + " " + host + " " + port + " " + playerCount);
+						String entry = new String(serverName + " " + host + ":" + port + " Giocatori: " + playerCount);
 						
 						if(!serverList.contains(entry))
 							serverList.add(0, entry);
