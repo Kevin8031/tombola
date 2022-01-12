@@ -63,25 +63,31 @@ public class ServerMain extends Server<MessageType> {
 
 		Thread updateThread = new Thread(() -> update());
 		updateThread.setName("Update");
-
 		Thread.currentThread().setName("MainThread");
 
 		boolean quit = false;
 		Scanner scanner = new Scanner(System.in);
 
 		menu();
+		server.Start();
+		updateThread.start();
 		while(!quit) {
 			if(scanner.hasNext()) {
 				String input = scanner.nextLine().toLowerCase();
 				switch (input) {
 					case "start":
-						server.Start();
-						updateThread.start();
-						update = true;
+						if(!server.isRunning()) {
+							server.Start();
+							update = true;
+							updateThread.start();
+						}
 						break;
-	
+
 					case "stop":
 						update = false;
+						synchronized(updateThread) {
+							updateThread.notify();
+						}
 						server.Stop();
 						break;
 
