@@ -53,6 +53,7 @@ public class Server<T> {
 				
 				serverThread.join(1);
 				serverSocket.close();
+				serverSocket = null;
 				
 				System.out.println("[SERVER] Server Stopped");
 			} catch (Exception e) {
@@ -65,7 +66,7 @@ public class Server<T> {
 		StopOpenToLan();
 	}
 
-	public boolean isServerStarted() {
+	public boolean isRunning() {
 		return !serverSocket.isClosed();
 	}
 
@@ -92,7 +93,7 @@ public class Server<T> {
 			lanThread.setName("lanThread");
 			lanThread.start();
 			openToLan = true;
-			if(!isServerStarted()) {
+			if(!isRunning()) {
 				System.out.println("[LAN SEARCH] Server was not started. Starting...");
 				Start();
 			}
@@ -110,7 +111,7 @@ public class Server<T> {
 
 			Message<MessageType> msg = new Message<MessageType>();
 			msg.setHeadId(MessageType.LAN_SERVER_DISCOVEY);
-			msg.Add(serverName, serverSocket.getLocalPort());
+			msg.Add(serverName, serverSocket.getLocalPort(), connections.size());
 
 			while (openToLan) {
 				ByteArrayOutputStream baos = new ByteArrayOutputStream(6400);
