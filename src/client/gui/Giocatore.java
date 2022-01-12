@@ -308,8 +308,19 @@ public class Giocatore extends JFrame {
 
 					case LAN_SERVER_DISCOVEY:
 						System.out.println("Lan");
-					// 	if(!serverList.contains(msg.getBody()))
-					// 		serverList.add(0, msg.getBody());
+						String serverName = null;
+						serverName = msg.Get(serverName);
+						int port = 0;
+						port = msg.Get(port);
+						int playerCount = 0;
+						playerCount = msg.Get(playerCount);
+						String host = null;
+						host = msg.Get(host);
+
+						String entry = new String(serverName + " " + host + " " + port + " " + playerCount);
+						
+						if(!serverList.contains(entry))
+							serverList.add(0, entry);
 						break;
 					
 					case SetName:
