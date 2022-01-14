@@ -59,7 +59,10 @@ public class Server<T> {
 	}
 
 	public boolean isRunning() {
-		return !serverSocket.isClosed();
+		if(serverSocket != null)
+			return !serverSocket.isClosed();
+		else
+			return false;
 	}
 
 	private void Accept() {
