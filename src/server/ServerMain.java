@@ -190,6 +190,7 @@ public class ServerMain extends Server<MessageType> {
 
 			Thread.sleep(150);
 		}
+		scanner.close();
 		System.out.println("bye");
 	}
 
