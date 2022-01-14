@@ -66,6 +66,7 @@ public class Client<T> {
 		multicastThread.start();
 	}
 
+	@SuppressWarnings("unchecked")
 	private void LanSearch() {
 		byte[] data;
 		searchGame = true;

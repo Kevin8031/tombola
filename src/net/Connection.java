@@ -88,6 +88,7 @@ public class Connection<T> {
 			return false;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void Read() {
 		try {
 			msgTempIn = (OwnedMessage<T>)inStream.readObject();

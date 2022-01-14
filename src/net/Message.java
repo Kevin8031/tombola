@@ -23,24 +23,28 @@ public class Message<T> implements Serializable {
 		this.body = new ArrayList<Object>();
 	}
 
+	@SuppressWarnings("unchecked")
 	public <I> Message(T id, I... body) {
 		this.head = new MessageHead<T>(id);
 		this.body = new ArrayList<Object>(body.length);
 		Add(body);
 	}
 
+	@SuppressWarnings("unchecked")
 	public <I> Message(MessageHead<T> head, I... body) {
 		this.head = head;
 		this.body = new ArrayList<Object>(body.length);
 		Add(body);
 	}
 
+	@SuppressWarnings("unchecked")
 	public <I> Message(I... body) {
 		this.head = new MessageHead<T>();
 		this.body = new ArrayList<Object>(body.length);
 		Add(body);
 	}
-
+	
+	@SuppressWarnings("unchecked")
 	public <I> void Add (I... body) {
 		for (I element : body) {
 			this.body.add(element);
@@ -48,6 +52,7 @@ public class Message<T> implements Serializable {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public <I> I Get(I obj) {
 		if(body.size() > 0) {
 			I element = (I)body.get(0);
