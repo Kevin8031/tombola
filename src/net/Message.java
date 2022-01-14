@@ -99,7 +99,7 @@ public class Message<T> implements Serializable {
 			s += o + " ";
 		}
 
-		return s;
+		return head.toString() + " " + s;
 	}
 }
 
@@ -112,4 +112,9 @@ class MessageHead<T> implements Serializable {
 	}
 
 	protected MessageHead() {}
+
+	@Override
+	public String toString() {
+		return id.toString();
+	}
 }
