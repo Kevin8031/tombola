@@ -307,7 +307,6 @@ public class Giocatore extends JFrame {
 						break;
 
 					case LAN_SERVER_DISCOVEY:
-						System.out.println("Lan");
 						String serverName = null;
 						serverName = msg.Get(serverName);
 						int port = 0;
