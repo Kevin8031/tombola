@@ -90,6 +90,17 @@ public class Message<T> implements Serializable {
 	public void setId(int id) {
 		this.id = id;
 	}
+
+	@Override
+	public String toString() {
+		String s = new String();
+
+		for (Object o : body) {
+			s += o + " ";
+		}
+
+		return s;
+	}
 }
 
 class MessageHead<T> implements Serializable {

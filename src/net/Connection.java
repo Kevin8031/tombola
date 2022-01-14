@@ -137,4 +137,9 @@ public class Connection<T> {
 	public void setName(String s) {
 		this.name = s;
 	}
+
+	@Override
+	public String toString() {
+		return socket.toString();
+	}
 }

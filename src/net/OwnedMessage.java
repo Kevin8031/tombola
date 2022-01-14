@@ -52,4 +52,9 @@ public class OwnedMessage<T> implements Serializable {
 	public void setRemote(Connection<T> remote) {
 		this.remote = remote;
 	}
+
+	@Override
+	public String toString() {
+		return "Remote: " + remote.toString() + ". Message: " + msg.toString();
+	}
 }
