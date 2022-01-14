@@ -16,7 +16,7 @@ public class Connection<T> {
 	// client
 	protected int id;
 	protected Thread readThread;
-	protected String name = "player";
+	protected String name = "client";
 
 	// both
 	protected Group owner = Group.server;
@@ -136,6 +136,4 @@ public class Connection<T> {
 	public void setName(String s) {
 		this.name = s;
 	}
-
-	public void OnMessage() {};
 }
