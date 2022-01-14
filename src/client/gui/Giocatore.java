@@ -2,7 +2,6 @@ package client.gui;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.lang.Thread.State;
 import java.util.ArrayList;
 import net.Client;
 import net.Message;
@@ -21,7 +20,6 @@ public class Giocatore extends JFrame {
 	private Client<MessageType> client;
 	private ArrayList<Cartella> cartelle;
 	private ArrayList<Integer> numeriEstratti;
-	private static Thread readThread;
 
 	// attributes (GUI)
 	private JFrame parent;
@@ -45,8 +43,6 @@ public class Giocatore extends JFrame {
 		numeroLabel = new JLabel("Numeri", SwingConstants.CENTER);
 		cartelle = new ArrayList<Cartella>();
 		numeriEstratti = new ArrayList<Integer>();
-		readThread = new Thread(() -> ReadFromServer());
-		readThread.setName("ReadThread");
 		icon = Toolkit.getDefaultToolkit().getImage("res/icon.png");
 
 		// init
@@ -197,9 +193,6 @@ public class Giocatore extends JFrame {
 
 		client.StartLanSearch();
 
-		if(readThread.getState() == State.NEW)
-			readThread.start();
-
 		nameLabel.setBounds((_WIDTH / 2 - 90) - 80, 1, 120, 30);
 		name.setHorizontalAlignment(JTextField.HORIZONTAL);
 		name.setBounds(_WIDTH / 2 - 90, 1, 180, 30);
@@ -291,65 +284,55 @@ public class Giocatore extends JFrame {
 	}
 
 	public void ReadFromServer() {
-		while (true) {
-			if(client.Incoming().count() > 0) {
-				Message<MessageType> msg = client.Incoming().popFront().getMsg();
-				System.out.println("[Server] Says: " + msg.toString());
+		if(client.Incoming().count() > 0) {
+			Message<MessageType> msg = client.Incoming().popFront().getMsg();
+			System.out.println("[Server] Says: " + msg.toString());
 
-				switch (msg.getHeadId()) {
-					case NewNumber:
-						num = msg.Get(num);
-						numeriEstratti.add(num);
-						numberList.add(0, num);
-						for (Cartella cartella : cartelle) {
-							cartella.setNum(num);
-						}
-						break;
+			switch (msg.getHeadId()) {
+				case NewNumber:
+					num = msg.Get(num);
+					numeriEstratti.add(num);
+					numberList.add(0, num);
+					for (Cartella cartella : cartelle) {
+						cartella.setNum(num);
+					}
+					break;
 
-					case LAN_SERVER_DISCOVEY:
-						String serverName = null;
-						serverName = msg.Get(serverName);
-						int port = 0;
-						port = msg.Get(port);
-						int playerCount = 0;
-						playerCount = msg.Get(playerCount);
-						String host = null;
-						host = msg.Get(host);
+				case LAN_SERVER_DISCOVEY:
+					String serverName = null;
+					serverName = msg.Get(serverName);
+					int port = 0;
+					port = msg.Get(port);
+					int playerCount = 0;
+					playerCount = msg.Get(playerCount);
+					String host = null;
+					host = msg.Get(host);
 
-						String entry = new String(serverName + " " + host + ":" + port + " Giocatori: " + playerCount);
-						
-						if(!serverList.contains(entry))
-							serverList.add(0, entry);
-						break;
+					String entry = new String(serverName + " " + host + ":" + port + " Giocatori: " + playerCount);
 					
-					case SetName:
-						String s = new String();
-						if(s.equals("true"))
-							System.out.println("Name successfully set.");
-						else {
-							System.out.println("Cannot set name: " + s);
-							JOptionPane.showMessageDialog(null, "Nome assegnato dal server: " + s, "Info", JOptionPane.INFORMATION_MESSAGE);
-							client.setName(s);
-						}
-						break;
-					
-					case GetTabella:
-						System.out.println("[Server] Asked for table. Sending table to server.");
-						SendTabella();
-						break;
+					if(!serverList.contains(entry))
+						serverList.add(0, entry);
+					break;
 				
-					default:
-						System.out.println("[NET] Error: \"" + msg.getHeadId() + "\" is not a valid command.");
-						break;
-				}
-			}
-			try {
-				synchronized (Giocatore.readThread) {
-					readThread.wait();
-				}
-				ReadFromServer();
-			} catch (InterruptedException e) {
-				System.err.println(e);
+				case SetName:
+					String s = new String();
+					if(s.equals("true"))
+						System.out.println("Name successfully set.");
+					else {
+						System.out.println("Cannot set name: " + s);
+						JOptionPane.showMessageDialog(null, "Nome assegnato dal server: " + s, "Info", JOptionPane.INFORMATION_MESSAGE);
+						client.setName(s);
+					}
+					break;
+				
+				case GetTabella:
+					System.out.println("[Server] Asked for table. Sending table to server.");
+					SendTabella();
+					break;
+			
+				default:
+					System.out.println("[NET] Error: \"" + msg.getHeadId() + "\" is not a valid command.");
+					break;
 			}
 		}
 	}
@@ -358,12 +341,6 @@ public class Giocatore extends JFrame {
 		OwnedMessage<MessageType> msg = new OwnedMessage<MessageType>(MessageType.GetTabella);
 		msg.Add(cartelle);
 		client.Send(msg);
-	}
-
-	public static void Notify() {
-		synchronized (Giocatore.readThread) {
-			readThread.notify();
-		}
 	}
 
 	private void Disconnect() {
