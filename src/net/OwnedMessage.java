@@ -16,6 +16,7 @@ public class OwnedMessage<T> implements Serializable {
 		remote = null;
 	}
 
+	@SafeVarargs
 	public <I> OwnedMessage(T id, I... body) {
 		this.msg = new Message<T>(id, body);
 		remote = null;
@@ -31,7 +32,8 @@ public class OwnedMessage<T> implements Serializable {
 		this.remote = remote;
 	}
 
-	public <I> void Add(I... body) {
+	@SafeVarargs
+	public final <I> void Add(I... body) {
 		msg.Add(body);
 	}
 
