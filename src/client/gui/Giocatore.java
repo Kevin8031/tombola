@@ -20,6 +20,8 @@ public class Giocatore extends JFrame {
 	private Client<MessageType> client;
 	private ArrayList<Cartella> cartelle;
 	private ArrayList<Integer> numeriEstratti;
+	private ActionListener read;
+	private Timer readTimer;
 
 	// attributes (GUI)
 	private JFrame parent;
@@ -35,6 +37,12 @@ public class Giocatore extends JFrame {
 		this.parent = parent;
 
 		client = new Client<MessageType>();
+		read = new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				ReadFromServer();
+			}
+		};
+		readTimer = new Timer(75, read);
 		numberList = new DefaultListModel<Integer>();
 		list = new JList<Integer>(numberList);
 		numList = new JScrollPane(list);
@@ -46,7 +54,8 @@ public class Giocatore extends JFrame {
 		icon = Toolkit.getDefaultToolkit().getImage("res/icon.png");
 
 		// init
-		dialogLanServer();
+		serverList = new DefaultListModel<String>();
+		new dialogLanServer(this, serverList, client);
 		
 		// setters (numeroLabel)
 		numeroLabel.setPreferredSize(new Dimension(120, 30));
@@ -176,87 +185,6 @@ public class Giocatore extends JFrame {
 		dialog.setVisible(true);
 	}
 
-	private void dialogLanServer() {
-		final int _WIDTH = 450;
-		final int _HEIGHT = 224;
-
-		JFrame frame = new JFrame();
-		JTextField name = new JTextField();
-		JLabel nameLabel = new JLabel("Username");
-		
-		icon = Toolkit.getDefaultToolkit().getImage("res/icon.png");
-		frame.setIconImage(icon);
-
-		serverList = new DefaultListModel<String>();
-		JList<String> list = new JList<String>(serverList);
-		JScrollPane scroll = new JScrollPane(list);
-
-		client.StartLanSearch();
-
-		nameLabel.setBounds((_WIDTH / 2 - 90) - 80, 1, 120, 30);
-		name.setHorizontalAlignment(JTextField.HORIZONTAL);
-		name.setBounds(_WIDTH / 2 - 90, 1, 180, 30);
-
-		scroll.setBounds(0, 32, _WIDTH, 100);
-
-		frame.setSize(_WIDTH, _HEIGHT);
-		frame.setLayout(null);
-		frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		frame.setLocationRelativeTo(null);
-		frame.setResizable(false);
-
-		frame.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-				ShowWindow(frame);
-			}
-		});
-
-		frame.add(nameLabel);
-		frame.add(name);
-		frame.add(scroll);
-		frame.add(new JButton("Connetti") {
-			{
-				addActionListener(l -> Connect());
-				setBounds((_WIDTH / 2) - 75, 133, 150, 60);
-			}
-
-			private void Connect() {
-				if(list.getSelectedValuesList().size() > 0) {
-					client.setName(name.getText());
-					System.out.println("Name assigned: " + client.getName() + ", pending server approval.");
-
-					String s = list.getSelectedValue();
-					int i = 0;
-					int j;
-					while (i < s.length() - 1) {
-						if(s.charAt(i++) == ' ')
-							break;
-					}
-
-					j = i;
-					while (i < s.length() - 1) {
-						if(s.charAt(i++) == ' ')
-							break;
-					}
-					String port = s.substring(j, i - 1);
-
-					String host = s.substring(i, s.length());
-					if(client.Connect(host, Integer.valueOf(port))) {
-						ShowWindow(frame);
-					}
-					else {
-						parent.setVisible(true);
-						JOptionPane.showMessageDialog(frame, "Impossibile connettersi al server", "Errore", JOptionPane.ERROR_MESSAGE);
-					}
-				} else {
-					JOptionPane.showMessageDialog(frame, "Selezionare un server", "Errore", JOptionPane.ERROR_MESSAGE);
-					System.out.println("No servers selected.");
-				}
-			}
-		});
-		frame.setVisible(true);
-	}
-
 	private void dialogConnectToServer() {
 		JDialog dialog;
 		dialog = new JDialog();
@@ -269,11 +197,7 @@ public class Giocatore extends JFrame {
 
 		dialog.add(host);
 		dialog.add(port);
-		dialog.add(new JButton("Connetti") {
-			{
-				addActionListener(e -> Connect());
-			}
-
+		dialog.add(new JButton("Connetti") { { addActionListener(e -> Connect()); }
 			private void Connect() {
 				client.Connect(host.getText(), Integer.valueOf(port.getText()));
 			}
@@ -345,6 +269,7 @@ public class Giocatore extends JFrame {
 
 	private void Disconnect() {
 		client.Send(new OwnedMessage<MessageType>(MessageType.Disconnect));
+		readTimer.stop();
 		client.Disconnect();
 	}
 }
