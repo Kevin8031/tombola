@@ -87,12 +87,11 @@ public class Client<T> {
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
+
 				// get packet body
-				System.out.println("Multicast message: " + msg);
 				if(msg.getHeadId() == MessageType.LAN_SERVER_DISCOVEY) {
 					msg.Add(recv.getAddress().getHostAddress());
 					qMessageIn.pushFront(msg);
-					Giocatore.Notify();
 				}
 			}
 		} catch (IOException e) {
