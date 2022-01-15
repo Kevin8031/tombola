@@ -130,34 +130,37 @@ public class ServerMain extends Server<MessageType> {
 	public static void main(String[] args) throws InterruptedException {
 		server = new ServerMain();
 
-		Thread updateThread = new Thread(() -> update());
-		updateThread.setName("Update");
+		Thread updateThread = null;
 		Thread.currentThread().setName("MainThread");
 
 		boolean quit = false;
 		Scanner scanner = new Scanner(System.in);
 
 		menu();
-		server.Start();
-		updateThread.start();
+
 		while(!quit) {
 			if(scanner.hasNext()) {
 				String input = scanner.nextLine().toLowerCase();
 				switch (input) {
 					case "start":
 						if(!server.isRunning()) {
+							updateThread = new Thread(() -> update());
+							updateThread.setName("Update");
 							server.Start();
 							update = true;
+							System.out.println(updateThread.getState());
 							updateThread.start();
 						}
 						break;
 
 					case "stop":
-						update = false;
-						synchronized(updateThread) {
-							updateThread.notify();
+						if(server.isRunning()) {
+							update = false;
+							synchronized(updateThread) {
+								updateThread.notify();
+							}
+							server.Stop();
 						}
-						server.Stop();
 						break;
 
 					case "opentolan":
