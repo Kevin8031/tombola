@@ -52,8 +52,8 @@ public class Giocatore extends JFrame {
 		dialogLanServer();
 		
 		// setters (numeroLabel)
-		numeroLabel.setPreferredSize(new Dimension(120, 30));
-		numeroLabel.setBackground(Color.YELLOW);
+		numeroLabel.setPreferredSize(new Dimension(120, 50));
+		numeroLabel.setBackground(Color.WHITE);
 		numeroLabel.setFont(FONT);
 		
 		// setters (frame)
@@ -115,7 +115,7 @@ public class Giocatore extends JFrame {
 
 		// set (leftPanel)
 		leftPanel.setPreferredSize(new Dimension(120, 445));
-		leftPanel.setBackground(Color.YELLOW);
+		leftPanel.setBackground(Color.WHITE);
 		leftPanel.setLayout(new BorderLayout());
 
 		// add (leftPanel)

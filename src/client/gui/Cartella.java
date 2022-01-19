@@ -83,25 +83,24 @@ public class Cartella extends JPanel {
 						caselle[pos].setBackground(Color.WHITE);
 						caselle[pos].setForeground(Color.BLACK);
 						caselle[pos].setFocusable(false);
+						caselle[pos].setEnabled(true);
 						caselle[pos].setFont(new Font("Roboto", Font.BOLD, 20));
 						caselle[pos].addActionListener(e -> ControllaNumero(e));
 						caselle[pos].setName(String.valueOf(pos));
 						caselle[pos].addMouseListener(new MouseAdapter() {
-							Color c = null;
 							public void mouseEntered(MouseEvent evt) {
-								if(caselle[pos].isEnabled()) {
-									c = caselle[pos].getBackground();
+								if(!(caselle[pos].getBackground().equals(Color.BLACK)))
 									caselle[pos].setBackground(color);
-								}
 							}
 							
 							public void mouseExited(MouseEvent evt) {
-								if(caselle[pos].isEnabled())
-									caselle[pos].setBackground(c);
+								if(!(caselle[pos].getBackground().equals(Color.BLACK)))
+									caselle[pos].setBackground(Color.WHITE);
 							}
 
 							public void mouseReleased(MouseEvent evt) {
-								c = caselle[pos].getBackground();
+								caselle[pos].setBackground(Color.BLACK);
+								caselle[pos].setForeground(Color.WHITE);
 							}
 						});
 					}

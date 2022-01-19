@@ -1,5 +1,6 @@
 package client.gui;
 import javax.swing.*;
+import javax.swing.border.Border;
 
 import client.game.Tabellone;
 
@@ -13,13 +14,15 @@ import net.Message;
 import net.MessageType;
 import net.Server;
 public class Master extends Tabellone {
+	// constants
+	final private Dimension dim = new Dimension(35, 20);
+	final private Color color = new Color(192, 202, 202);
+
 	// attributes (GUI)
 	private JFrame frame;
 	private JPanel centerPanel;
-	private JPanel leftPanel;
 	private JPanel topPanel;
 	private JPanel buttonPanel;
-	private JPanel panel1;
 	private JLabel numero;
 	private GridLayout griglia;
 	private Tabellone tabellone;
@@ -27,6 +30,7 @@ public class Master extends Tabellone {
 	private Image image;
 	private static Thread readThread;
 	private boolean retry = true;
+	private Border blackline;
 	
 	// attributes (Network)
 	private Server<MessageType> server;
@@ -35,34 +39,23 @@ public class Master extends Tabellone {
 	public Master(JFrame parent) {
 		frame = new JFrame("Tombola");
 		centerPanel = new JPanel();
-		leftPanel = new JPanel();
 		topPanel = new JPanel();
 		buttonPanel = new JPanel();
-		panel1 = new JPanel();
 		numero = new JLabel("-Numero Uscito-");
-		griglia = new GridLayout(9, 10, 5, 5);
+		griglia = new GridLayout(9, 10);
 		tabellone = new Tabellone();
 		caselle = new JButton[90];
 		numeriEstratti = new ArrayList<Integer>(90);
 		readThread = new Thread(() -> ReadFromClient());
 		readThread.setName("ReadThread");
 		server = new Server<MessageType>();
+		blackline = BorderFactory.createLineBorder(Color.BLACK, 1);
 		
 		// setters (frame)
-		frame.setSize(600, 350);
+		frame.setSize(750, 500);
 		frame.setLayout(new BorderLayout());
 		image = Toolkit.getDefaultToolkit().getImage("res/icon.png");
 		frame.setIconImage(image);
-		
-		// setters (panel1)
-		panel1.setBackground(Color.gray);
-		panel1.add(new JButton("Genera Numero") {
-			{
-				addActionListener(e -> GeneraNumero());
-			}
-		});
-		panel1.add(numero);
-		panel1.setLayout(new GridLayout());
 		
 		buttonPanel.setBackground(Color.darkGray);
 		buttonPanel.setLayout(griglia);
@@ -70,25 +63,50 @@ public class Master extends Tabellone {
 		GeneraTabella();
 
 		// setters (-Panel)
-		centerPanel.setSize(new Dimension(100, 100));
-		centerPanel.add(buttonPanel);
 		centerPanel.setBackground(Color.BLUE);
 		centerPanel.setLayout(new GridLayout());
+		centerPanel.add(buttonPanel);
 
-		leftPanel.setSize(110, 100);
-
-		topPanel.setSize(100, 100);
+		topPanel.setPreferredSize(new Dimension(frame.getX(), 60));
+		topPanel.setLayout(new FlowLayout(4 /* CENTER */, 65, 5));
 		topPanel.add(new JButton("Genera Numero") {
 			{
+				setBackground(Color.WHITE);
+				setForeground(Color.BLACK);
+				setPreferredSize(new Dimension(180, 50));
+				setFont(new Font("Roboto", Font.BOLD, 17));
+				setFocusable(false);
+				setEnabled(true);
 				addActionListener(e -> GeneraNumero());
+				addMouseListener(new MouseAdapter() {
+					Color c = null;
+					public void mouseEntered(MouseEvent evt) {
+						c = getBackground();
+						setBackground(color);
+					}
+					
+					public void mouseExited(MouseEvent evt) {
+						setBackground(c);
+					}
+				});
 			}
 		});
-
-		frame.add(leftPanel, BorderLayout.WEST);
-		frame.add(centerPanel, BorderLayout.CENTER);
+		topPanel.add(new JButton("Mostra Giocatori") {
+		 	{
+				setBackground(Color.WHITE);
+				setForeground(Color.BLACK);
+				setFont(new Font("Roboto", Font.BOLD, 13));
+				setPreferredSize(new Dimension(150, 30));
+				setFocusable(false);
+				setEnabled(true);
+		 		addActionListener(e -> ListClients());
+		 	}
+		});
+		
 		frame.add(topPanel, BorderLayout.NORTH);
+		frame.add(centerPanel, BorderLayout.CENTER);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
+		
 		// MenuBar
 		frame.setJMenuBar(new JMenuBar() {
 			{
@@ -127,16 +145,11 @@ public class Master extends Tabellone {
 					}
 				});
 
-				add(new JMenu("Partita") {
+				add(new JMenu("Reset") {
 					{
-						add(new JMenuItem("Reset") {
+						add(new JMenuItem("Resetta Partita") {
 							{
 								addActionListener(e -> ResetAll());
-							}
-						});
-						add(new JMenuItem("Show Clients") {
-							{
-								addActionListener(e -> ListClients());
 							}
 						});
 					}
@@ -151,7 +164,9 @@ public class Master extends Tabellone {
 			}
 		});
 
+		frame.setLocationRelativeTo(parent);
 		frame.setVisible(true);
+		frame.setResizable(false);
 		server.Start(true);
 		readThread.start();
 	}
@@ -159,9 +174,33 @@ public class Master extends Tabellone {
 	// methods (GUI)
 	private void GeneraTabella() {
 		for(int i = 0; i < tabellone.getTabella().length; i++) {
-			caselle[i] = new JButton(String.valueOf(i + 1));
-			caselle[i].addActionListener(l -> CheatNumero(l));
-			buttonPanel.add(caselle[i]);
+			int pos = i;
+			caselle[pos] = new JButton(String.valueOf(pos + 1));
+			caselle[pos].setPreferredSize(dim);
+			caselle[pos].setBorder(blackline);
+			caselle[pos].setBackground(Color.WHITE);
+			caselle[pos].setForeground(Color.BLACK);
+			caselle[pos].setFocusable(false);
+			caselle[pos].setEnabled(true);
+			caselle[pos].setFont(new Font("Roboto", Font.BOLD, 15));
+			caselle[pos].addActionListener(l -> CheatNumero(l));
+			caselle[pos].addMouseListener(new MouseAdapter() {
+				public void mouseEntered(MouseEvent evt) {
+					if(!(caselle[pos].getBackground().equals(Color.BLACK)))
+						caselle[pos].setBackground(color);
+				}
+
+				public void mouseExited(MouseEvent evt) {
+					if(!(caselle[pos].getBackground().equals(Color.BLACK)))
+						caselle[pos].setBackground(Color.WHITE);
+				}
+
+				public void mouseReleased(MouseEvent evt) {
+					caselle[pos].setBackground(Color.BLACK);
+					caselle[pos].setForeground(Color.WHITE);
+				}
+			});
+			buttonPanel.add(caselle[pos]);
 		}
 	}
 
@@ -277,7 +316,7 @@ public class Master extends Tabellone {
 
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		dialog.setSize(400, 150);
-
+		dialog.setLocationRelativeTo(frame);
 		dialog.add(scroll);
 
 		dialog.setVisible(true);
