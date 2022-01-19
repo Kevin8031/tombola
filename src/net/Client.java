@@ -17,10 +17,10 @@ public class Client<T> {
 	private boolean searchGame;
 
 	private Connection<T> connection;
-	private Queue<T> qMessageIn;
+	private TsQueue<T> qMessageIn;
 
 	public Client() {
-		qMessageIn = new Queue<T>();
+		qMessageIn = new TsQueue<T>();
 	}
 
 	public boolean Connect(String host, int port) {
@@ -50,12 +50,12 @@ public class Client<T> {
 			return false;
 	}
 
-	public void Send(Message<T> msg) {
+	public void Send(OwnedMessage<T> msg) {
 		if(IsConnected())
 			connection.Send(msg);
 	}
 
-	public Queue<T> Incoming() {
+	public TsQueue<T> Incoming() {
 		return qMessageIn;
 	}
 
@@ -87,12 +87,11 @@ public class Client<T> {
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
+
 				// get packet body
-				System.out.println("Multicast message: " + msg);
 				if(msg.getHeadId() == MessageType.LAN_SERVER_DISCOVEY) {
 					msg.Add(recv.getAddress().getHostAddress());
 					qMessageIn.pushFront(msg);
-					Giocatore.Notify();
 				}
 			}
 		} catch (IOException e) {
@@ -108,9 +107,7 @@ public class Client<T> {
 				multicastSocket.close();
 				System.out.println("Stopped searching for a game.");
 				multicastSocket = null;
-			} catch (Exception e) {
-				System.err.println(e);
-			}
+			} catch (Exception e) {}
 		} else
 			System.out.println("Lan search already stopped.");
 	}
@@ -120,6 +117,7 @@ public class Client<T> {
 	}
 
 	public void setName(String name) {
-		connection.name = name;
+		if(connection != null)
+			connection.name = name;
 	}
 }

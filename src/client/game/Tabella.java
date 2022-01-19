@@ -43,7 +43,7 @@ public class Tabella implements Serializable{
 						if(tabella[i + RIGHE * j] == -1)
 							if(random.nextInt(2) == 1) {
 								do
-									numeroGen = GeneraNumero(i + RIGHE * j);
+									numeroGen = GeneraNumero(j);
 								while(Duplicato(numeroGen));
 
 								tabella[i + RIGHE * j] = numeroGen;
@@ -57,27 +57,17 @@ public class Tabella implements Serializable{
 		Sort();
 	}
 
-	private int GeneraNumero(int num) {
+	private int GeneraNumero(int col) {
 		Random random = new Random();
-
-		if(num < 3)
-			return random.nextInt(9) + 1;
-		else if(num < 6)
-			return random.nextInt(10) + 10;
-		else if(num < 9)
-			return random.nextInt(10) + 20;
-		else if(num < 12)
-			return random.nextInt(10) + 30;
-		else if(num < 15)
-			return random.nextInt(10) + 40;
-		else if(num < 18)
-			return random.nextInt(10) + 50;
-		else if(num < 21)
-			return random.nextInt(10) + 60;
-		else if(num < 24)
-			return random.nextInt(10) + 70;
+		int n;
+		if(col == 0)
+			n = 9;
+		else if(col == 8)
+			n = 11;
 		else
-			return random.nextInt(10 + 1) + 80;
+			n = 10;
+		
+		return random.nextInt(n) + col * 10;
 	}
 
 	private boolean Duplicato(int num) {
